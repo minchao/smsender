@@ -1,13 +1,19 @@
 package main
 
 import (
-	"os"
-	
+	log "github.com/Sirupsen/logrus"
 	"github.com/minchao/smsender/smsender"
 	"github.com/minchao/smsender/smsender/api"
+	config "github.com/spf13/viper"
 )
 
 func main() {
+	config.SetConfigName("config")
+	config.AddConfigPath(".")
+	err := config.ReadInConfig()
+	if err != nil {
+		log.Fatalf("Fatal error config file: %s", err)
+	}
 
 	broker := smsender.NewDummyBroker("dummy")
 
@@ -16,6 +22,6 @@ func main() {
 	sender.AddRoute("dummy", `.*`, broker.Name())
 	go sender.Run()
 
-	server := api.NewServer(os.Getenv("API_ADDR"), sender)
+	server := api.NewServer(config.GetString("api.addr"), sender)
 	server.Run()
 }
