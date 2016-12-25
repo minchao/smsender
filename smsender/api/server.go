@@ -7,7 +7,6 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/minchao/smsender/smsender"
 	"github.com/urfave/negroni"
-	"gopkg.in/go-playground/validator.v9"
 )
 
 type Message struct {
@@ -21,10 +20,9 @@ type Result struct {
 }
 
 type Server struct {
-	addr     string
-	sender   *smsender.Sender
-	in       chan *smsender.Message
-	validate *validator.Validate
+	addr   string
+	sender *smsender.Sender
+	in     chan *smsender.Message
 }
 
 func NewServer(addr string, sender *smsender.Sender) *Server {
