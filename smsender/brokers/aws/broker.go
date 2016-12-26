@@ -45,21 +45,39 @@ func (b Broker) Name() string {
 
 func (b Broker) Send(msg smsender.Message) {
 	req, resp := b.svc.PublishRequest(&sns.PublishInput{
-		Message: aws.String(msg.Body),
+		Message: aws.String(msg.Data.Body),
 		MessageAttributes: map[string]*sns.MessageAttributeValue{
 			"Key": { // Required
 				DataType:    aws.String("String"), // Required
 				StringValue: aws.String("String"),
 			},
 		},
-		PhoneNumber: aws.String(msg.Recipient),
+		PhoneNumber: aws.String(msg.Data.To),
 	})
+
+	result := smsender.Result{
+		Data:   msg.Data,
+		Route:  msg.Route,
+		Broker: b.Name(),
+	}
 
 	err := req.Send()
 
 	if err != nil {
+		result.Status = smsender.StatusFailed.String()
+
 		log.Errorf("broker '%s' send message failed: %v", b.Name(), err)
 	} else {
+		result.Id = *resp.MessageId
+		result.Status = smsender.StatusSent.String()
+
 		log.Infof("broker '%s' send message: %+v, %+v", b.Name(), msg, resp)
 	}
+
+	b.Result(msg.Result, result)
+}
+
+func (b Broker) Result(c chan smsender.Result, r smsender.Result) {
+	c <- r
+	close(c)
 }

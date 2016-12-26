@@ -90,7 +90,8 @@ func (s *Sender) Run() {
 
 func (s *Sender) walk(msg *Message) {
 	for _, r := range s.routes {
-		if r.Match(msg.Recipient) {
+		if r.Match(msg.Data.To) {
+			msg.Route = r.Name
 			r.Broker.Send(*msg)
 			return
 		}

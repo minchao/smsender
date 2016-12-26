@@ -10,32 +10,28 @@ import (
 )
 
 type Message struct {
-	Recipient  string `json:"recipient" validate:"required"` // Validate E.164 format
-	Body       string `json:"body" validate:"required"`
-	Originator string `json:"originator"`
-}
-
-type Result struct {
-	Message Message `json:"message"`
+	To   string `json:"to" validate:"required"` // Validate E.164 format
+	From string `json:"from"`
+	Body string `json:"body" validate:"required"`
 }
 
 type Server struct {
 	addr   string
 	sender *smsender.Sender
-	in     chan *smsender.Message
+	out    chan *smsender.Message
 }
 
 func NewServer(addr string, sender *smsender.Sender) *Server {
 	server := Server{
 		addr:   addr,
 		sender: sender,
-		in:     make(chan *smsender.Message, 1000),
+		out:    make(chan *smsender.Message, 1000),
 	}
 	return &server
 }
 
 func (s *Server) Run() {
-	go s.sender.Stream(s.in)
+	go s.sender.Stream(s.out)
 
 	r := mux.NewRouter().StrictSlash(true)
 	r.HandleFunc("/", s.Hello).Methods("GET")
@@ -66,12 +62,17 @@ func (s *Server) Send(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s.in <- &smsender.Message{
-		Recipient:  msg.Recipient,
-		Body:       msg.Body,
-		Originator: msg.Originator,
+	resultChan := make(chan smsender.Result, 1)
+	s.out <- &smsender.Message{
+		Data: smsender.Data{
+			To:   msg.To,
+			From: msg.From,
+			Body: msg.Body,
+		},
+		Result: resultChan,
 	}
 
-	// TODO result
-	render(w, 200, Result{msg})
+	result := <-resultChan
+
+	render(w, 200, result)
 }

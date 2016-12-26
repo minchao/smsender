@@ -1,12 +1,16 @@
 package smsender
 
 import (
+	"strconv"
+	"time"
+
 	log "github.com/Sirupsen/logrus"
 )
 
 type Broker interface {
 	Name() string
 	Send(msg Message)
+	Result(c chan Result, r Result)
 }
 
 type DummyBroker struct {
@@ -25,4 +29,18 @@ func (b DummyBroker) Name() string {
 
 func (b DummyBroker) Send(msg Message) {
 	log.Infof("broker '%s' send message: %+v", b.Name(), msg)
+
+	b.Result(msg.Result, Result{
+		Id:        strconv.FormatInt(time.Now().UnixNano(), 10),
+		Data:      msg.Data,
+		Route:     msg.Route,
+		Broker:    b.Name(),
+		Status:    StatusSent.String(),
+		RawStatus: StatusSent.String(),
+	})
+}
+
+func (b DummyBroker) Result(c chan Result, r Result) {
+	c <- r
+	close(c)
 }
