@@ -2,6 +2,9 @@
     "api": {
         "addr": ":8080"
     },
+    "worker": {
+        "num": 100
+    },
     "brokers": {
     }
 }

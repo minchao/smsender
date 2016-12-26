@@ -10,17 +10,21 @@ const DefaultBroker = "_default_"
 var senderSingleton Sender
 
 type Sender struct {
-	routes  []*Route
-	brokers map[string]Broker
-	in      chan *Message
-	mutex   sync.Mutex
-	init    sync.Once
+	routes    []*Route
+	brokers   map[string]Broker
+	in        chan *Message
+	out       chan *Message
+	workerNum int
+	mutex     sync.Mutex
+	init      sync.Once
 }
 
-func SMSender() *Sender {
+func SMSender(workerNum int) *Sender {
 	senderSingleton.init.Do(func() {
 		senderSingleton.brokers = make(map[string]Broker)
 		senderSingleton.in = make(chan *Message, 1000)
+		senderSingleton.out = make(chan *Message, 1000)
+		senderSingleton.workerNum = workerNum
 
 		senderSingleton.AddBroker(NewDummyBroker(DefaultBroker))
 	})
@@ -80,21 +84,19 @@ func (s *Sender) Stream(from chan *Message) {
 }
 
 func (s *Sender) Run() {
+	for i := 0; i < s.workerNum; i++ {
+		w := worker{i, s}
+		go func(w worker) {
+			for msg := range s.out {
+				w.process(msg)
+			}
+		}(w)
+	}
+
 	for {
 		select {
 		case msg := <-s.in:
-			go s.walk(msg)
+			s.out <- msg
 		}
 	}
-}
-
-func (s *Sender) walk(msg *Message) {
-	for _, r := range s.routes {
-		if r.Match(msg.Data.To) {
-			msg.Route = r.Name
-			r.Broker.Send(*msg)
-			return
-		}
-	}
-	s.GetBroker(DefaultBroker).Send(*msg)
 }
