@@ -57,7 +57,7 @@ func (b Broker) Send(msg smsender.Message) {
 
 			result.Id = message.MessageID
 			result.Status = convertStatus(message.Status.String()).String()
-			result.RawStatus = message.Status.String()
+			result.Original = resp
 		}
 
 		log.Infof("broker '%s' send message: %+v, %+v", b.Name(), msg, resp)

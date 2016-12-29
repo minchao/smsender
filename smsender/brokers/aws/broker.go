@@ -70,6 +70,7 @@ func (b Broker) Send(msg smsender.Message) {
 	} else {
 		result.Id = *resp.MessageId
 		result.Status = smsender.StatusSent.String()
+		result.Original = resp
 
 		log.Infof("broker '%s' send message: %+v, %+v", b.Name(), msg, resp)
 	}

@@ -31,10 +31,10 @@ type Data struct {
 type Result struct {
 	Id string `json:"id,omitempty"`
 	Data
-	Route     string `json:"route"`
-	Broker    string `json:"broker"`
-	Status    string `json:"status"`
-	RawStatus string `json:"raw_status,omitempty"`
+	Route    string      `json:"route"`
+	Broker   string      `json:"broker"`
+	Status   string      `json:"status"`
+	Original interface{} `json:"original"`
 }
 
 type Message struct {
