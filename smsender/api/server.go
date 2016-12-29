@@ -11,7 +11,7 @@ import (
 )
 
 type Message struct {
-	To   string `json:"to" validate:"required"` // Validate E.164 format
+	To   string `json:"to" validate:"required,phone"`
 	From string `json:"from"`
 	Body string `json:"body" validate:"required"`
 }
@@ -57,7 +57,9 @@ func (s *Server) Routes(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) Send(w http.ResponseWriter, r *http.Request) {
 	var msg Message
-	err := getInput(r.Body, &msg, newValidate())
+	var validate = newValidate()
+	validate.RegisterValidation("phone", isPhoneNumber)
+	err := getInput(r.Body, &msg, validate)
 	if err != nil {
 		render(w, http.StatusBadRequest, formErrorMessage(err))
 		return

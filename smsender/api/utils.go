@@ -6,8 +6,6 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
-	"reflect"
-	"strings"
 
 	"gopkg.in/go-playground/validator.v9"
 )
@@ -15,18 +13,6 @@ import (
 type errorMessage struct {
 	Error            string      `json:"error"`
 	ErrorDescription interface{} `json:"error_description,omitempty"`
-}
-
-func newValidate() *validator.Validate {
-	validate := validator.New()
-	validate.RegisterTagNameFunc(func(fld reflect.StructField) string {
-		name := strings.SplitN(fld.Tag.Get("json"), ",", 2)[0]
-		if name == "-" {
-			return ""
-		}
-		return name
-	})
-	return validate
 }
 
 func getInput(body io.Reader, to interface{}, v *validator.Validate) error {
@@ -55,7 +41,7 @@ func formErrorMessage(err error) errorMessage {
 	case validator.ValidationErrors:
 		errors := map[string]interface{}{}
 		for _, v := range err.(validator.ValidationErrors) {
-			errors[v.Field()] = fmt.Sprintf("Invalid validation on tag %s: %s", v.Field(), v.Tag())
+			errors[v.Field()] = fmt.Sprintf("Invalid validation on field %s: %s", v.Field(), v.Tag())
 		}
 		description = errors
 	default:
