@@ -6,6 +6,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/gorilla/mux"
 	"github.com/minchao/smsender/smsender"
+	"github.com/rs/xid"
 	"github.com/urfave/negroni"
 )
 
@@ -65,6 +66,7 @@ func (s *Server) Send(w http.ResponseWriter, r *http.Request) {
 	resultChan := make(chan smsender.Result, 1)
 	s.out <- &smsender.Message{
 		Data: smsender.Data{
+			Id:   xid.New().String(),
 			To:   msg.To,
 			From: msg.From,
 			Body: msg.Body,

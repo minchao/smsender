@@ -23,13 +23,13 @@ var statusCodeMap = map[StatusCode]string{
 }
 
 type Data struct {
+	Id   string `json:"id"`
 	To   string `json:"to"`
 	From string `json:"from"`
 	Body string `json:"body"`
 }
 
 type Result struct {
-	Id string `json:"id,omitempty"`
 	Data
 	Route    string      `json:"route"`
 	Broker   string      `json:"broker"`
