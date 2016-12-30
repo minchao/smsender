@@ -42,3 +42,12 @@ type Message struct {
 	Route  string
 	Result chan Result
 }
+
+func NewResult(msg Message, broker Broker) *Result {
+	return &Result{
+		Data:   msg.Data,
+		Route:  msg.Route,
+		Broker: broker.Name(),
+		Status: StatusUnknown.String(),
+	}
+}

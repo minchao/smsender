@@ -27,12 +27,10 @@ func (b DummyBroker) Name() string {
 func (b DummyBroker) Send(msg Message) {
 	log.Infof("broker '%s' send message: %+v", b.Name(), msg)
 
-	b.Result(msg.Result, Result{
-		Data:   msg.Data,
-		Route:  msg.Route,
-		Broker: b.Name(),
-		Status: StatusSent.String(),
-	})
+	result := NewResult(msg, b)
+	result.Status = StatusSent.String()
+
+	b.Result(msg.Result, *result)
 }
 
 func (b DummyBroker) Result(c chan Result, r Result) {

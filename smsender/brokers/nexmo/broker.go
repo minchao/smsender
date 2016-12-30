@@ -33,17 +33,12 @@ func (b Broker) Name() string {
 }
 
 func (b Broker) Send(msg smsender.Message) {
+	result := smsender.NewResult(msg, b)
 	message := &nexmo.SMSMessage{
 		From: msg.Data.From,
 		To:   msg.Data.To,
 		Type: nexmo.Unicode,
 		Text: msg.Data.Body,
-	}
-
-	result := smsender.Result{
-		Data:   msg.Data,
-		Route:  msg.Route,
-		Broker: b.Name(),
 	}
 
 	resp, err := b.client.SMS.Send(message)
@@ -63,7 +58,7 @@ func (b Broker) Send(msg smsender.Message) {
 		log.Infof("broker '%s' send message: %+v, %+v", b.Name(), msg, resp)
 	}
 
-	b.Result(msg.Result, result)
+	b.Result(msg.Result, *result)
 }
 
 func (b Broker) Result(c chan smsender.Result, r smsender.Result) {
