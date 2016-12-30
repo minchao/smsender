@@ -1,6 +1,9 @@
 {
     "api": {
-        "addr": ":8080"
+        "addr": ":8080",
+        "tls": false,
+        "tlsCertFile": "",
+        "tlsKeyFile": ""
     },
     "worker": {
         "num": 100

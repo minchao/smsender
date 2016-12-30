@@ -7,6 +7,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/minchao/smsender/smsender"
 	"github.com/rs/xid"
+	config "github.com/spf13/viper"
 	"github.com/urfave/negroni"
 )
 
@@ -16,15 +17,18 @@ type Message struct {
 	Body string `json:"body" validate:"required"`
 }
 
+type TLSConfig struct {
+	CertFile string
+	KeyFile  string
+}
+
 type Server struct {
-	addr   string
 	sender *smsender.Sender
 	out    chan *smsender.Message
 }
 
-func NewServer(addr string, sender *smsender.Sender) *Server {
+func NewServer(sender *smsender.Sender) *Server {
 	server := Server{
-		addr:   addr,
 		sender: sender,
 		out:    make(chan *smsender.Message, 1000),
 	}
@@ -43,8 +47,17 @@ func (s *Server) Run() {
 	n.UseFunc(logger)
 	n.UseHandler(r)
 
-	log.Infof("Listening for HTTP on %s", s.addr)
-	log.Fatal(http.ListenAndServe(s.addr, n))
+	addr := config.GetString("api.addr")
+	if config.GetBool("api.tls") {
+		log.Infof("Listening for HTTPS on %s", addr)
+		log.Fatal(http.ListenAndServeTLS(addr,
+			config.GetString("api.tlsCertFile"),
+			config.GetString("api.tlsKeyFile"),
+			n))
+	} else {
+		log.Infof("Listening for HTTP on %s", addr)
+		log.Fatal(http.ListenAndServe(addr, n))
+	}
 }
 
 func (s *Server) Hello(w http.ResponseWriter, r *http.Request) {
