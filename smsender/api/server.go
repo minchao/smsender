@@ -17,11 +17,6 @@ type Message struct {
 	Body string `json:"body" validate:"required"`
 }
 
-type TLSConfig struct {
-	CertFile string
-	KeyFile  string
-}
-
 type Server struct {
 	sender *smsender.Sender
 	out    chan *smsender.Message
