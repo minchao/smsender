@@ -50,7 +50,6 @@ func (b Broker) Send(msg smsender.Message) {
 		if resp.MessageCount > 0 {
 			message := resp.Messages[0]
 
-			result.Id = message.MessageID
 			result.Status = convertStatus(message.Status.String()).String()
 			result.Original = resp
 		}
