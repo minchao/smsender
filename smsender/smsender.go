@@ -52,13 +52,16 @@ func (s *Sender) GetBroker(name string) Broker {
 	return nil
 }
 
-func (s *Sender) AddRoute(name, pattern, brokerName string) {
+func (s *Sender) AddRoute(route *Route) {
+	s.routes = append(s.routes, route)
+}
+
+func (s *Sender) AddRouteWith(name, pattern, brokerName, from string) {
 	broker := s.GetBroker(brokerName)
 	if broker == nil {
 		return
 	}
-
-	s.routes = append(s.routes, NewRoute(name, pattern, broker))
+	s.routes = append(s.routes, NewRoute(name, pattern, broker).SetFrom(from))
 }
 
 func (s *Sender) GetRoute(name string) *Route {

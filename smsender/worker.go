@@ -14,6 +14,9 @@ func (w worker) process(msg *Message) {
 
 	for _, r := range w.sender.routes {
 		if r.Match(msg.Data.To) {
+			if msg.Data.From == "" && r.From != "" {
+				msg.Data.From = r.From
+			}
 			msg.Route = r.Name
 
 			r.Broker.Send(*msg)

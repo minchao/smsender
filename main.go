@@ -19,7 +19,7 @@ func main() {
 
 	sender := smsender.SMSender(config.GetInt("worker.num"))
 	sender.AddBroker(broker)
-	sender.AddRoute("dummy", `.*`, broker.Name())
+	sender.AddRouteWith("dummy", `.*`, broker.Name(), "dummy")
 	go sender.Run()
 
 	server := api.NewServer(sender)
