@@ -16,13 +16,13 @@ type Config struct {
 	Secret string
 }
 
-func (c Config) NewBroker(name string) Broker {
+func (c Config) NewBroker(name string) *Broker {
 	client, err := nexmo.NewClientFromAPI(c.Key, c.Secret)
 	if err != nil {
 		log.Fatalf("Could not create the aws session: %s", err)
 	}
 
-	return Broker{
+	return &Broker{
 		name:   name,
 		client: client,
 	}

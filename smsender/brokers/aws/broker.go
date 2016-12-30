@@ -20,7 +20,7 @@ type Config struct {
 	Secret string
 }
 
-func (c Config) NewBroker(name string) Broker {
+func (c Config) NewBroker(name string) *Broker {
 	sess, err := session.NewSession(&aws.Config{
 		Region: aws.String(c.Region),
 		Credentials: credentials.NewStaticCredentials(
@@ -33,7 +33,7 @@ func (c Config) NewBroker(name string) Broker {
 		log.Fatalf("Could not create the aws session: %s", err)
 	}
 
-	return Broker{
+	return &Broker{
 		name: name,
 		svc:  sns.New(sess),
 	}

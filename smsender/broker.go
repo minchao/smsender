@@ -14,8 +14,8 @@ type DummyBroker struct {
 	name string
 }
 
-func NewDummyBroker(name string) DummyBroker {
-	return DummyBroker{
+func NewDummyBroker(name string) *DummyBroker {
+	return &DummyBroker{
 		name: name,
 	}
 }
