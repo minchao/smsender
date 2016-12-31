@@ -29,7 +29,7 @@ func (s *Server) Run() {
 	r := mux.NewRouter().StrictSlash(true)
 	r.HandleFunc("/", s.Hello).Methods("GET")
 	r.HandleFunc("/routes", s.Routes).Methods("GET")
-	r.HandleFunc("/send", s.Send).Methods("POST")
+	r.HandleFunc("/messages", s.MessagesPost).Methods("POST")
 
 	n := negroni.New()
 	n.UseFunc(logger)

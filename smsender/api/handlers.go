@@ -15,13 +15,13 @@ func (s *Server) Routes(w http.ResponseWriter, r *http.Request) {
 }
 
 type Message struct {
-	To    string `json:"to" validate:"required,phone"`
-	From  string `json:"from"`
-	Body  string `json:"body" validate:"required"`
-	Async bool   `json:"async,omitempty"`
+	To    []string `json:"to" validate:"required,dive,phone"`
+	From  string   `json:"from"`
+	Body  string   `json:"body" validate:"required"`
+	Async bool     `json:"async,omitempty"`
 }
 
-func (s *Server) Send(w http.ResponseWriter, r *http.Request) {
+func (s *Server) MessagesPost(w http.ResponseWriter, r *http.Request) {
 	var msg Message
 	var validate = newValidate()
 	validate.RegisterValidation("phone", isPhoneNumber)
@@ -32,18 +32,36 @@ func (s *Server) Send(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var (
-		message      = smsender.NewMessage(msg.To, msg.From, msg.Body, msg.Async)
-		messageClone = *message
+		count         = len(msg.To)
+		resultChans   = make([]<-chan smsender.Result, count)
+		messageClones = []smsender.Message{}
+		results       = []smsender.Result{}
 	)
 
-	s.out <- message
-
-	if msg.Async {
-		render(w, 200, *smsender.NewAsyncResult(messageClone))
-		return
+	if count > 100 {
+		msg.Async = true
 	}
 
-	result := <-message.Result
+	for i := 0; i < count; i++ {
+		message := smsender.NewMessage(msg.To[i], msg.From, msg.Body, msg.Async)
+		resultChans[i] = message.Result
+		messageClones = append(messageClones, *message)
 
-	render(w, 200, result)
+		s.out <- message
+	}
+
+	if msg.Async {
+		for _, message := range messageClones {
+			results = append(results, *smsender.NewAsyncResult(message))
+		}
+	} else {
+		for _, c := range resultChans {
+			select {
+			case result := <-c:
+				results = append(results, result)
+			}
+		}
+	}
+
+	render(w, 200, results)
 }
