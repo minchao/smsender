@@ -43,8 +43,7 @@ func (b Broker) Name() string {
 	return b.name
 }
 
-func (b Broker) Send(msg smsender.Message) {
-	result := smsender.NewResult(msg, b)
+func (b Broker) Send(msg *smsender.Message, result *smsender.Result) {
 	req, resp := b.svc.PublishRequest(&sns.PublishInput{
 		Message: aws.String(msg.Body),
 		MessageAttributes: map[string]*sns.MessageAttributeValue{
@@ -68,11 +67,4 @@ func (b Broker) Send(msg smsender.Message) {
 
 		log.Infof("broker '%s' send message: %+v, %+v", b.Name(), msg, resp)
 	}
-
-	b.Result(msg.Result, *result)
-}
-
-func (b Broker) Result(c chan smsender.Result, r smsender.Result) {
-	c <- r
-	close(c)
 }

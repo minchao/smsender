@@ -27,10 +27,11 @@ var statusCodeMap = map[StatusCode]string{
 }
 
 type Data struct {
-	Id   string `json:"id"`
-	To   string `json:"to"`
-	From string `json:"from"`
-	Body string `json:"body"`
+	Id    string `json:"id"`
+	To    string `json:"to"`
+	From  string `json:"from"`
+	Body  string `json:"body"`
+	Async bool   `json:"async,omitempty"`
 }
 
 type Result struct {
@@ -47,8 +48,8 @@ type Message struct {
 	Result chan Result
 }
 
-func NewMessage(to, from, body string) *Message {
-	return &Message{
+func NewMessage(to, from, body string, async bool) *Message {
+	message := Message{
 		Data: Data{
 			Id:   xid.New().String(),
 			To:   to,
@@ -56,15 +57,34 @@ func NewMessage(to, from, body string) *Message {
 			Body: body,
 		},
 		Route:  StatusUnknown.String(),
-		Result: make(chan Result, 1),
+		Result: nil,
 	}
+	if async {
+		message.Async = true
+	} else {
+		message.Result = make(chan Result, 1)
+	}
+	return &message
 }
 
-func NewResult(msg Message, broker Broker) *Result {
+func NewResult(msg Message, broker string) *Result {
 	return &Result{
 		Data:   msg.Data,
 		Route:  msg.Route,
-		Broker: broker.Name(),
+		Broker: broker,
 		Status: StatusUnknown.String(),
 	}
+}
+
+func NewAsyncResult(msg Message) *Result {
+	result := Result{
+		Data:   msg.Data,
+		Route:  StatusUnknown.String(),
+		Broker: StatusUnknown.String(),
+		Status: StatusQueued.String(),
+	}
+	if msg.From == "" {
+		result.From = StatusUnknown.String()
+	}
+	return &result
 }

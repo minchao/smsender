@@ -27,9 +27,7 @@ func (b Broker) Name() string {
 	return b.name
 }
 
-func (b Broker) Send(msg smsender.Message) {
-	result := smsender.NewResult(msg, b)
-
+func (b Broker) Send(msg *smsender.Message, result *smsender.Result) {
 	resp, err := twilio.NewMessage(
 		b.client,
 		msg.From,
@@ -47,13 +45,6 @@ func (b Broker) Send(msg smsender.Message) {
 
 		log.Infof("broker '%s' send message: %+v, %+v", b.Name(), msg, resp)
 	}
-
-	b.Result(msg.Result, *result)
-}
-
-func (b Broker) Result(c chan smsender.Result, r smsender.Result) {
-	c <- r
-	close(c)
 }
 
 func convertStatus(rawStatus string) smsender.StatusCode {

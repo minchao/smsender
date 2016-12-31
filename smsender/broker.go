@@ -6,8 +6,7 @@ import (
 
 type Broker interface {
 	Name() string
-	Send(msg Message)
-	Result(c chan Result, r Result)
+	Send(msg *Message, result *Result)
 }
 
 type DummyBroker struct {
@@ -24,16 +23,8 @@ func (b DummyBroker) Name() string {
 	return b.name
 }
 
-func (b DummyBroker) Send(msg Message) {
-	log.Infof("broker '%s' send message: %+v", b.Name(), msg)
+func (b DummyBroker) Send(msg *Message, result *Result) {
+	log.Infof("broker '%s' send message: %+v", b.Name(), *msg)
 
-	result := NewResult(msg, b)
 	result.Status = StatusSent.String()
-
-	b.Result(msg.Result, *result)
-}
-
-func (b DummyBroker) Result(c chan Result, r Result) {
-	c <- r
-	close(c)
 }
