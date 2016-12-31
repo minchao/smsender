@@ -46,14 +46,14 @@ func (b Broker) Name() string {
 func (b Broker) Send(msg smsender.Message) {
 	result := smsender.NewResult(msg, b)
 	req, resp := b.svc.PublishRequest(&sns.PublishInput{
-		Message: aws.String(msg.Data.Body),
+		Message: aws.String(msg.Body),
 		MessageAttributes: map[string]*sns.MessageAttributeValue{
 			"Key": { // Required
 				DataType:    aws.String("String"), // Required
 				StringValue: aws.String("String"),
 			},
 		},
-		PhoneNumber: aws.String(msg.Data.To),
+		PhoneNumber: aws.String(msg.To),
 	})
 
 	err := req.Send()

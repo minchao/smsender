@@ -13,9 +13,9 @@ func (w worker) process(msg *Message) {
 	log.Infof("worker '%d' process: %+v", w.id, msg)
 
 	for _, r := range w.sender.routes {
-		if r.Match(msg.Data.To) {
-			if msg.Data.From == "" && r.From != "" {
-				msg.Data.From = r.From
+		if r.Match(msg.To) {
+			if msg.From == "" && r.From != "" {
+				msg.From = r.From
 			}
 			msg.Route = r.Name
 

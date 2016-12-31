@@ -32,9 +32,9 @@ func (b Broker) Send(msg smsender.Message) {
 
 	resp, err := twilio.NewMessage(
 		b.client,
-		msg.Data.From,
-		msg.Data.To,
-		twilio.Body(msg.Data.Body),
+		msg.From,
+		msg.To,
+		twilio.Body(msg.Body),
 	)
 	if err != nil {
 		result.Status = smsender.StatusFailed.String()

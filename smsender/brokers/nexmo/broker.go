@@ -35,10 +35,10 @@ func (b Broker) Name() string {
 func (b Broker) Send(msg smsender.Message) {
 	result := smsender.NewResult(msg, b)
 	message := &nexmo.SMSMessage{
-		From: msg.Data.From,
-		To:   msg.Data.To,
+		From: msg.From,
+		To:   msg.To,
 		Type: nexmo.Unicode,
-		Text: msg.Data.Body,
+		Text: msg.Body,
 	}
 
 	resp, err := b.client.SMS.Send(message)

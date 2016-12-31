@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/minchao/smsender/smsender"
-	"github.com/rs/xid"
 )
 
 func (s *Server) Hello(w http.ResponseWriter, r *http.Request) {
@@ -31,18 +30,11 @@ func (s *Server) Send(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resultChan := make(chan smsender.Result, 1)
-	s.out <- &smsender.Message{
-		Data: smsender.Data{
-			Id:   xid.New().String(),
-			To:   msg.To,
-			From: msg.From,
-			Body: msg.Body,
-		},
-		Result: resultChan,
-	}
+	message := smsender.NewMessage(msg.To, msg.From, msg.Body)
 
-	result := <-resultChan
+	s.out <- message
+
+	result := <-message.Result
 
 	render(w, 200, result)
 }

@@ -1,5 +1,9 @@
 package smsender
 
+import (
+	"github.com/rs/xid"
+)
+
 type StatusCode int
 
 func (c StatusCode) String() string {
@@ -38,9 +42,22 @@ type Result struct {
 }
 
 type Message struct {
-	Data   Data
+	Data
 	Route  string
 	Result chan Result
+}
+
+func NewMessage(to, from, body string) *Message {
+	return &Message{
+		Data: Data{
+			Id:   xid.New().String(),
+			To:   to,
+			From: from,
+			Body: body,
+		},
+		Route:  StatusUnknown.String(),
+		Result: make(chan Result, 1),
+	}
 }
 
 func NewResult(msg Message, broker Broker) *Result {
