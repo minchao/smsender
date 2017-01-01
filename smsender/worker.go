@@ -1,6 +1,8 @@
 package smsender
 
 import (
+	"time"
+
 	log "github.com/Sirupsen/logrus"
 )
 
@@ -39,7 +41,13 @@ func (w worker) process(msg *Message) {
 	logger.WithField("message", *msg).Info("worker process")
 
 	result = NewResult(*msg, broker.Name())
+
 	broker.Send(msg, result)
+
+	sentTime := time.Now()
+	result.SentTime = &sentTime
+
+	logger = logger.WithField("latency", sentTime.Sub(msg.CreatedTime).Nanoseconds())
 
 	switch result.Status {
 	case StatusFailed.String():

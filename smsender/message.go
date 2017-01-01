@@ -1,6 +1,8 @@
 package smsender
 
 import (
+	"time"
+
 	"github.com/rs/xid"
 )
 
@@ -27,15 +29,17 @@ var statusCodeMap = map[StatusCode]string{
 }
 
 type Data struct {
-	Id    string `json:"id"`
-	To    string `json:"to"`
-	From  string `json:"from"`
-	Body  string `json:"body"`
-	Async bool   `json:"async,omitempty"`
+	Id          string    `json:"id"`
+	To          string    `json:"to"`
+	From        string    `json:"from"`
+	Body        string    `json:"body"`
+	Async       bool      `json:"async,omitempty"`
+	CreatedTime time.Time `json:"created_time"`
 }
 
 type Result struct {
 	Data
+	SentTime *time.Time  `json:"sent_time"`
 	Route    string      `json:"route"`
 	Broker   string      `json:"broker"`
 	Status   string      `json:"status"`
@@ -51,10 +55,11 @@ type Message struct {
 func NewMessage(to, from, body string, async bool) *Message {
 	message := Message{
 		Data: Data{
-			Id:   xid.New().String(),
-			To:   to,
-			From: from,
-			Body: body,
+			Id:          xid.New().String(),
+			To:          to,
+			From:        from,
+			Body:        body,
+			CreatedTime: time.Now(),
 		},
 		Route:  StatusUnknown.String(),
 		Result: nil,
