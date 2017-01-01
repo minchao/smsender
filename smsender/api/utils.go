@@ -41,7 +41,7 @@ func formErrorMessage(err error) errorMessage {
 	case validator.ValidationErrors:
 		errors := map[string]interface{}{}
 		for _, v := range err.(validator.ValidationErrors) {
-			errors[v.Field()] = fmt.Sprintf("Invalid validation on field %s: %s", v.Field(), v.Tag())
+			errors[v.Field()] = fmt.Sprintf("Invalid validation on tag: %s", v.Tag())
 		}
 		description = errors
 	default:
