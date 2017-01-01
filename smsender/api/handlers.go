@@ -15,7 +15,7 @@ func (s *Server) Routes(w http.ResponseWriter, r *http.Request) {
 }
 
 type Message struct {
-	To    []string `json:"to" validate:"required,dive,phone"`
+	To    []string `json:"to" validate:"required,gt=0,dive,phone"`
 	From  string   `json:"from"`
 	Body  string   `json:"body" validate:"required"`
 	Async bool     `json:"async,omitempty"`
