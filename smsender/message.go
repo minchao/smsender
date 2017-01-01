@@ -44,8 +44,8 @@ type Result struct {
 
 type Message struct {
 	Data
-	Route  string
-	Result chan Result
+	Route  string      `json:"route"`
+	Result chan Result `json:"-"`
 }
 
 func NewMessage(to, from, body string, async bool) *Message {

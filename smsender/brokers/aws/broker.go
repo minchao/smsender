@@ -59,12 +59,9 @@ func (b Broker) Send(msg *smsender.Message, result *smsender.Result) {
 
 	if err != nil {
 		result.Status = smsender.StatusFailed.String()
-
-		log.Errorf("broker '%s' send message failed: %v", b.Name(), err)
+		result.Original = smsender.BrokerError{Error: err.Error()}
 	} else {
 		result.Status = smsender.StatusSent.String()
 		result.Original = resp
-
-		log.Infof("broker '%s' send message: %+v, %+v", b.Name(), msg, resp)
 	}
 }

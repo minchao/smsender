@@ -10,8 +10,6 @@ type worker struct {
 }
 
 func (w worker) process(msg *Message) {
-	log.Infof("worker '%d' process: %+v", w.id, msg)
-
 	var (
 		broker Broker
 		result *Result
@@ -33,9 +31,22 @@ func (w worker) process(msg *Message) {
 		broker = w.sender.GetBroker(DefaultBroker)
 	}
 
-	result = NewResult(*msg, broker.Name())
+	logger := log.WithFields(log.Fields{
+		"message_id": msg.Id,
+		"worker_id":  w.id,
+		"broker":     broker.Name(),
+	})
+	logger.WithField("message", *msg).Info("worker process")
 
+	result = NewResult(*msg, broker.Name())
 	broker.Send(msg, result)
+
+	switch result.Status {
+	case StatusFailed.String():
+		logger.WithField("result", *result).Error("broker send message failed")
+	default:
+		logger.WithField("result", *result).Info("broker send message")
+	}
 
 	if msg.Result != nil {
 		msg.Result <- *result

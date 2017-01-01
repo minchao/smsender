@@ -1,7 +1,6 @@
 package twilio
 
 import (
-	log "github.com/Sirupsen/logrus"
 	twilio "github.com/carlosdp/twiliogo"
 	"github.com/minchao/smsender/smsender"
 )
@@ -37,13 +36,9 @@ func (b Broker) Send(msg *smsender.Message, result *smsender.Result) {
 	if err != nil {
 		result.Status = smsender.StatusFailed.String()
 		result.Original = err
-
-		log.Errorf("broker '%s' send message failed: %v", b.Name(), err)
 	} else {
 		result.Status = convertStatus(resp.Status).String()
 		result.Original = resp
-
-		log.Infof("broker '%s' send message: %+v, %+v", b.Name(), msg, resp)
 	}
 }
 
