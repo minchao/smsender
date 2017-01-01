@@ -33,9 +33,9 @@ func (s *Server) MessagesPost(w http.ResponseWriter, r *http.Request) {
 
 	var (
 		count         = len(msg.To)
+		messageClones = make([]smsender.Message, count)
 		resultChans   = make([]<-chan smsender.Result, count)
-		messageClones = []smsender.Message{}
-		results       = []smsender.Result{}
+		results       = make([]smsender.Result, count)
 	)
 
 	if count > 100 {
@@ -44,22 +44,19 @@ func (s *Server) MessagesPost(w http.ResponseWriter, r *http.Request) {
 
 	for i := 0; i < count; i++ {
 		message := smsender.NewMessage(msg.To[i], msg.From, msg.Body, msg.Async)
+		messageClones[i] = *message
 		resultChans[i] = message.Result
-		messageClones = append(messageClones, *message)
 
 		s.out <- message
 	}
 
 	if msg.Async {
-		for _, message := range messageClones {
-			results = append(results, *smsender.NewAsyncResult(message))
+		for i, message := range messageClones {
+			results[i] = *smsender.NewAsyncResult(message)
 		}
 	} else {
-		for _, c := range resultChans {
-			select {
-			case result := <-c:
-				results = append(results, result)
-			}
+		for i, c := range resultChans {
+			results[i] = <-c
 		}
 	}
 
