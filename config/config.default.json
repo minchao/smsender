@@ -3,7 +3,22 @@
         "addr": ":8080",
         "tls": false,
         "tlsCertFile": "",
-        "tlsKeyFile": ""
+        "tlsKeyFile": "",
+        "cors": {
+            "enable": false,
+            "origins": [],
+            "headers": [
+                "*"
+            ],
+            "methods": [
+                "GET",
+                "POST",
+                "PUT",
+                "PATCH",
+                "DELETE"
+            ],
+            "debug": false
+        }
     },
     "worker": {
         "num": 100

@@ -6,6 +6,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/gorilla/mux"
 	"github.com/minchao/smsender/smsender"
+	"github.com/rs/cors"
 	config "github.com/spf13/viper"
 	"github.com/urfave/negroni"
 )
@@ -33,6 +34,16 @@ func (s *Server) Run() {
 
 	n := negroni.New()
 	n.UseFunc(logger)
+
+	if config.GetBool("api.cors.enable") {
+		n.Use(cors.New(cors.Options{
+			AllowedOrigins: config.GetStringSlice("api.cors.origins"),
+			AllowedHeaders: config.GetStringSlice("api.cors.headers"),
+			AllowedMethods: config.GetStringSlice("api.cors.methods"),
+			Debug:          config.GetBool("api.cors.debug"),
+		}))
+	}
+
 	n.UseHandler(r)
 
 	addr := config.GetString("api.addr")
