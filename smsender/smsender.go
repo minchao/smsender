@@ -3,6 +3,7 @@ package smsender
 import (
 	"fmt"
 	"sync"
+	"errors"
 )
 
 const DefaultBroker = "_default_"
@@ -53,15 +54,16 @@ func (s *Sender) GetBroker(name string) Broker {
 }
 
 func (s *Sender) AddRoute(route *Route) {
-	s.routes = append(s.routes, route)
+	s.routes = append([]*Route{route}, s.routes...)
 }
 
-func (s *Sender) AddRouteWith(name, pattern, brokerName, from string) {
+func (s *Sender) AddRouteWith(name, pattern, brokerName, from string) error {
 	broker := s.GetBroker(brokerName)
 	if broker == nil {
-		return
+		return errors.New("broker not found")
 	}
-	s.routes = append(s.routes, NewRoute(name, pattern, broker).SetFrom(from))
+	s.AddRoute(NewRoute(name, pattern, broker).SetFrom(from))
+	return nil
 }
 
 func (s *Sender) GetRoute(name string) *Route {
