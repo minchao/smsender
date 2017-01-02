@@ -1,0 +1,21 @@
+language: go
+
+sudo: false
+
+go:
+  - 1.7.x
+  - master
+
+cache:
+  directories:
+    - vendor
+
+before_install:
+  - mkdir -p $GOPATH/bin
+  - curl https://glide.sh/get | sh
+
+install:
+  - glide install
+
+script:
+  - go build -o ./bin/smsender
