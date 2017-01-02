@@ -1,5 +1,5 @@
 hash: 7358cff994400dcc3036bfde0a1a1f75f31cc838ad2243e0fb8c00139d9941d3
-updated: 2017-01-02T13:07:17.770379011+08:00
+updated: 2017-01-02T13:44:27.92668985+08:00
 imports:
 - name: github.com/aws/aws-sdk-go
   version: 36670f6ab1769ad77fa5f7e2c194398733503635
@@ -28,7 +28,7 @@ imports:
   - service/sns
   - service/sts
 - name: github.com/carlosdp/twiliogo
-  version: f61c8230fa91b87ca5c16a21a661861208749dfe
+  version: b26045ebb9d15c9296ba59d94687aaf7d2080905
 - name: github.com/davecgh/go-spew
   version: 04cdfd42973bb9c8589fd6a731800cf222fde1a9
   subpackages:
@@ -50,7 +50,7 @@ imports:
 - name: github.com/gorilla/context
   version: 08b5f424b9271eedf6f9f0ce86cb9396ed337a42
 - name: github.com/gorilla/mux
-  version: 0eeaf8392f5b04950925b8a69fe70f110fa7cbfc
+  version: 757bef944d0f21880861c2dd9c871ca543023cba
 - name: github.com/hashicorp/hcl
   version: 80e628d796135357b3d2e33a985c666b9f35eee1
   subpackages:
@@ -108,7 +108,7 @@ imports:
 - name: github.com/ttacon/libphonenumber
   version: 7cae2148c8b6ea3d01e4b2e3f1cc9e7136bb1bcf
 - name: github.com/urfave/negroni
-  version: fde5e16d32adc7ad637e9cd9ad21d4ebc6192535
+  version: 869b186bb47dc211b46324e11173d59aca4902b8
 - name: golang.org/x/net
   version: 8fd7f25955530b92e73e9e1932a41b522b22ccd9
   subpackages:
