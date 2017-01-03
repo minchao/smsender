@@ -30,6 +30,10 @@ func (s *Server) Run() {
 	r := mux.NewRouter().StrictSlash(true)
 	r.HandleFunc("/", s.Hello).Methods("GET")
 	r.HandleFunc("/routes", s.Routes).Methods("GET")
+	r.HandleFunc("/routes", s.RoutePost).Methods("POST")
+	r.HandleFunc("/routes", s.RouteReorder).Methods("PUT")
+	r.HandleFunc("/routes/{route}", s.RoutePut).Methods("PUT")
+	r.HandleFunc("/routes/{route}", s.RouteDelete).Methods("DELETE")
 	r.HandleFunc("/messages", s.MessagesPost).Methods("POST")
 
 	n := negroni.New()

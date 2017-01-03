@@ -1,15 +1,27 @@
 package smsender
 
 import (
+	"encoding/json"
 	"regexp"
 )
 
 type Route struct {
-	Name    string
-	Pattern string
-	Broker  Broker
-	From    string
+	Name    string `json:"name"`
+	Pattern string `json:"pattern"`
+	Broker  Broker `json:"broker"`
+	From    string `json:"from"`
 	regex   *regexp.Regexp
+}
+
+func (r *Route) MarshalJSON() ([]byte, error) {
+	type Alias Route
+	return json.Marshal(&struct {
+		*Alias
+		Broker string `json:"broker"`
+	}{
+		Alias:  (*Alias)(r),
+		Broker: r.Broker.Name(),
+	})
 }
 
 func NewRoute(name, pattern string, broker Broker) *Route {
