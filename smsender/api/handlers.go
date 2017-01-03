@@ -38,9 +38,9 @@ func (s *Server) RoutePost(w http.ResponseWriter, r *http.Request) {
 }
 
 type Reorder struct {
-	RangeStart   int `json:"range_start"`
-	RangeLength  int `json:"range_length"`
-	InsertBefore int `json:"insert_before"`
+	RangeStart   int `json:"range_start" validate:"gte=0"`
+	RangeLength  int `json:"range_length" validate:"gte=0"`
+	InsertBefore int `json:"insert_before" validate:"gte=0"`
 }
 
 func (s *Server) RouteReorder(w http.ResponseWriter, r *http.Request) {
