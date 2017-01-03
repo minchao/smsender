@@ -11,8 +11,12 @@ func (s *Server) Hello(w http.ResponseWriter, r *http.Request) {
 	render(w, 200, "Hello!")
 }
 
+type RouteResults struct {
+	Data []*smsender.Route `json:"data"`
+}
+
 func (s *Server) Routes(w http.ResponseWriter, r *http.Request) {
-	render(w, 200, s.sender.GetRoutes())
+	render(w, 200, RouteResults{Data: s.sender.GetRoutes()})
 }
 
 type Route struct {
@@ -58,7 +62,7 @@ func (s *Server) RouteReorder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	render(w, 200, s.sender.GetRoutes())
+	render(w, 200, RouteResults{Data: s.sender.GetRoutes()})
 }
 
 func (s *Server) RoutePut(w http.ResponseWriter, r *http.Request) {
