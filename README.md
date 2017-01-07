@@ -25,6 +25,10 @@ Support brokers
 * [Nexmo](https://www.nexmo.com/)
 * [Twilio](https://www.twilio.com/)
 
+## Matching Routes
+
+Route can be define a phone number pattern to be matched with broker.
+
 ## License
 
 See the [LICENSE](LICENSE.md) file for license rights and limitations (MIT).
