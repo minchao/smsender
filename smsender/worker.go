@@ -11,21 +11,18 @@ type worker struct {
 	sender *Sender
 }
 
-func (w worker) process(msg *Message) {
+func (w worker) process(message *Message) {
 	var (
 		broker Broker
 		result *Result
 	)
 
-	for _, r := range w.sender.routes {
-		if r.Match(msg.To) {
-			if msg.From == "" && r.From != "" {
-				msg.From = r.From
-			}
-			msg.Route = r.Name
-			broker = r.Broker
-			break
+	if match, ok := w.sender.Match(message.To); ok {
+		if message.From == "" && match.From != "" {
+			message.From = match.From
 		}
+		message.Route = match.Name
+		broker = match.Broker
 	}
 
 	// No route matched, use the default broker
@@ -34,20 +31,20 @@ func (w worker) process(msg *Message) {
 	}
 
 	logger := log.WithFields(log.Fields{
-		"message_id": msg.Id,
+		"message_id": message.Id,
 		"worker_id":  w.id,
 		"broker":     broker.Name(),
 	})
-	logger.WithField("message", *msg).Info("worker process")
+	logger.WithField("message", *message).Info("worker process")
 
-	result = NewResult(*msg, broker.Name())
+	result = NewResult(*message, broker.Name())
 
-	broker.Send(msg, result)
+	broker.Send(message, result)
 
 	sentTime := time.Now()
 	result.SentTime = &sentTime
 
-	logger = logger.WithField("latency", sentTime.Sub(msg.CreatedTime).Nanoseconds())
+	logger = logger.WithField("latency", sentTime.Sub(message.CreatedTime).Nanoseconds())
 
 	switch result.Status {
 	case StatusFailed.String():
@@ -56,7 +53,7 @@ func (w worker) process(msg *Message) {
 		logger.WithField("result", *result).Info("broker send message")
 	}
 
-	if msg.Result != nil {
-		msg.Result <- *result
+	if message.Result != nil {
+		message.Result <- *result
 	}
 }

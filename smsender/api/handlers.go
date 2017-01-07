@@ -106,13 +106,7 @@ func (s *Server) RouteTest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var route *smsender.Route
-	for _, r := range s.sender.GetRoutes() {
-		if r.Match(phone) {
-			route = r
-			break
-		}
-	}
+	route, _ := s.sender.Match(phone)
 
 	render(w, 200, RouteTestResult{Phone: phone, Route: route})
 }

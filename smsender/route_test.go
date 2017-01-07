@@ -7,49 +7,49 @@ import (
 func TestReorderRoutes(t *testing.T) {
 	var (
 		dummyBroker = NewDummyBroker("dummy")
-		routes      []*Route
+		router      = Router{}
 	)
 
-	for _, r := range []string{"A", "B", "C", "D"} {
-		routes = append(routes, NewRoute(r, "", dummyBroker))
+	for _, r := range []string{"D", "C", "B", "A"} {
+		router.AddRoute(NewRoute(r, "", dummyBroker))
 	}
 
-	if _, err := reorderRoutes(routes, -1, 0, 0); err == nil {
+	if err := router.reorder(-1, 0, 0); err == nil {
 		t.Fatal("got incorrect error: nil")
 	}
-	if _, err := reorderRoutes(routes, 4, 0, 0); err == nil {
+	if err := router.reorder(4, 0, 0); err == nil {
 		t.Fatal("got incorrect error: nil")
 	}
-	if _, err := reorderRoutes(routes, 1, 0, 0); err == nil {
+	if err := router.reorder(1, 0, 0); err == nil {
 		t.Fatal("got incorrect error: nil")
 	}
-	if _, err := reorderRoutes(routes, 0, 0, 0); err == nil {
+	if err := router.reorder(0, 0, 0); err == nil {
 		t.Fatal("got incorrect error: nil")
 	}
-	if _, err := reorderRoutes(routes, 1, 4, 0); err == nil {
+	if err := router.reorder(1, 4, 0); err == nil {
 		t.Fatal("got incorrect error: nil")
 	}
-	if _, err := reorderRoutes(routes, 0, 1, -1); err == nil {
+	if err := router.reorder(0, 1, -1); err == nil {
 		t.Fatal("got incorrect error: nil")
 	}
-	if _, err := reorderRoutes(routes, 0, 1, 5); err == nil {
+	if err := router.reorder(0, 1, 5); err == nil {
 		t.Fatal("got incorrect error: nil")
 	}
 
-	checkReorderRoutes(t, routes, 1, 2, 3, []string{"A", "B", "C", "D"})
-	checkReorderRoutes(t, routes, 2, 2, 1, []string{"A", "C", "D", "B"})
-	checkReorderRoutes(t, routes, 0, 2, 4, []string{"C", "D", "A", "B"})
+	checkReorderRoutes(t, router, 1, 2, 3, []string{"A", "B", "C", "D"})
+	checkReorderRoutes(t, router, 2, 2, 1, []string{"A", "C", "D", "B"})
+	checkReorderRoutes(t, router, 0, 2, 4, []string{"C", "D", "A", "B"})
 }
 
-func checkReorderRoutes(t *testing.T, routes []*Route, rangeStart, rangeLength, insertBefore int, expected []string) {
-	reordered, err := reorderRoutes(routes, rangeStart, rangeLength, insertBefore)
+func checkReorderRoutes(t *testing.T, router Router, rangeStart, rangeLength, insertBefore int, expected []string) {
+	err := router.reorder(rangeStart, rangeLength, insertBefore)
 	if err != nil {
 		t.Fatalf("reorder routes error: %v", err)
 	}
 
 	got := []string{}
 	isNotMatch := false
-	for i, route := range reordered {
+	for i, route := range router.routes {
 		got = append(got, route.Name)
 		if route.Name != expected[i] {
 			isNotMatch = true

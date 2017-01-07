@@ -11,7 +11,7 @@ const DefaultBroker = "_default_"
 var senderSingleton Sender
 
 type Sender struct {
-	routes    []*Route
+	Router
 	brokers   map[string]Broker
 	in        chan *Message
 	out       chan *Message
@@ -56,10 +56,6 @@ func (s *Sender) GetBroker(name string) Broker {
 	return s.getBroker(name)
 }
 
-func (s *Sender) AddRoute(route *Route) {
-	s.routes = append([]*Route{route}, s.routes...)
-}
-
 func (s *Sender) AddRouteWith(name, pattern, brokerName, from string) error {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
@@ -92,32 +88,12 @@ func (s *Sender) SetRouteWith(name, pattern, brokerName, from string) error {
 	return nil
 }
 
-func (s *Sender) getRoute(name string) (idx int, route *Route) {
-	for idx, route := range s.routes {
-		if route.Name == name {
-			return idx, route
-		}
-	}
-	return idx, nil
-}
-
-func (s *Sender) GetRoute(name string) *Route {
-	_, route := s.getRoute(name)
-	return route
-}
-
-func (s *Sender) GetRoutes() []*Route {
-	return s.routes
-}
-
 func (s *Sender) ReorderRoutes(rangeStart, rangeLength, insertBefore int) error {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
-	routes, err := reorderRoutes(s.routes, rangeStart, rangeLength, insertBefore)
-	if err != nil {
+	if err := s.reorder(rangeStart, rangeLength, insertBefore); err != nil {
 		return err
 	}
-	s.routes = routes
 	return nil
 }
 
@@ -126,7 +102,7 @@ func (s *Sender) RemoveRoute(name string) {
 	defer s.mutex.Unlock()
 	idx, route := s.getRoute(name)
 	if route != nil {
-		s.routes = append(s.routes[:idx], s.routes[idx+1:]...)
+		s.removeRoute(idx)
 	}
 }
 
@@ -143,8 +119,8 @@ func (s *Sender) Run() {
 	for i := 0; i < s.workerNum; i++ {
 		w := worker{i, s}
 		go func(w worker) {
-			for msg := range s.out {
-				w.process(msg)
+			for message := range s.out {
+				w.process(message)
 			}
 		}(w)
 	}
