@@ -113,51 +113,11 @@ func (s *Sender) GetRoutes() []*Route {
 func (s *Sender) ReorderRoutes(rangeStart, rangeLength, insertBefore int) error {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
-	length := len(s.routes)
-	if rangeStart > (length - 1) {
-		return errors.New("given positions are out of bounds")
+	routes, err := reorderRoutes(s.routes, rangeStart, rangeLength, insertBefore)
+	if err != nil {
+		return err
 	}
-	if (rangeStart + rangeLength) > length {
-		return errors.New("route selected to be reordered are out of bounds")
-	}
-	if insertBefore > length {
-		return errors.New("given positions are out of bounds")
-	}
-
-	var (
-		routes   []*Route
-		rangeEnd = rangeStart + rangeLength
-		subPre   = s.routes[:rangeStart]
-		sub      = s.routes[rangeStart:rangeEnd]
-		subEnd   = s.routes[rangeEnd:]
-	)
-
-	switch {
-	case insertBefore == 0:
-		routes = append(routes, sub...)
-		routes = append(routes, subPre...)
-		routes = append(routes, subEnd...)
-	case insertBefore < rangeStart:
-		routes = append(routes, subPre[:insertBefore]...)
-		routes = append(routes, sub...)
-		routes = append(routes, subPre[insertBefore:]...)
-		routes = append(routes, subEnd...)
-	case insertBefore == rangeStart, insertBefore <= rangeEnd:
-		routes = s.routes
-	case insertBefore < length:
-		subBefore := insertBefore - rangeEnd
-		routes = append(routes, subPre...)
-		routes = append(routes, subEnd[:subBefore]...)
-		routes = append(routes, sub...)
-		routes = append(routes, subEnd[subBefore:]...)
-	case insertBefore == length:
-		routes = append(routes, subPre...)
-		routes = append(routes, subEnd...)
-		routes = append(routes, sub...)
-	}
-
 	s.routes = routes
-
 	return nil
 }
 
