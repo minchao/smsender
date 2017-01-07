@@ -34,6 +34,7 @@ func (s *Server) Run() {
 	r.HandleFunc("/routes", s.RouteReorder).Methods("PUT")
 	r.HandleFunc("/routes/{route}", s.RoutePut).Methods("PUT")
 	r.HandleFunc("/routes/{route}", s.RouteDelete).Methods("DELETE")
+	r.HandleFunc("/routes/test/{phone}", s.RouteTest).Methods("GET")
 	r.HandleFunc("/messages", s.MessagesPost).Methods("POST")
 
 	n := negroni.New()

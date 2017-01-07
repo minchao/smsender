@@ -88,6 +88,35 @@ func (s *Server) RouteDelete(w http.ResponseWriter, r *http.Request) {
 	render(w, 204, nil)
 }
 
+type RouteTestResult struct {
+	Phone string          `json:"phone"`
+	Route *smsender.Route `json:"route"`
+}
+
+func (s *Server) RouteTest(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	phone, _ := vars["phone"]
+	validate := newValidate()
+	validate.RegisterValidation("phone", isPhoneNumber)
+	err := validate.Struct(struct {
+		Phone string `json:"phone" validate:"required,phone"`
+	}{Phone: phone})
+	if err != nil {
+		render(w, http.StatusBadRequest, formErrorMessage(err))
+		return
+	}
+
+	var route *smsender.Route
+	for _, r := range s.sender.GetRoutes() {
+		if r.Match(phone) {
+			route = r
+			break
+		}
+	}
+
+	render(w, 200, RouteTestResult{Phone: phone, Route: route})
+}
+
 type Message struct {
 	To    []string `json:"to" validate:"required,gt=0,dive,phone"`
 	From  string   `json:"from"`
