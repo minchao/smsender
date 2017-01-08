@@ -7,7 +7,7 @@ A SMS server written in Go (Golang).
 
 * Support various SMS brokers.
 * Uses routes to determine which broker to send SMS.
-* SMS delivery worker
+* SMS delivery worker.
 * RESTful API.
 
 ## Install
@@ -16,13 +16,13 @@ A SMS server written in Go (Golang).
 go get github.com/minchao/smsender
 ```
 
-Using the [Glide](https://glide.sh/) to install dependency packages
+Using the [Glide](https://glide.sh/) to install dependency packages:
 
 ```
 glide install
 ```
 
-Creating a Configuration file
+Creating a Configuration file:
  
 ```
 cp ./config/config.default.yml ./config.yml
@@ -38,7 +38,7 @@ Support brokers
 
 For example, registering a broker on the sender server.
 
-Add the broker key and secret to config.yml
+Add the broker key and secret to config.yml:
 
 ```yaml
 brokers:
@@ -47,7 +47,7 @@ brokers:
     secret: "NEXMO_SECRET"
 ```
 
-Add the following code to main.go
+Add the following code to main.go:
 
 ```go
 	nexmoBroker := nexmo.Config{
