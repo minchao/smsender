@@ -1,0 +1,24 @@
+api:
+  addr: ":8080"
+  tls: false
+  tlsCertFile: ""
+  tlsKeyFile: ""
+  cors:
+    enable: false
+    origins:
+      - # "http://127.0.0.1:8080"
+    headers:
+      - "*"
+    methods:
+      - "GET"
+      - "POST"
+      - "PUT"
+      - "PATCH"
+      - "DELETE"
+    debug: false
+worker:
+  num: 100
+brokers:
+  # nexmo:
+  #   key: "NEXMO_KEY"
+  #   secret: "NEXMO_SECRET"
