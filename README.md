@@ -1,9 +1,14 @@
 # SMSender
 
-A SMS server written in Go (Golang).
-
 [![Build Status](https://travis-ci.org/minchao/smsender.svg?branch=master)](https://travis-ci.org/minchao/smsender)
 [![Go Report Card](https://goreportcard.com/badge/github.com/minchao/smsender)](https://goreportcard.com/report/github.com/minchao/smsender)
+
+A SMS server written in Go (Golang).
+
+* Support various SMS brokers.
+* Uses routes to determine which broker to send SMS.
+* SMS delivery worker
+* RESTful API.
 
 ## Install
 
