@@ -10,16 +10,16 @@ func createRouter() Router {
 	dummyBroker2 := NewDummyBroker("dummy2")
 	router := Router{}
 
-	router.AddRoute(NewRoute("default", `^\+.*`, dummyBroker1))
-	router.AddRoute(NewRoute("japan", `^\+81`, dummyBroker2))
-	router.AddRoute(NewRoute("taiwan", `^\+886`, dummyBroker2))
-	router.AddRoute(NewRoute("telco", `^\+886987`, dummyBroker2))
-	router.AddRoute(NewRoute("user", `^\+886987654321`, dummyBroker2))
+	router.Add(NewRoute("default", `^\+.*`, dummyBroker1))
+	router.Add(NewRoute("japan", `^\+81`, dummyBroker2))
+	router.Add(NewRoute("taiwan", `^\+886`, dummyBroker2))
+	router.Add(NewRoute("telco", `^\+886987`, dummyBroker2))
+	router.Add(NewRoute("user", `^\+886987654321`, dummyBroker2))
 
 	return router
 }
 
-func compare(routes []*Route, expected []string) error {
+func compareOrder(routes []*Route, expected []string) error {
 	got := []string{}
 	isNotMatch := false
 	for i, route := range routes {
@@ -34,36 +34,65 @@ func compare(routes []*Route, expected []string) error {
 	return nil
 }
 
-func TestRouter_GetRoute(t *testing.T) {
+func TestRouter_GetAll(t *testing.T) {
 	router := createRouter()
 
-	route := router.GetRoute("japan")
+	if err := compareOrder(router.GetAll(), []string{"user", "telco", "taiwan", "japan", "default"}); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestRouter_Get(t *testing.T) {
+	router := createRouter()
+
+	route := router.Get("japan")
 	if route == nil || route.Name != "japan" {
 		t.Fatal("got wrong route")
 	}
-	route = router.GetRoute("usa")
+	route = router.Get("usa")
 	if route != nil {
 		t.Fatal("route should be nil")
 	}
 }
 
-func TestRouter_removeRoute(t *testing.T) {
+func TestRouter_Set(t *testing.T) {
 	router := createRouter()
+	broker := NewDummyBroker("dummy")
 
-	router.removeRoute(1)
-	router.removeRoute(2)
-	if len(router.routes) != 3 {
-		t.Fatal("removeRoute failed")
+	route := NewRoute("taiwan", `^\+8869`, broker).SetFrom("sender")
+
+	if err := router.Set(route.Name, route.Pattern, route.Broker, route.From); err == nil {
+		newRoute := router.Get("taiwan")
+		if newRoute == nil {
+			t.Fatal("route is not equal")
+		}
+		if newRoute.Name != route.Name {
+			t.Fatal("route.Name is not equal")
+		}
+		if newRoute.Pattern != route.Pattern {
+			t.Fatal("route.Pattern is not equal")
+		}
+		if newRoute.Broker == nil || newRoute.Broker.Name() != route.Broker.Name() {
+			t.Fatal("route.Broker is not equal")
+		}
+		if newRoute.From != route.From {
+			t.Fatal("route.From is not equal")
+		}
 	}
-	if err := compare(router.routes, []string{"user", "taiwan", "default"}); err != nil {
-		t.Fatal(err)
+	if err := router.Set("france", "", broker, ""); err == nil {
+		t.Fatal("set route should be failed")
 	}
 }
 
-func TestRouter_GetRoutes(t *testing.T) {
+func TestRouter_Remove(t *testing.T) {
 	router := createRouter()
 
-	if err := compare(router.GetRoutes(), []string{"user", "telco", "taiwan", "japan", "default"}); err != nil {
+	router.Remove("telco")
+	router.Remove("japan")
+	if len(router.routes) != 3 {
+		t.Fatal("remove route failed")
+	}
+	if err := compareOrder(router.routes, []string{"user", "taiwan", "default"}); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -75,28 +104,28 @@ func TestRouter_Reorder(t *testing.T) {
 	)
 
 	for _, r := range []string{"D", "C", "B", "A"} {
-		router.AddRoute(NewRoute(r, "", dummyBroker))
+		router.Add(NewRoute(r, "", dummyBroker))
 	}
 
-	if err := router.reorder(-1, 0, 0); err == nil {
+	if err := router.Reorder(-1, 0, 0); err == nil {
 		t.Fatal("got incorrect error: nil")
 	}
-	if err := router.reorder(4, 0, 0); err == nil {
+	if err := router.Reorder(4, 0, 0); err == nil {
 		t.Fatal("got incorrect error: nil")
 	}
-	if err := router.reorder(1, 0, 0); err == nil {
+	if err := router.Reorder(1, 0, 0); err == nil {
 		t.Fatal("got incorrect error: nil")
 	}
-	if err := router.reorder(0, 0, 0); err == nil {
+	if err := router.Reorder(0, 0, 0); err == nil {
 		t.Fatal("got incorrect error: nil")
 	}
-	if err := router.reorder(1, 4, 0); err == nil {
+	if err := router.Reorder(1, 4, 0); err == nil {
 		t.Fatal("got incorrect error: nil")
 	}
-	if err := router.reorder(0, 1, -1); err == nil {
+	if err := router.Reorder(0, 1, -1); err == nil {
 		t.Fatal("got incorrect error: nil")
 	}
-	if err := router.reorder(0, 1, 5); err == nil {
+	if err := router.Reorder(0, 1, 5); err == nil {
 		t.Fatal("got incorrect error: nil")
 	}
 
@@ -106,12 +135,10 @@ func TestRouter_Reorder(t *testing.T) {
 }
 
 func checkReorderRoutes(t *testing.T, router Router, rangeStart, rangeLength, insertBefore int, expected []string) {
-	err := router.reorder(rangeStart, rangeLength, insertBefore)
-	if err != nil {
+	if err := router.Reorder(rangeStart, rangeLength, insertBefore); err != nil {
 		t.Fatalf("reorder routes error: %v", err)
 	}
-
-	if err := compare(router.routes, expected); err != nil {
+	if err := compareOrder(router.routes, expected); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -172,10 +199,10 @@ func TestRouter_Match(t *testing.T) {
 				t.Fatalf("test '%d' should match", i)
 			}
 			if test.route != match.Name {
-				t.Fatalf("test '%d' route not match", i)
+				t.Fatalf("test '%d' route.Name is not equal", i)
 			}
 			if test.broker != match.Broker.Name() {
-				t.Fatalf("test '%d' broker not match", i)
+				t.Fatalf("test '%d' route.Broker is not equal", i)
 			}
 		} else {
 			if ok {

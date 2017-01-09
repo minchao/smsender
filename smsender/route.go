@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"regexp"
+	"sync"
 )
 
 type Route struct {
@@ -43,16 +44,19 @@ func (r *Route) Match(recipient string) bool {
 	return r.regex.MatchString(recipient)
 }
 
+// Router registers routes to be matched and dispatches a broker.
 type Router struct {
 	routes []*Route
+	sync.RWMutex
 }
 
-// Add new route to the beginning of routes slice
-func (r *Router) AddRoute(route *Route) {
-	r.routes = append([]*Route{route}, r.routes...)
+func (r *Router) GetAll() []*Route {
+	r.RLock()
+	defer r.RUnlock()
+	return r.routes
 }
 
-func (r *Router) getRoute(name string) (idx int, route *Route) {
+func (r *Router) get(name string) (idx int, route *Route) {
 	for idx, route := range r.routes {
 		if route.Name == name {
 			return idx, route
@@ -61,20 +65,45 @@ func (r *Router) getRoute(name string) (idx int, route *Route) {
 	return idx, nil
 }
 
-func (r *Router) GetRoute(name string) *Route {
-	_, route := r.getRoute(name)
+func (r *Router) Get(name string) *Route {
+	r.RLock()
+	defer r.RUnlock()
+	_, route := r.get(name)
 	return route
 }
 
-func (r *Router) GetRoutes() []*Route {
-	return r.routes
+// Add new route to the beginning of routes slice.
+func (r *Router) Add(route *Route) {
+	r.Lock()
+	defer r.Unlock()
+	r.routes = append([]*Route{route}, r.routes...)
 }
 
-func (r *Router) removeRoute(idx int) {
-	r.routes = append(r.routes[:idx], r.routes[idx+1:]...)
+func (r *Router) Set(name, pattern string, broker Broker, from string) error {
+	r.Lock()
+	defer r.Unlock()
+	_, route := r.get(name)
+	if route == nil {
+		return errors.New("route not found")
+	}
+	route.Pattern = pattern
+	route.Broker = broker
+	route.From = from
+	return nil
 }
 
-func (r *Router) reorder(rangeStart, rangeLength, insertBefore int) error {
+func (r *Router) Remove(name string) {
+	r.Lock()
+	defer r.Unlock()
+	idx, route := r.get(name)
+	if route != nil {
+		r.routes = append(r.routes[:idx], r.routes[idx+1:]...)
+	}
+}
+
+func (r *Router) Reorder(rangeStart, rangeLength, insertBefore int) error {
+	r.Lock()
+	defer r.Unlock()
 	length := len(r.routes)
 	if rangeStart < 0 {
 		return errors.New("invalid rangeStart, it should be >= 0")
@@ -117,7 +146,8 @@ func (r *Router) reorder(rangeStart, rangeLength, insertBefore int) error {
 }
 
 func (r *Router) Match(phone string) (*Route, bool) {
-	for _, r := range r.routes {
+	routes := r.GetAll()
+	for _, r := range routes {
 		if r.Match(phone) {
 			return r, true
 		}

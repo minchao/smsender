@@ -11,12 +11,12 @@ const DefaultBroker = "_default_"
 var senderSingleton Sender
 
 type Sender struct {
-	Router
+	router    Router
 	brokers   map[string]Broker
 	in        chan *Message
 	out       chan *Message
 	workerNum int
-	mutex     sync.Mutex
+	rwMutex   sync.RWMutex
 	init      sync.Once
 }
 
@@ -26,84 +26,69 @@ func SMSender(workerNum int) *Sender {
 		senderSingleton.in = make(chan *Message, 1000)
 		senderSingleton.out = make(chan *Message, 1000)
 		senderSingleton.workerNum = workerNum
-
 		senderSingleton.AddBroker(NewDummyBroker(DefaultBroker))
 	})
 
 	return &senderSingleton
 }
 
-func (s *Sender) AddBroker(broker Broker) {
-	s.mutex.Lock()
-	defer s.mutex.Unlock()
-
-	if _, exists := s.brokers[broker.Name()]; exists {
-		panic(fmt.Sprintf("broker '%s' added", broker.Name()))
-	}
-	s.brokers[broker.Name()] = broker
-}
-
-func (s *Sender) getBroker(name string) Broker {
+func (s *Sender) GetBroker(name string) Broker {
+	s.rwMutex.RLock()
+	defer s.rwMutex.RUnlock()
 	if broker, exists := s.brokers[name]; exists {
 		return broker
 	}
 	return nil
 }
 
-func (s *Sender) GetBroker(name string) Broker {
-	s.mutex.Lock()
-	defer s.mutex.Unlock()
-	return s.getBroker(name)
+func (s *Sender) AddBroker(broker Broker) {
+	s.rwMutex.Lock()
+	defer s.rwMutex.Unlock()
+	if _, exists := s.brokers[broker.Name()]; exists {
+		panic(fmt.Sprintf("broker '%s' already added", broker.Name()))
+	}
+	s.brokers[broker.Name()] = broker
+}
+
+func (s *Sender) GetRoutes() []*Route {
+	return s.router.GetAll()
+}
+
+func (s *Sender) AddRoute(route *Route) {
+	s.router.Add(route)
 }
 
 func (s *Sender) AddRouteWith(name, pattern, brokerName, from string) error {
-	s.mutex.Lock()
-	defer s.mutex.Unlock()
-	_, route := s.getRoute(name)
+	route := s.router.Get(name)
 	if route != nil {
 		return errors.New("route already exists")
 	}
-	broker := s.getBroker(brokerName)
+	broker := s.GetBroker(brokerName)
 	if broker == nil {
 		return errors.New("broker not found")
 	}
-	s.AddRoute(NewRoute(name, pattern, broker).SetFrom(from))
+	s.router.Add(NewRoute(name, pattern, broker).SetFrom(from))
 	return nil
 }
 
 func (s *Sender) SetRouteWith(name, pattern, brokerName, from string) error {
-	s.mutex.Lock()
-	defer s.mutex.Unlock()
-	_, route := s.getRoute(name)
-	if route == nil {
-		return errors.New("route not found")
-	}
-	broker := s.getBroker(brokerName)
+	broker := s.GetBroker(brokerName)
 	if broker == nil {
 		return errors.New("broker not found")
 	}
-	route.Pattern = pattern
-	route.Broker = broker
-	route.From = from
-	return nil
-}
-
-func (s *Sender) ReorderRoutes(rangeStart, rangeLength, insertBefore int) error {
-	s.mutex.Lock()
-	defer s.mutex.Unlock()
-	if err := s.reorder(rangeStart, rangeLength, insertBefore); err != nil {
-		return err
-	}
-	return nil
+	return s.router.Set(name, pattern, broker, from)
 }
 
 func (s *Sender) RemoveRoute(name string) {
-	s.mutex.Lock()
-	defer s.mutex.Unlock()
-	idx, route := s.getRoute(name)
-	if route != nil {
-		s.removeRoute(idx)
-	}
+	s.router.Remove(name)
+}
+
+func (s *Sender) ReorderRoutes(rangeStart, rangeLength, insertBefore int) error {
+	return s.router.Reorder(rangeStart, rangeLength, insertBefore)
+}
+
+func (s *Sender) Match(phone string) (*Route, bool) {
+	return s.router.Match(phone)
 }
 
 func (s *Sender) Stream(from chan *Message) {
