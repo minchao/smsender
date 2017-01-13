@@ -1,4 +1,4 @@
-package smsender
+package model
 
 import (
 	"time"

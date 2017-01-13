@@ -6,7 +6,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/sns"
-	"github.com/minchao/smsender/smsender"
+	"github.com/minchao/smsender/smsender/model"
 )
 
 type Broker struct {
@@ -43,7 +43,7 @@ func (b Broker) Name() string {
 	return b.name
 }
 
-func (b Broker) Send(msg *smsender.Message, result *smsender.Result) {
+func (b Broker) Send(msg *model.Message, result *model.Result) {
 	req, resp := b.svc.PublishRequest(&sns.PublishInput{
 		Message: aws.String(msg.Body),
 		MessageAttributes: map[string]*sns.MessageAttributeValue{
@@ -58,10 +58,10 @@ func (b Broker) Send(msg *smsender.Message, result *smsender.Result) {
 	err := req.Send()
 
 	if err != nil {
-		result.Status = smsender.StatusFailed.String()
-		result.Original = smsender.BrokerError{Error: err.Error()}
+		result.Status = model.StatusFailed.String()
+		result.Original = model.BrokerError{Error: err.Error()}
 	} else {
-		result.Status = smsender.StatusSent.String()
+		result.Status = model.StatusSent.String()
 		result.Original = resp
 	}
 }

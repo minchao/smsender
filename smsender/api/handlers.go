@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/minchao/smsender/smsender"
+	"github.com/minchao/smsender/smsender/model"
 )
 
 func (s *Server) Hello(w http.ResponseWriter, r *http.Request) {
@@ -12,7 +12,7 @@ func (s *Server) Hello(w http.ResponseWriter, r *http.Request) {
 }
 
 type RouteResults struct {
-	Data []*smsender.Route `json:"data"`
+	Data []*model.Route `json:"data"`
 }
 
 func (s *Server) Routes(w http.ResponseWriter, r *http.Request) {
@@ -89,8 +89,8 @@ func (s *Server) RouteDelete(w http.ResponseWriter, r *http.Request) {
 }
 
 type RouteTestResult struct {
-	Phone string          `json:"phone"`
-	Route *smsender.Route `json:"route"`
+	Phone string       `json:"phone"`
+	Route *model.Route `json:"route"`
 }
 
 func (s *Server) RouteTest(w http.ResponseWriter, r *http.Request) {
@@ -119,7 +119,7 @@ type Message struct {
 }
 
 type MessageResults struct {
-	Data []smsender.Result `json:"data"`
+	Data []model.Result `json:"data"`
 }
 
 func (s *Server) MessagesPost(w http.ResponseWriter, r *http.Request) {
@@ -134,9 +134,9 @@ func (s *Server) MessagesPost(w http.ResponseWriter, r *http.Request) {
 
 	var (
 		count         = len(msg.To)
-		messageClones = make([]smsender.Message, count)
-		resultChans   = make([]<-chan smsender.Result, count)
-		results       = make([]smsender.Result, count)
+		messageClones = make([]model.Message, count)
+		resultChans   = make([]<-chan model.Result, count)
+		results       = make([]model.Result, count)
 	)
 
 	if count > 100 {
@@ -144,7 +144,7 @@ func (s *Server) MessagesPost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	for i := 0; i < count; i++ {
-		message := smsender.NewMessage(msg.To[i], msg.From, msg.Body, msg.Async)
+		message := model.NewMessage(msg.To[i], msg.From, msg.Body, msg.Async)
 		messageClones[i] = *message
 		resultChans[i] = message.Result
 
@@ -153,7 +153,7 @@ func (s *Server) MessagesPost(w http.ResponseWriter, r *http.Request) {
 
 	if msg.Async {
 		for i, message := range messageClones {
-			results[i] = *smsender.NewAsyncResult(message)
+			results[i] = *model.NewAsyncResult(message)
 		}
 	} else {
 		for i, c := range resultChans {

@@ -2,7 +2,7 @@ package twilio
 
 import (
 	twilio "github.com/carlosdp/twiliogo"
-	"github.com/minchao/smsender/smsender"
+	"github.com/minchao/smsender/smsender/model"
 )
 
 type Broker struct {
@@ -26,7 +26,7 @@ func (b Broker) Name() string {
 	return b.name
 }
 
-func (b Broker) Send(msg *smsender.Message, result *smsender.Result) {
+func (b Broker) Send(msg *model.Message, result *model.Result) {
 	resp, err := twilio.NewMessage(
 		b.client,
 		msg.From,
@@ -34,7 +34,7 @@ func (b Broker) Send(msg *smsender.Message, result *smsender.Result) {
 		twilio.Body(msg.Body),
 	)
 	if err != nil {
-		result.Status = smsender.StatusFailed.String()
+		result.Status = model.StatusFailed.String()
 		result.Original = err
 	} else {
 		result.Status = convertStatus(resp.Status).String()
@@ -42,17 +42,17 @@ func (b Broker) Send(msg *smsender.Message, result *smsender.Result) {
 	}
 }
 
-func convertStatus(rawStatus string) smsender.StatusCode {
+func convertStatus(rawStatus string) model.StatusCode {
 	switch rawStatus {
 	case "delivered":
-		return smsender.StatusDelivered
+		return model.StatusDelivered
 	case "failed", "undelivered":
-		return smsender.StatusFailed
+		return model.StatusFailed
 	case "sent":
-		return smsender.StatusSent
+		return model.StatusSent
 	case "queued":
-		return smsender.StatusQueued
+		return model.StatusQueued
 	default:
-		return smsender.StatusFailed
+		return model.StatusFailed
 	}
 }

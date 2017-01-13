@@ -1,13 +1,6 @@
 package smsender
 
-type Broker interface {
-	Name() string
-	Send(msg *Message, result *Result)
-}
-
-type BrokerError struct {
-	Error string `json:"error"`
-}
+import "github.com/minchao/smsender/smsender/model"
 
 type DummyBroker struct {
 	name string
@@ -23,6 +16,6 @@ func (b DummyBroker) Name() string {
 	return b.name
 }
 
-func (b DummyBroker) Send(msg *Message, result *Result) {
-	result.Status = StatusSent.String()
+func (b DummyBroker) Send(msg *model.Message, result *model.Result) {
+	result.Status = model.StatusSent.String()
 }

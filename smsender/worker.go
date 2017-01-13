@@ -4,6 +4,7 @@ import (
 	"time"
 
 	log "github.com/Sirupsen/logrus"
+	"github.com/minchao/smsender/smsender/model"
 )
 
 type worker struct {
@@ -11,10 +12,10 @@ type worker struct {
 	sender *Sender
 }
 
-func (w worker) process(message *Message) {
+func (w worker) process(message *model.Message) {
 	var (
-		broker Broker
-		result *Result
+		broker model.Broker
+		result *model.Result
 	)
 
 	if match, ok := w.sender.Match(message.To); ok {
@@ -22,7 +23,7 @@ func (w worker) process(message *Message) {
 			message.From = match.From
 		}
 		message.Route = match.Name
-		broker = match.Broker
+		broker = match.GetBroker()
 	}
 
 	// No route matched, use the default broker
@@ -37,7 +38,7 @@ func (w worker) process(message *Message) {
 	})
 	logger.WithField("message", *message).Info("worker process")
 
-	result = NewResult(*message, broker.Name())
+	result = model.NewResult(*message, broker.Name())
 
 	broker.Send(message, result)
 
@@ -47,7 +48,7 @@ func (w worker) process(message *Message) {
 	logger = logger.WithField("latency", sentTime.Sub(message.CreatedTime).Nanoseconds())
 
 	switch result.Status {
-	case StatusFailed.String():
+	case model.StatusFailed.String():
 		logger.WithField("result", *result).Error("broker send message failed")
 	default:
 		logger.WithField("result", *result).Info("broker send message")

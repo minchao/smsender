@@ -3,6 +3,8 @@ package smsender
 import (
 	"fmt"
 	"testing"
+
+	"github.com/minchao/smsender/smsender/model"
 )
 
 func createRouter() Router {
@@ -10,16 +12,16 @@ func createRouter() Router {
 	dummyBroker2 := NewDummyBroker("dummy2")
 	router := Router{}
 
-	router.Add(NewRoute("default", `^\+.*`, dummyBroker1))
-	router.Add(NewRoute("japan", `^\+81`, dummyBroker2))
-	router.Add(NewRoute("taiwan", `^\+886`, dummyBroker2))
-	router.Add(NewRoute("telco", `^\+886987`, dummyBroker2))
-	router.Add(NewRoute("user", `^\+886987654321`, dummyBroker2))
+	router.Add(model.NewRoute("default", `^\+.*`, dummyBroker1))
+	router.Add(model.NewRoute("japan", `^\+81`, dummyBroker2))
+	router.Add(model.NewRoute("taiwan", `^\+886`, dummyBroker2))
+	router.Add(model.NewRoute("telco", `^\+886987`, dummyBroker2))
+	router.Add(model.NewRoute("user", `^\+886987654321`, dummyBroker2))
 
 	return router
 }
 
-func compareOrder(routes []*Route, expected []string) error {
+func compareOrder(routes []*model.Route, expected []string) error {
 	got := []string{}
 	isNotMatch := false
 	for i, route := range routes {
@@ -59,9 +61,9 @@ func TestRouter_Set(t *testing.T) {
 	router := createRouter()
 	broker := NewDummyBroker("dummy")
 
-	route := NewRoute("taiwan", `^\+8869`, broker).SetFrom("sender")
+	route := model.NewRoute("taiwan", `^\+8869`, broker).SetFrom("sender")
 
-	if err := router.Set(route.Name, route.Pattern, route.Broker, route.From); err == nil {
+	if err := router.Set(route.Name, route.Pattern, route.GetBroker(), route.From); err == nil {
 		newRoute := router.Get("taiwan")
 		if newRoute == nil {
 			t.Fatal("route is not equal")
@@ -72,7 +74,7 @@ func TestRouter_Set(t *testing.T) {
 		if newRoute.Pattern != route.Pattern {
 			t.Fatal("route.Pattern is not equal")
 		}
-		if newRoute.Broker == nil || newRoute.Broker.Name() != route.Broker.Name() {
+		if newRoute.GetBroker() == nil || newRoute.GetBroker().Name() != route.GetBroker().Name() {
 			t.Fatal("route.Broker is not equal")
 		}
 		if newRoute.From != route.From {
@@ -104,7 +106,7 @@ func TestRouter_Reorder(t *testing.T) {
 	)
 
 	for _, r := range []string{"D", "C", "B", "A"} {
-		router.Add(NewRoute(r, "", dummyBroker))
+		router.Add(model.NewRoute(r, "", dummyBroker))
 	}
 
 	if err := router.Reorder(-1, 0, 0); err == nil {
@@ -201,7 +203,7 @@ func TestRouter_Match(t *testing.T) {
 			if test.route != match.Name {
 				t.Fatalf("test '%d' route.Name is not equal", i)
 			}
-			if test.broker != match.Broker.Name() {
+			if test.broker != match.GetBroker().Name() {
 				t.Fatalf("test '%d' route.Broker is not equal", i)
 			}
 		} else {

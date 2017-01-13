@@ -1,62 +1,25 @@
 package smsender
 
 import (
-	"encoding/json"
 	"errors"
-	"regexp"
 	"sync"
+
+	"github.com/minchao/smsender/smsender/model"
 )
-
-type Route struct {
-	Name    string `json:"name"`
-	Pattern string `json:"pattern"`
-	Broker  Broker `json:"broker"`
-	From    string `json:"from"`
-	regex   *regexp.Regexp
-}
-
-func (r *Route) MarshalJSON() ([]byte, error) {
-	type Alias Route
-	return json.Marshal(&struct {
-		*Alias
-		Broker string `json:"broker"`
-	}{
-		Alias:  (*Alias)(r),
-		Broker: r.Broker.Name(),
-	})
-}
-
-func NewRoute(name, pattern string, broker Broker) *Route {
-	return &Route{
-		Name:    name,
-		Pattern: pattern,
-		Broker:  broker,
-		regex:   regexp.MustCompile(pattern),
-	}
-}
-
-func (r *Route) SetFrom(from string) *Route {
-	r.From = from
-	return r
-}
-
-func (r *Route) Match(recipient string) bool {
-	return r.regex.MatchString(recipient)
-}
 
 // Router registers routes to be matched and dispatches a broker.
 type Router struct {
-	routes []*Route
+	routes []*model.Route
 	sync.RWMutex
 }
 
-func (r *Router) GetAll() []*Route {
+func (r *Router) GetAll() []*model.Route {
 	r.RLock()
 	defer r.RUnlock()
 	return r.routes
 }
 
-func (r *Router) get(name string) (idx int, route *Route) {
+func (r *Router) get(name string) (idx int, route *model.Route) {
 	for idx, route := range r.routes {
 		if route.Name == name {
 			return idx, route
@@ -65,7 +28,7 @@ func (r *Router) get(name string) (idx int, route *Route) {
 	return idx, nil
 }
 
-func (r *Router) Get(name string) *Route {
+func (r *Router) Get(name string) *model.Route {
 	r.RLock()
 	defer r.RUnlock()
 	_, route := r.get(name)
@@ -73,13 +36,19 @@ func (r *Router) Get(name string) *Route {
 }
 
 // Add new route to the beginning of routes slice.
-func (r *Router) Add(route *Route) {
+func (r *Router) Add(route *model.Route) {
 	r.Lock()
 	defer r.Unlock()
-	r.routes = append([]*Route{route}, r.routes...)
+	r.routes = append([]*model.Route{route}, r.routes...)
 }
 
-func (r *Router) Set(name, pattern string, broker Broker, from string) error {
+func (r *Router) SetAll(routes []*model.Route) {
+	r.Lock()
+	defer r.Unlock()
+	r.routes = routes
+}
+
+func (r *Router) Set(name, pattern string, broker model.Broker, from string) error {
 	r.Lock()
 	defer r.Unlock()
 	_, route := r.get(name)
@@ -87,7 +56,8 @@ func (r *Router) Set(name, pattern string, broker Broker, from string) error {
 		return errors.New("route not found")
 	}
 	route.Pattern = pattern
-	route.Broker = broker
+	route.Broker = broker.Name()
+	route.SetBroker(broker)
 	route.From = from
 	return nil
 }
@@ -129,7 +99,7 @@ func (r *Router) Reorder(rangeStart, rangeLength, insertBefore int) error {
 		return nil
 	}
 
-	var result []*Route
+	var result []*model.Route
 
 	result = append(result, r.routes[:insertBefore]...)
 	result = append(result, r.routes[rangeStart:rangeEnd]...)
@@ -145,7 +115,7 @@ func (r *Router) Reorder(rangeStart, rangeLength, insertBefore int) error {
 	return nil
 }
 
-func (r *Router) Match(phone string) (*Route, bool) {
+func (r *Router) Match(phone string) (*model.Route, bool) {
 	routes := r.GetAll()
 	for _, r := range routes {
 		if r.Match(phone) {

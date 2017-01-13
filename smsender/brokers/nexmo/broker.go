@@ -2,7 +2,7 @@ package nexmo
 
 import (
 	log "github.com/Sirupsen/logrus"
-	"github.com/minchao/smsender/smsender"
+	"github.com/minchao/smsender/smsender/model"
 	"gopkg.in/njern/gonexmo.v1"
 )
 
@@ -32,7 +32,7 @@ func (b Broker) Name() string {
 	return b.name
 }
 
-func (b Broker) Send(msg *smsender.Message, result *smsender.Result) {
+func (b Broker) Send(msg *model.Message, result *model.Result) {
 	message := &nexmo.SMSMessage{
 		From: msg.From,
 		To:   msg.To,
@@ -42,25 +42,25 @@ func (b Broker) Send(msg *smsender.Message, result *smsender.Result) {
 
 	resp, err := b.client.SMS.Send(message)
 	if err != nil {
-		result.Status = smsender.StatusFailed.String()
-		result.Original = smsender.BrokerError{Error: err.Error()}
+		result.Status = model.StatusFailed.String()
+		result.Original = model.BrokerError{Error: err.Error()}
 	} else {
 		if resp.MessageCount > 0 {
 			respMsg := resp.Messages[0]
 
 			result.Status = convertStatus(respMsg.Status.String()).String()
 		} else {
-			result.Status = smsender.StatusFailed.String()
+			result.Status = model.StatusFailed.String()
 		}
 		result.Original = resp
 	}
 }
 
-func convertStatus(rawStatus string) smsender.StatusCode {
+func convertStatus(rawStatus string) model.StatusCode {
 	switch rawStatus {
 	case nexmo.ResponseSuccess.String():
-		return smsender.StatusSent
+		return model.StatusSent
 	default:
-		return smsender.StatusFailed
+		return model.StatusFailed
 	}
 }

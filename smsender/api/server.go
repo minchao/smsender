@@ -6,6 +6,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/gorilla/mux"
 	"github.com/minchao/smsender/smsender"
+	"github.com/minchao/smsender/smsender/model"
 	"github.com/rs/cors"
 	config "github.com/spf13/viper"
 	"github.com/urfave/negroni"
@@ -13,13 +14,13 @@ import (
 
 type Server struct {
 	sender *smsender.Sender
-	out    chan *smsender.Message
+	out    chan *model.Message
 }
 
 func NewServer(sender *smsender.Sender) *Server {
 	server := Server{
 		sender: sender,
-		out:    make(chan *smsender.Message, 1000),
+		out:    make(chan *model.Message, 1000),
 	}
 	return &server
 }

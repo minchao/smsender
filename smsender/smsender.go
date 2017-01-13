@@ -4,6 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"sync"
+
+	"github.com/minchao/smsender/smsender/model"
 )
 
 const DefaultBroker = "_default_"
@@ -12,9 +14,9 @@ var senderSingleton Sender
 
 type Sender struct {
 	router    Router
-	brokers   map[string]Broker
-	in        chan *Message
-	out       chan *Message
+	brokers   map[string]model.Broker
+	in        chan *model.Message
+	out       chan *model.Message
 	workerNum int
 	rwMutex   sync.RWMutex
 	init      sync.Once
@@ -22,17 +24,16 @@ type Sender struct {
 
 func SMSender(workerNum int) *Sender {
 	senderSingleton.init.Do(func() {
-		senderSingleton.brokers = make(map[string]Broker)
-		senderSingleton.in = make(chan *Message, 1000)
-		senderSingleton.out = make(chan *Message, 1000)
+		senderSingleton.brokers = make(map[string]model.Broker)
+		senderSingleton.in = make(chan *model.Message, 1000)
+		senderSingleton.out = make(chan *model.Message, 1000)
 		senderSingleton.workerNum = workerNum
 		senderSingleton.AddBroker(NewDummyBroker(DefaultBroker))
 	})
-
 	return &senderSingleton
 }
 
-func (s *Sender) GetBroker(name string) Broker {
+func (s *Sender) GetBroker(name string) model.Broker {
 	s.rwMutex.RLock()
 	defer s.rwMutex.RUnlock()
 	if broker, exists := s.brokers[name]; exists {
@@ -41,7 +42,7 @@ func (s *Sender) GetBroker(name string) Broker {
 	return nil
 }
 
-func (s *Sender) AddBroker(broker Broker) {
+func (s *Sender) AddBroker(broker model.Broker) {
 	s.rwMutex.Lock()
 	defer s.rwMutex.Unlock()
 	if _, exists := s.brokers[broker.Name()]; exists {
@@ -50,11 +51,11 @@ func (s *Sender) AddBroker(broker Broker) {
 	s.brokers[broker.Name()] = broker
 }
 
-func (s *Sender) GetRoutes() []*Route {
+func (s *Sender) GetRoutes() []*model.Route {
 	return s.router.GetAll()
 }
 
-func (s *Sender) AddRoute(route *Route) {
+func (s *Sender) AddRoute(route *model.Route) {
 	s.router.Add(route)
 }
 
@@ -67,7 +68,7 @@ func (s *Sender) AddRouteWith(name, pattern, brokerName, from string) error {
 	if broker == nil {
 		return errors.New("broker not found")
 	}
-	s.router.Add(NewRoute(name, pattern, broker).SetFrom(from))
+	s.router.Add(model.NewRoute(name, pattern, broker).SetFrom(from))
 	return nil
 }
 
@@ -87,11 +88,11 @@ func (s *Sender) ReorderRoutes(rangeStart, rangeLength, insertBefore int) error 
 	return s.router.Reorder(rangeStart, rangeLength, insertBefore)
 }
 
-func (s *Sender) Match(phone string) (*Route, bool) {
+func (s *Sender) Match(phone string) (*model.Route, bool) {
 	return s.router.Match(phone)
 }
 
-func (s *Sender) Stream(from chan *Message) {
+func (s *Sender) Stream(from chan *model.Message) {
 	for {
 		select {
 		case msg := <-from:
