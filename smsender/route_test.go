@@ -4,12 +4,13 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/minchao/smsender/smsender/brokers/dummy"
 	"github.com/minchao/smsender/smsender/model"
 )
 
 func createRouter() Router {
-	dummyBroker1 := NewDummyBroker("dummy1")
-	dummyBroker2 := NewDummyBroker("dummy2")
+	dummyBroker1 := dummy.NewBroker("dummy1")
+	dummyBroker2 := dummy.NewBroker("dummy2")
 	router := Router{}
 
 	router.Add(model.NewRoute("default", `^\+.*`, dummyBroker1))
@@ -59,7 +60,7 @@ func TestRouter_Get(t *testing.T) {
 
 func TestRouter_Set(t *testing.T) {
 	router := createRouter()
-	broker := NewDummyBroker("dummy")
+	broker := dummy.NewBroker("dummy")
 
 	route := model.NewRoute("taiwan", `^\+8869`, broker).SetFrom("sender")
 
@@ -101,10 +102,9 @@ func TestRouter_Remove(t *testing.T) {
 
 func TestRouter_Reorder(t *testing.T) {
 	var (
-		dummyBroker = NewDummyBroker("dummy")
+		dummyBroker = dummy.NewBroker("dummy")
 		router      = Router{}
 	)
-
 	for _, r := range []string{"D", "C", "B", "A"} {
 		router.Add(model.NewRoute(r, "", dummyBroker))
 	}

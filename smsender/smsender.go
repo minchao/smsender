@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"sync"
 
+	"github.com/minchao/smsender/smsender/brokers/dummy"
 	"github.com/minchao/smsender/smsender/model"
+	"github.com/minchao/smsender/smsender/store"
 )
 
 const DefaultBroker = "_default_"
@@ -13,6 +15,7 @@ const DefaultBroker = "_default_"
 var senderSingleton Sender
 
 type Sender struct {
+	store     store.Store
 	router    Router
 	brokers   map[string]model.Broker
 	in        chan *model.Message
@@ -24,11 +27,12 @@ type Sender struct {
 
 func SMSender(workerNum int) *Sender {
 	senderSingleton.init.Do(func() {
+		senderSingleton.store = store.NewSqlStore()
 		senderSingleton.brokers = make(map[string]model.Broker)
 		senderSingleton.in = make(chan *model.Message, 1000)
 		senderSingleton.out = make(chan *model.Message, 1000)
 		senderSingleton.workerNum = workerNum
-		senderSingleton.AddBroker(NewDummyBroker(DefaultBroker))
+		senderSingleton.AddBroker(dummy.NewBroker(DefaultBroker))
 	})
 	return &senderSingleton
 }

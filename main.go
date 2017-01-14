@@ -4,6 +4,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/minchao/smsender/smsender"
 	"github.com/minchao/smsender/smsender/api"
+	"github.com/minchao/smsender/smsender/brokers/dummy"
 	config "github.com/spf13/viper"
 )
 
@@ -15,9 +16,10 @@ func main() {
 		log.Fatalf("Fatal error config file: %s", err)
 	}
 
-	broker := smsender.NewDummyBroker("dummy")
-
 	sender := smsender.SMSender(config.GetInt("worker.num"))
+
+	broker := dummy.NewBroker("dummy")
+
 	sender.AddBroker(broker)
 	sender.AddRouteWith("dummy", `.*`, broker.Name(), "dummy")
 	go sender.Run()
