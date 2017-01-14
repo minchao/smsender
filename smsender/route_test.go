@@ -13,11 +13,11 @@ func createRouter() Router {
 	dummyBroker2 := dummy.NewBroker("dummy2")
 	router := Router{}
 
-	router.Add(model.NewRoute("default", `^\+.*`, dummyBroker1))
-	router.Add(model.NewRoute("japan", `^\+81`, dummyBroker2))
-	router.Add(model.NewRoute("taiwan", `^\+886`, dummyBroker2))
-	router.Add(model.NewRoute("telco", `^\+886987`, dummyBroker2))
-	router.Add(model.NewRoute("user", `^\+886987654321`, dummyBroker2))
+	router.Add(model.NewRoute("default", `^\+.*`, dummyBroker1, true))
+	router.Add(model.NewRoute("japan", `^\+81`, dummyBroker2, true))
+	router.Add(model.NewRoute("taiwan", `^\+886`, dummyBroker2, true))
+	router.Add(model.NewRoute("telco", `^\+886987`, dummyBroker2, true))
+	router.Add(model.NewRoute("user", `^\+886987654321`, dummyBroker2, true))
 
 	return router
 }
@@ -62,9 +62,9 @@ func TestRouter_Set(t *testing.T) {
 	router := createRouter()
 	broker := dummy.NewBroker("dummy")
 
-	route := model.NewRoute("taiwan", `^\+8869`, broker).SetFrom("sender")
+	route := model.NewRoute("taiwan", `^\+8869`, broker, true).SetFrom("sender")
 
-	if err := router.Set(route.Name, route.Pattern, route.GetBroker(), route.From); err == nil {
+	if err := router.Set(route.Name, route.Pattern, route.GetBroker(), route.From, true); err == nil {
 		newRoute := router.Get("taiwan")
 		if newRoute == nil {
 			t.Fatal("route is not equal")
@@ -82,7 +82,7 @@ func TestRouter_Set(t *testing.T) {
 			t.Fatal("route.From is not equal")
 		}
 	}
-	if err := router.Set("france", "", broker, ""); err == nil {
+	if err := router.Set("france", "", broker, "", true); err == nil {
 		t.Fatal("set route should be failed")
 	}
 }
@@ -106,7 +106,7 @@ func TestRouter_Reorder(t *testing.T) {
 		router      = Router{}
 	)
 	for _, r := range []string{"D", "C", "B", "A"} {
-		router.Add(model.NewRoute(r, "", dummyBroker))
+		router.Add(model.NewRoute(r, "", dummyBroker, true))
 	}
 
 	if err := router.Reorder(-1, 0, 0); err == nil {
@@ -211,5 +211,18 @@ func TestRouter_Match(t *testing.T) {
 				t.Fatalf("test '%d' should not match", i)
 			}
 		}
+	}
+}
+
+func TestRouter_Match2(t *testing.T) {
+	router := createRouter()
+	router.Get("telco").IsActive = false
+
+	if match, ok := router.Match("+886987"); ok {
+		if match.Name != "taiwan" {
+			t.Fatal("test route.Name should be 'taiwan'")
+		}
+	} else {
+		t.Fatal("test should match")
 	}
 }

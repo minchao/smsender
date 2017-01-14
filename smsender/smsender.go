@@ -65,7 +65,7 @@ func (s *Sender) AddRoute(route *model.Route) {
 	s.SaveRoutesToDB()
 }
 
-func (s *Sender) AddRouteWith(name, pattern, brokerName, from string) error {
+func (s *Sender) AddRouteWith(name, pattern, brokerName, from string, isActive bool) error {
 	route := s.router.Get(name)
 	if route != nil {
 		return errors.New("route already exists")
@@ -74,17 +74,17 @@ func (s *Sender) AddRouteWith(name, pattern, brokerName, from string) error {
 	if broker == nil {
 		return errors.New("broker not found")
 	}
-	s.router.Add(model.NewRoute(name, pattern, broker).SetFrom(from))
+	s.router.Add(model.NewRoute(name, pattern, broker, isActive).SetFrom(from))
 	s.SaveRoutesToDB()
 	return nil
 }
 
-func (s *Sender) SetRouteWith(name, pattern, brokerName, from string) error {
+func (s *Sender) SetRouteWith(name, pattern, brokerName, from string, isActive bool) error {
 	broker := s.GetBroker(brokerName)
 	if broker == nil {
 		return errors.New("broker not found")
 	}
-	if err := s.router.Set(name, pattern, broker, from); err != nil {
+	if err := s.router.Set(name, pattern, broker, from, isActive); err != nil {
 		return err
 	}
 	s.SaveRoutesToDB()
@@ -137,7 +137,7 @@ func (s *Sender) LoadRoutesFromDB() error {
 	routeRows := result.Data.([]*model.Route)
 	for _, r := range routeRows {
 		if broker := s.GetBroker(r.Broker); broker != nil {
-			routes = append(routes, model.NewRoute(r.Name, r.Pattern, broker).SetFrom(r.From))
+			routes = append(routes, model.NewRoute(r.Name, r.Pattern, broker, r.IsActive).SetFrom(r.From))
 		}
 	}
 

@@ -20,10 +20,11 @@ func (s *Server) Routes(w http.ResponseWriter, r *http.Request) {
 }
 
 type Route struct {
-	Name    string `json:"name" validate:"required"`
-	Pattern string `json:"pattern" validate:"required"`
-	Broker  string `json:"broker" validate:"required"`
-	From    string `json:"from"`
+	Name     string `json:"name" validate:"required"`
+	Pattern  string `json:"pattern" validate:"required"`
+	Broker   string `json:"broker" validate:"required"`
+	From     string `json:"from"`
+	IsActive bool   `json:"is_active"`
 }
 
 func (s *Server) RoutePost(w http.ResponseWriter, r *http.Request) {
@@ -33,7 +34,7 @@ func (s *Server) RoutePost(w http.ResponseWriter, r *http.Request) {
 		render(w, http.StatusBadRequest, formErrorMessage(err))
 		return
 	}
-	if err := s.sender.AddRouteWith(route.Name, route.Pattern, route.Broker, route.From); err != nil {
+	if err := s.sender.AddRouteWith(route.Name, route.Pattern, route.Broker, route.From, route.IsActive); err != nil {
 		render(w, http.StatusBadRequest, formErrorMessage(err))
 		return
 	}
@@ -72,7 +73,7 @@ func (s *Server) RoutePut(w http.ResponseWriter, r *http.Request) {
 		render(w, http.StatusBadRequest, formErrorMessage(err))
 		return
 	}
-	if err := s.sender.SetRouteWith(route.Name, route.Pattern, route.Broker, route.From); err != nil {
+	if err := s.sender.SetRouteWith(route.Name, route.Pattern, route.Broker, route.From, route.IsActive); err != nil {
 		render(w, http.StatusBadRequest, formErrorMessage(err))
 		return
 	}

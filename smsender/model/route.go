@@ -3,22 +3,24 @@ package model
 import "regexp"
 
 type Route struct {
-	Id      int64  `json:"-"`
-	Name    string `json:"name"`
-	Pattern string `json:"pattern"`
-	Broker  string `json:"broker"`
-	From    string `json:"from" db:"fromName"`
-	broker  Broker
-	regex   *regexp.Regexp
+	Id       int64  `json:"-"`
+	Name     string `json:"name"`
+	Pattern  string `json:"pattern"`
+	Broker   string `json:"broker"`
+	From     string `json:"from" db:"fromName"`
+	IsActive bool   `json:"is_active"`
+	broker   Broker
+	regex    *regexp.Regexp
 }
 
-func NewRoute(name, pattern string, broker Broker) *Route {
+func NewRoute(name, pattern string, broker Broker, isActive bool) *Route {
 	return &Route{
-		Name:    name,
-		Pattern: pattern,
-		Broker:  broker.Name(),
-		broker:  broker,
-		regex:   regexp.MustCompile(pattern),
+		Name:     name,
+		Pattern:  pattern,
+		Broker:   broker.Name(),
+		IsActive: isActive,
+		broker:   broker,
+		regex:    regexp.MustCompile(pattern),
 	}
 }
 
@@ -37,5 +39,5 @@ func (r *Route) SetFrom(from string) *Route {
 }
 
 func (r *Route) Match(recipient string) bool {
-	return r.regex.MatchString(recipient)
+	return r.IsActive && r.regex.MatchString(recipient)
 }

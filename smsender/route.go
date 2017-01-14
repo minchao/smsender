@@ -52,7 +52,7 @@ func (r *Router) SetAll(routes []*model.Route) {
 	r.routes = routes
 }
 
-func (r *Router) Set(name, pattern string, broker model.Broker, from string) error {
+func (r *Router) Set(name, pattern string, broker model.Broker, from string, isActive bool) error {
 	r.Lock()
 	defer r.Unlock()
 	_, route := r.get(name)
@@ -63,6 +63,7 @@ func (r *Router) Set(name, pattern string, broker model.Broker, from string) err
 	route.Broker = broker.Name()
 	route.SetBroker(broker)
 	route.From = from
+	route.IsActive = isActive
 	return nil
 }
 
