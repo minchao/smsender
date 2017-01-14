@@ -1,4 +1,11 @@
 {
+    "db": {
+        "dsn": "user:password@tcp(localhost:3306)/dbname",
+        "connection": {
+            "maxOpenConns": 100,
+            "maxIdleConns": 50
+        },
+    },
     "api": {
         "addr": ":8080",
         "tls": false,

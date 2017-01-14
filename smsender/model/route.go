@@ -8,8 +8,8 @@ type Route struct {
 	Pattern string `json:"pattern"`
 	Broker  string `json:"broker"`
 	From    string `json:"from" db:"fromName"`
-	regex   *regexp.Regexp
 	broker  Broker
+	regex   *regexp.Regexp
 }
 
 func NewRoute(name, pattern string, broker Broker) *Route {
@@ -22,8 +22,9 @@ func NewRoute(name, pattern string, broker Broker) *Route {
 	}
 }
 
-func (r *Route) SetBroker(broker Broker) {
+func (r *Route) SetBroker(broker Broker) *Route {
 	r.broker = broker
+	return r
 }
 
 func (r *Route) GetBroker() Broker {

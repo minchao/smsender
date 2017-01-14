@@ -21,7 +21,6 @@ func main() {
 	broker := dummy.NewBroker("dummy")
 
 	sender.AddBroker(broker)
-	sender.AddRouteWith("dummy", `.*`, broker.Name(), "dummy")
 	go sender.Run()
 
 	server := api.NewServer(sender)

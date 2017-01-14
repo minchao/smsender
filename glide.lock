@@ -1,8 +1,8 @@
-hash: 7358cff994400dcc3036bfde0a1a1f75f31cc838ad2243e0fb8c00139d9941d3
-updated: 2017-01-02T13:44:27.92668985+08:00
+hash: ed511ce8118f3b017270c924e9f1dca932dc3c77631577e23971300a28ac6c58
+updated: 2017-01-14T17:48:27.280950128+08:00
 imports:
 - name: github.com/aws/aws-sdk-go
-  version: 36670f6ab1769ad77fa5f7e2c194398733503635
+  version: 63ce630574a5ec05ecd8e8de5cea16332a5a684d
   subpackages:
   - aws
   - aws/awserr
@@ -43,6 +43,8 @@ imports:
   - currency
 - name: github.com/go-playground/universal-translator
   version: 8bf00f2bdf7faea5c3583d41f57bf1eb15b743d7
+- name: github.com/go-sql-driver/mysql
+  version: 2e00b5cd70399450106cec6431c2e2ce3cae5034
 - name: github.com/golang/protobuf
   version: 8ee79997227bf9b34611aee7946ae64735e6fd93
   subpackages:
@@ -52,7 +54,7 @@ imports:
 - name: github.com/gorilla/mux
   version: 757bef944d0f21880861c2dd9c871ca543023cba
 - name: github.com/hashicorp/hcl
-  version: 80e628d796135357b3d2e33a985c666b9f35eee1
+  version: eb6f65b2d77ed5078887f960ff570fbddbbeb49d
   subpackages:
   - hcl/ast
   - hcl/parser
@@ -64,8 +66,12 @@ imports:
   - json/token
 - name: github.com/jmespath/go-jmespath
   version: bd40a432e4c76585ef6b72d3fd96fb9b6dc7b68d
+- name: github.com/jmoiron/sqlx
+  version: cac998c4f0959c19c638c523e374fa8e4e0bcfe3
+  subpackages:
+  - reflectx
 - name: github.com/magiconair/properties
-  version: 9c47895dc1ce54302908ab8a43385d1f5df2c11c
+  version: b3b15ef068fd0b17ddf408a23669f20811d194d2
 - name: github.com/mitchellh/mapstructure
   version: bfdb1a85537d60bc7e954e600c250219ea497417
 - name: github.com/pelletier/go-buffruneio
@@ -85,13 +91,13 @@ imports:
 - name: github.com/Sirupsen/logrus
   version: d26492970760ca5d33129d2d799e34be5c4782eb
 - name: github.com/spf13/afero
-  version: 90dd71edc4d0a8b3511dc12ea15d617d03be09e0
+  version: 72b31426848c6ef12a7a8e216708cb0d1530f074
   subpackages:
   - mem
 - name: github.com/spf13/cast
   version: 56a7ecbeb18dde53c6db4bd96b541fd9741b8d44
 - name: github.com/spf13/jwalterweatherman
-  version: 33c24e77fb80341fe7130ee7c594256ff08ccc46
+  version: fa7ca7e836cf3a8bb4ebf799f472c12d7e903d66
 - name: github.com/spf13/pflag
   version: 25f8b5b07aece3207895bf19f7ab517eb3b22a40
 - name: github.com/spf13/viper
@@ -108,9 +114,9 @@ imports:
 - name: github.com/ttacon/libphonenumber
   version: 7cae2148c8b6ea3d01e4b2e3f1cc9e7136bb1bcf
 - name: github.com/urfave/negroni
-  version: 869b186bb47dc211b46324e11173d59aca4902b8
+  version: 46eece4d3b43dd330e141b20adf0ce9b2b35ba53
 - name: golang.org/x/net
-  version: 8fd7f25955530b92e73e9e1932a41b522b22ccd9
+  version: f2499483f923065a842d38eb4c7f1927e6fc6e6d
   subpackages:
   - context
 - name: golang.org/x/sys
@@ -118,7 +124,7 @@ imports:
   subpackages:
   - unix
 - name: golang.org/x/text
-  version: fd889fe3a20f4878f5f47672fd3ca5b86db005e2
+  version: f72d8390a633d5dfb0cc84043294db9f6c935756
   subpackages:
   - transform
   - unicode/norm

@@ -10,11 +10,12 @@ import:
   - aws/session
   - service/sns
 - package: github.com/carlosdp/twiliogo
+- package: github.com/go-sql-driver/mysql
 - package: github.com/gorilla/mux
+- package: github.com/jmoiron/sqlx
 - package: github.com/rs/cors
   version: ^1.0.0
 - package: github.com/rs/xid
-  version: ^1.0.0
 - package: github.com/spf13/viper
 - package: github.com/ttacon/libphonenumber
 - package: github.com/urfave/negroni

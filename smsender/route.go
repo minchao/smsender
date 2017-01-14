@@ -13,10 +13,14 @@ type Router struct {
 	sync.RWMutex
 }
 
+func (r *Router) getAll() []*model.Route {
+	return r.routes
+}
+
 func (r *Router) GetAll() []*model.Route {
 	r.RLock()
 	defer r.RUnlock()
-	return r.routes
+	return r.getAll()
 }
 
 func (r *Router) get(name string) (idx int, route *model.Route) {
