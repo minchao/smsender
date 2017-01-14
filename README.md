@@ -10,7 +10,12 @@ A SMS server written in Go (Golang).
 * SMS delivery worker.
 * RESTful API.
 
-## Install
+## Requirements
+
+* Go
+* MySQL
+
+## Installing
 
 ```
 go get github.com/minchao/smsender
@@ -50,13 +55,15 @@ brokers:
 Add the following code to main.go:
 
 ```go
+    sender := smsender.SMSender(config.GetInt("worker.num"))
+    
 	nexmoBroker := nexmo.Config{
 		Key:    config.GetString("brokers.nexmo.key"),
 		Secret: config.GetString("brokers.nexmo.secret"),
 	}.NewBroker("nexmo")
 	
-	sender := smsender.SMSender(config.GetInt("worker.num"))
 	sender.AddBroker(nexmoBroker)
+	sender.Run()
 ```
 
 ## Matching Routes
