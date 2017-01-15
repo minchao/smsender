@@ -8,7 +8,7 @@ type Route struct {
 	Pattern  string `json:"pattern"`
 	Broker   string `json:"broker"`
 	From     string `json:"from" db:"fromName"`
-	IsActive bool   `json:"is_active"`
+	IsActive bool   `json:"is_active" db:"isActive"`
 	broker   Broker
 	regex    *regexp.Regexp
 }
