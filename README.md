@@ -8,12 +8,13 @@ A SMS server written in Go (Golang).
 * Support various SMS brokers.
 * Uses routes to determine which broker to send SMS.
 * SMS delivery worker.
+* SMS delivery records.
 * RESTful API.
 
 ## Requirements
 
 * Go
-* MySQL
+* MySQL >= 5.7
 
 ## Installing
 
