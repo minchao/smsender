@@ -8,7 +8,7 @@ import (
 )
 
 func (s *Server) Hello(w http.ResponseWriter, r *http.Request) {
-	render(w, 200, "Hello!")
+	render(w, http.StatusOK, "Hello!")
 }
 
 type RouteResults struct {
@@ -16,7 +16,7 @@ type RouteResults struct {
 }
 
 func (s *Server) Routes(w http.ResponseWriter, r *http.Request) {
-	render(w, 200, RouteResults{Data: s.sender.GetRoutes()})
+	render(w, http.StatusOK, RouteResults{Data: s.sender.GetRoutes()})
 }
 
 type Route struct {
@@ -39,7 +39,7 @@ func (s *Server) RoutePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	render(w, 200, route)
+	render(w, http.StatusOK, route)
 }
 
 type Reorder struct {
@@ -63,7 +63,7 @@ func (s *Server) RouteReorder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	render(w, 200, RouteResults{Data: s.sender.GetRoutes()})
+	render(w, http.StatusOK, RouteResults{Data: s.sender.GetRoutes()})
 }
 
 func (s *Server) RoutePut(w http.ResponseWriter, r *http.Request) {
@@ -78,7 +78,7 @@ func (s *Server) RoutePut(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	render(w, 200, route)
+	render(w, http.StatusOK, route)
 }
 
 func (s *Server) RouteDelete(w http.ResponseWriter, r *http.Request) {
@@ -86,7 +86,7 @@ func (s *Server) RouteDelete(w http.ResponseWriter, r *http.Request) {
 	routeName, _ := vars["route"]
 	s.sender.RemoveRoute(routeName)
 
-	render(w, 204, nil)
+	render(w, http.StatusNoContent, nil)
 }
 
 type RouteTestResult struct {
@@ -109,7 +109,7 @@ func (s *Server) RouteTest(w http.ResponseWriter, r *http.Request) {
 
 	route, _ := s.sender.Match(phone)
 
-	render(w, 200, RouteTestResult{Phone: phone, Route: route})
+	render(w, http.StatusOK, RouteTestResult{Phone: phone, Route: route})
 }
 
 func (s *Server) MessagesGet(w http.ResponseWriter, r *http.Request) {
@@ -175,5 +175,5 @@ func (s *Server) MessagesPost(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	render(w, 200, MessageResults{Data: results})
+	render(w, http.StatusOK, MessageResults{Data: results})
 }
