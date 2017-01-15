@@ -146,6 +146,14 @@ func (s *Sender) LoadRoutesFromDB() error {
 	return nil
 }
 
+func (s *Sender) GetMessageResult(id string) (model.Result, error) {
+	if result := <-s.store.Message().Find(id); result.Err != nil {
+		return model.Result{}, result.Err
+	} else {
+		return result.Data.(model.Result), nil
+	}
+}
+
 func (s *Sender) Match(phone string) (*model.Route, bool) {
 	return s.router.Match(phone)
 }

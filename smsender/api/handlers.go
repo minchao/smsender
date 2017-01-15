@@ -112,6 +112,19 @@ func (s *Server) RouteTest(w http.ResponseWriter, r *http.Request) {
 	render(w, 200, RouteTestResult{Phone: phone, Route: route})
 }
 
+func (s *Server) MessagesGet(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, _ := vars["id"]
+
+	message, err := s.sender.GetMessageResult(id)
+	if err != nil {
+		render(w, http.StatusNotFound, errorMessage{Error: "not_found", ErrorDescription: "message not found"})
+		return
+	}
+
+	render(w, http.StatusOK, message)
+}
+
 type Message struct {
 	To    []string `json:"to" validate:"required,gt=0,dive,phone"`
 	From  string   `json:"from"`

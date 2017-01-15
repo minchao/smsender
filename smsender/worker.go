@@ -40,21 +40,34 @@ func (w worker) process(message *model.Message) {
 
 	result = model.NewResult(*message, broker.Name())
 
+	// Save the send record to db
+	rchan1 := w.sender.store.Message().Save(result)
+
 	broker.Send(message, result)
 
 	sentTime := time.Now()
+	latency := sentTime.Sub(message.CreatedTime).Nanoseconds()
 	result.SentTime = &sentTime
+	result.Latency = &latency
 
-	logger = logger.WithField("latency", sentTime.Sub(message.CreatedTime).Nanoseconds())
+	rchan2 := w.sender.store.Message().Update(result)
 
+	logger2 := logger.WithField("result", *result)
 	switch result.Status {
 	case model.StatusFailed.String():
-		logger.WithField("result", *result).Error("broker send message failed")
+		logger2.Error("broker send message failed")
 	default:
-		logger.WithField("result", *result).Info("broker send message")
+		logger2.Info("broker send message")
 	}
 
 	if message.Result != nil {
 		message.Result <- *result
+	}
+
+	if r := <-rchan1; r.Err != nil {
+		logger.Errorf("store save error: %v", r.Err)
+	}
+	if r := <-rchan2; r.Err != nil {
+		logger.Errorf("store update error: %v", r.Err)
 	}
 }

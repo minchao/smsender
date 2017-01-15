@@ -8,8 +8,9 @@ import (
 )
 
 type SqlStore struct {
-	db    *sqlx.DB
-	route RouteStore
+	db      *sqlx.DB
+	route   RouteStore
+	message MessageStore
 }
 
 func initConnection() *SqlStore {
@@ -31,10 +32,15 @@ func NewSqlStore() Store {
 	sqlStore := initConnection()
 
 	sqlStore.route = NewSqlRouteStore(sqlStore)
+	sqlStore.message = NewSqlMessageStore(sqlStore)
 
 	return sqlStore
 }
 
 func (ss *SqlStore) Route() RouteStore {
 	return ss.route
+}
+
+func (ss *SqlStore) Message() MessageStore {
+	return ss.message
 }

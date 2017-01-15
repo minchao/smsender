@@ -6,9 +6,9 @@ const SqlRouteTable = `
 CREATE TABLE IF NOT EXISTS route (
   id       int(11) NOT NULL AUTO_INCREMENT,
   name     varchar(32) COLLATE utf8_unicode_ci NOT NULL,
-  pattern  varchar(20) COLLATE utf8_unicode_ci NOT NULL,
+  pattern  varchar(32) COLLATE utf8_unicode_ci NOT NULL,
   broker   varchar(32) COLLATE utf8_unicode_ci NOT NULL,
-  fromName varchar(32) COLLATE utf8_unicode_ci NOT NULL,
+  fromName varchar(20) COLLATE utf8_unicode_ci NOT NULL,
   isActive tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (id),
   UNIQUE KEY name (name)

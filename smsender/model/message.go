@@ -30,16 +30,17 @@ var statusCodeMap = map[StatusCode]string{
 
 type Data struct {
 	Id          string    `json:"id"`
-	To          string    `json:"to"`
-	From        string    `json:"from"`
+	To          string    `json:"to" db:"toNumber"`
+	From        string    `json:"from" db:"fromName"`
 	Body        string    `json:"body"`
 	Async       bool      `json:"async,omitempty"`
-	CreatedTime time.Time `json:"created_time"`
+	CreatedTime time.Time `json:"created_time" db:"createdTime"`
 }
 
 type Result struct {
 	Data
-	SentTime *time.Time  `json:"sent_time"`
+	SentTime *time.Time  `json:"sent_time" db:"sentTime"`
+	Latency  *int64      `json:"-"` // nanosecond
 	Route    string      `json:"route"`
 	Broker   string      `json:"broker"`
 	Status   string      `json:"status"`
