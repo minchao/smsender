@@ -32,7 +32,7 @@ func (rs *SqlRouteStore) FindAll() StoreChannel {
 	go func() {
 		result := StoreResult{}
 		var routes []*model.Route
-		if err := rs.db.Select(&routes, `SELECT * FROM route`); err != nil {
+		if err := rs.db.Select(&routes, `SELECT * FROM route ORDER BY id ASC`); err != nil {
 			result.Err = err
 		} else {
 			result.Data = routes
