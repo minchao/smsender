@@ -20,6 +20,7 @@ func main() {
 	broker := dummy.NewBroker("dummy")
 
 	sender.AddBroker(broker)
+	sender.LoadRoutesFromDB()
 	go sender.Run()
 
 	server := api.NewServer(sender)
