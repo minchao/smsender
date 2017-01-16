@@ -11,8 +11,7 @@ import (
 func main() {
 	config.SetConfigName("config")
 	config.AddConfigPath(".")
-	err := config.ReadInConfig()
-	if err != nil {
+	if err := config.ReadInConfig(); err != nil {
 		log.Fatalf("Fatal error config file: %s", err)
 	}
 
