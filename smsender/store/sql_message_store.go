@@ -3,6 +3,7 @@ package store
 import (
 	"encoding/json"
 
+	"github.com/jmoiron/sqlx"
 	"github.com/minchao/smsender/smsender/model"
 )
 
@@ -40,6 +41,7 @@ func (ms *SqlMessageStore) Find(id string) StoreChannel {
 
 	go func() {
 		result := StoreResult{}
+
 		var message model.Result
 		if err := ms.db.Get(&message, `SELECT * FROM message WHERE id = ?`, id); err != nil {
 			result.Err = err
@@ -50,6 +52,42 @@ func (ms *SqlMessageStore) Find(id string) StoreChannel {
 				}
 			}
 			result.Data = message
+		}
+
+		storeChannel <- result
+		close(storeChannel)
+	}()
+
+	return storeChannel
+}
+
+func (ms *SqlMessageStore) FindByIds(ids []string) StoreChannel {
+	storeChannel := make(StoreChannel, 1)
+
+	go func() {
+		result := StoreResult{}
+
+		query, args, err := sqlx.In("SELECT * FROM message WHERE id IN (?)", ids)
+		if err != nil {
+			result.Err = err
+			storeChannel <- result
+			close(storeChannel)
+			return
+		}
+		query = ms.db.Rebind(query)
+
+		var messages []*model.Result
+		if err := ms.db.Select(&messages, query, args...); err != nil {
+			result.Err = err
+		} else {
+			for _, message := range messages {
+				if message.Original != nil {
+					if original, err := unmarshalOriginal(message.Original); err == nil {
+						message.Original = original
+					}
+				}
+			}
+			result.Data = messages
 		}
 
 		storeChannel <- result

@@ -112,17 +112,28 @@ func (s *Server) RouteTest(w http.ResponseWriter, r *http.Request) {
 	render(w, http.StatusOK, RouteTestResult{Phone: phone, Route: route})
 }
 
-func (s *Server) MessagesGet(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	id, _ := vars["id"]
-
-	message, err := s.sender.GetMessageResult(id)
-	if err != nil {
-		render(w, http.StatusNotFound, errorMessage{Error: "not_found", ErrorDescription: "message not found"})
+func (s *Server) Messages(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	ids, _ := r.Form["ids"]
+	if err := newValidate().Struct(struct {
+		Ids []string `json:"ids" validate:"required,gt=0,dive,required"`
+	}{Ids: ids}); err != nil {
+		render(w, http.StatusBadRequest, formErrorMessage(err))
 		return
 	}
 
-	render(w, http.StatusOK, message)
+	messages, err := s.sender.GetMessageResults(ids)
+	if err != nil {
+		render(w, http.StatusNotFound, errorMessage{Error: "not_found", ErrorDescription: err.Error()})
+		return
+	}
+
+	var data = []model.Result{}
+	for _, m := range messages {
+		data = append(data, *m)
+	}
+
+	render(w, http.StatusOK, MessageResults{Data: data})
 }
 
 type Message struct {

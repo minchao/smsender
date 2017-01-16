@@ -21,6 +21,7 @@ type RouteStore interface {
 
 type MessageStore interface {
 	Find(id string) StoreChannel
+	FindByIds(ids []string) StoreChannel
 	Save(message *model.Result) StoreChannel
 	Update(message *model.Result) StoreChannel
 }
