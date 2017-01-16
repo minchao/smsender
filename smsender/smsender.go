@@ -29,6 +29,7 @@ type Sender struct {
 func SMSender(workerNum int) *Sender {
 	senderSingleton.init.Do(func() {
 		senderSingleton.store = store.NewSqlStore()
+		senderSingleton.router = *NewRouter()
 		senderSingleton.brokers = make(map[string]model.Broker)
 		senderSingleton.in = make(chan *model.Message, 1000)
 		senderSingleton.out = make(chan *model.Message, 1000)

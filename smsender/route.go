@@ -13,6 +13,10 @@ type Router struct {
 	sync.RWMutex
 }
 
+func NewRouter() *Router {
+	return &Router{routes: []*model.Route{}}
+}
+
 func (r *Router) getAll() []*model.Route {
 	return r.routes
 }
