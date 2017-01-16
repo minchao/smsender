@@ -8,7 +8,7 @@ import (
 	"github.com/minchao/smsender/smsender/model"
 )
 
-func createRouter() Router {
+func createRouter() *Router {
 	dummyBroker1 := dummy.NewBroker("dummy1")
 	dummyBroker2 := dummy.NewBroker("dummy2")
 	router := Router{}
@@ -19,7 +19,7 @@ func createRouter() Router {
 	router.Add(model.NewRoute("telco", `^\+886987`, dummyBroker2, true))
 	router.Add(model.NewRoute("user", `^\+886987654321`, dummyBroker2, true))
 
-	return router
+	return &router
 }
 
 func compareOrder(routes []*model.Route, expected []string) error {
@@ -101,13 +101,16 @@ func TestRouter_Remove(t *testing.T) {
 }
 
 func TestRouter_Reorder(t *testing.T) {
-	var (
-		dummyBroker = dummy.NewBroker("dummy")
-		router      = Router{}
-	)
-	for _, r := range []string{"D", "C", "B", "A"} {
-		router.Add(model.NewRoute(r, "", dummyBroker, true))
+	newRouter := func() *Router {
+		router := Router{}
+		dummyBroker := dummy.NewBroker("dummy")
+		for _, r := range []string{"D", "C", "B", "A"} {
+			router.Add(model.NewRoute(r, "", dummyBroker, true))
+		}
+		return &router
 	}
+
+	router := newRouter()
 
 	if err := router.Reorder(-1, 0, 0); err == nil {
 		t.Fatal("got incorrect error: nil")
@@ -131,12 +134,12 @@ func TestRouter_Reorder(t *testing.T) {
 		t.Fatal("got incorrect error: nil")
 	}
 
-	checkReorderRoutes(t, router, 1, 2, 3, []string{"A", "B", "C", "D"})
-	checkReorderRoutes(t, router, 2, 2, 1, []string{"A", "C", "D", "B"})
-	checkReorderRoutes(t, router, 0, 2, 4, []string{"C", "D", "A", "B"})
+	checkReorderRoutes(t, newRouter(), 1, 2, 3, []string{"A", "B", "C", "D"})
+	checkReorderRoutes(t, newRouter(), 2, 2, 1, []string{"A", "C", "D", "B"})
+	checkReorderRoutes(t, newRouter(), 0, 2, 4, []string{"C", "D", "A", "B"})
 }
 
-func checkReorderRoutes(t *testing.T, router Router, rangeStart, rangeLength, insertBefore int, expected []string) {
+func checkReorderRoutes(t *testing.T, router *Router, rangeStart, rangeLength, insertBefore int, expected []string) {
 	if err := router.Reorder(rangeStart, rangeLength, insertBefore); err != nil {
 		t.Fatalf("reorder routes error: %v", err)
 	}
