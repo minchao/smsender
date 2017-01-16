@@ -34,15 +34,7 @@ Creating a Configuration file:
 cp ./config/config.default.yml ./config.yml
 ```
 
-## Brokers
-
-Support brokers
-
-* [AWS SNS (SMS)](https://aws.amazon.com/sns/)
-* [Nexmo](https://www.nexmo.com/)
-* [Twilio](https://www.twilio.com/)
-
-For example, registering a broker on the sender server.
+Registering brokers on the sender server.
 
 Add the broker key and secret to config.yml:
 
@@ -66,6 +58,22 @@ Add the following code to main.go:
 	sender.AddBroker(nexmoBroker)
 	sender.Run()
 ```
+
+Build
+
+```go
+go build -o bin/smsender
+```
+
+## Brokers
+
+Support brokers
+
+* [AWS SNS (SMS)](https://aws.amazon.com/sns/)
+* [Nexmo](https://www.nexmo.com/)
+* [Twilio](https://www.twilio.com/)
+
+Need another broker? Just implement the Broker interface.
 
 ## Matching Routes
 
