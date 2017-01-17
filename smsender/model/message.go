@@ -40,7 +40,7 @@ type Data struct {
 type Result struct {
 	Data
 	SentTime *time.Time  `json:"sent_time" db:"sentTime"`
-	Latency  *int64      `json:"-"` // nanosecond
+	Latency  *int64      `json:"-"` // millisecond
 	Route    string      `json:"route"`
 	Broker   string      `json:"broker"`
 	Status   string      `json:"status"`
