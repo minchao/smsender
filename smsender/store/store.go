@@ -15,13 +15,13 @@ type Store interface {
 }
 
 type RouteStore interface {
-	FindAll() StoreChannel
+	GetAll() StoreChannel
 	SaveAll(routes []*model.Route) StoreChannel
 }
 
 type MessageStore interface {
-	Find(id string) StoreChannel
-	FindByIds(ids []string) StoreChannel
+	Get(id string) StoreChannel
+	GetByIds(ids []string) StoreChannel
 	Save(message *model.Result) StoreChannel
 	Update(message *model.Result) StoreChannel
 }

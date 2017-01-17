@@ -26,7 +26,7 @@ func NewSqlRouteStore(sqlStore *SqlStore) RouteStore {
 	return rs
 }
 
-func (rs *SqlRouteStore) FindAll() StoreChannel {
+func (rs *SqlRouteStore) GetAll() StoreChannel {
 	storeChannel := make(StoreChannel, 1)
 
 	go func() {

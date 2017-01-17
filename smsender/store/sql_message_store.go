@@ -36,7 +36,7 @@ func NewSqlMessageStore(sqlStore *SqlStore) MessageStore {
 	return ms
 }
 
-func (ms *SqlMessageStore) Find(id string) StoreChannel {
+func (ms *SqlMessageStore) Get(id string) StoreChannel {
 	storeChannel := make(StoreChannel, 1)
 
 	go func() {
@@ -61,7 +61,7 @@ func (ms *SqlMessageStore) Find(id string) StoreChannel {
 	return storeChannel
 }
 
-func (ms *SqlMessageStore) FindByIds(ids []string) StoreChannel {
+func (ms *SqlMessageStore) GetByIds(ids []string) StoreChannel {
 	storeChannel := make(StoreChannel, 1)
 
 	go func() {

@@ -126,7 +126,7 @@ func (s *Sender) SaveRoutesToDB() error {
 func (s *Sender) LoadRoutesFromDB() error {
 	var rchan store.StoreChannel
 
-	rchan = s.store.Route().FindAll()
+	rchan = s.store.Route().GetAll()
 
 	result := <-rchan
 	if result.Err != nil {
@@ -148,7 +148,7 @@ func (s *Sender) LoadRoutesFromDB() error {
 }
 
 func (s *Sender) GetMessageResults(ids []string) ([]*model.Result, error) {
-	if result := <-s.store.Message().FindByIds(ids); result.Err != nil {
+	if result := <-s.store.Message().GetByIds(ids); result.Err != nil {
 		return nil, result.Err
 	} else {
 		return result.Data.([]*model.Result), nil
