@@ -159,13 +159,8 @@ func (s *Sender) Match(phone string) (*model.Route, bool) {
 	return s.router.Match(phone)
 }
 
-func (s *Sender) Stream(from chan *model.Message) {
-	for {
-		select {
-		case msg := <-from:
-			s.in <- msg
-		}
-	}
+func (s *Sender) GetIncomingQueue() chan *model.Message {
+	return s.in
 }
 
 func (s *Sender) Run() {

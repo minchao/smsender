@@ -20,14 +20,12 @@ type Server struct {
 func NewServer(sender *smsender.Sender) *Server {
 	server := Server{
 		sender: sender,
-		out:    make(chan *model.Message, 1000),
+		out:    sender.GetIncomingQueue(),
 	}
 	return &server
 }
 
 func (s *Server) Run() {
-	go s.sender.Stream(s.out)
-
 	r := mux.NewRouter().StrictSlash(true)
 	r.HandleFunc("/", s.Hello).Methods("GET")
 	r.HandleFunc("/routes", s.Routes).Methods("GET")
