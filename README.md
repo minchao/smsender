@@ -86,7 +86,7 @@ Support brokers
 * [Nexmo](https://www.nexmo.com/)
 * [Twilio](https://www.twilio.com/)
 
-Need another broker? Just implement the Broker interface.
+Need another broker? Just implement the [Broker](https://github.com/minchao/smsender/blob/master/smsender/model/broker.go) interface.
 
 ## Matching Routes
 
@@ -94,7 +94,7 @@ Route can be define a phone number pattern to be matched with broker.
 
 ## RESTful API
 
-The API documentation is written in YAML and found in the [smsender-openapi.yaml](https://github.com/minchao/smsender/blob/master/smsender-openapi.yaml).
+The API document is written in YAML and found in the [smsender-openapi.yaml](https://github.com/minchao/smsender/blob/master/smsender-openapi.yaml).
 You can use the [Swagger Editor](http://editor.swagger.io/) to open the document.
 
 ## License
