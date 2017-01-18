@@ -14,7 +14,7 @@ import (
 
 type Server struct {
 	sender *smsender.Sender
-	out    chan *model.Message
+	out    chan<- *model.Message
 }
 
 func NewServer(sender *smsender.Sender) *Server {
