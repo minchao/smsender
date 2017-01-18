@@ -18,20 +18,27 @@ A SMS server written in Go (Golang).
 
 ## Installing
 
-```
+```bash
 go get github.com/minchao/smsender
 ```
 
 Using the [Glide](https://glide.sh/) to install dependency packages:
 
-```
+```bash
 glide install
 ```
 
 Creating a Configuration file:
  
-```
+```bash
 cp ./config/config.default.yml ./config.yml
+```
+
+Setup the MySQL DSN:
+
+```yaml
+db:
+  dsn: "user:password@tcp(localhost:3306)/dbname?parseTime=true&loc=Local"
 ```
 
 Registering brokers on the sender server.
@@ -59,10 +66,16 @@ Add the following code to main.go:
 	sender.Run()
 ```
 
-Build
+Build:
 
-```go
+```bash
 go build -o bin/smsender
+```
+
+Run:
+
+```bash
+./bin/smsender
 ```
 
 ## Brokers
