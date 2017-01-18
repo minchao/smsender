@@ -1,0 +1,288 @@
+swagger: '2.0'
+
+info:
+  version: "0.0.1"
+  title: SMSender API
+
+host: localhost:8081
+schemes:
+  - http
+  - https
+consumes:
+  - application/json
+produces:
+  - application/json
+paths:
+  /messages:
+    get:
+      tags:
+        - messages
+      description: |
+        Gets specific Message objects.
+      parameters:
+        - in: query
+          name: ids
+          description: Message Id of array
+          required: true
+          type: array
+          items:
+            type: string
+          collectionFormat: multi
+      responses:
+        200:
+          description: OK
+          schema:
+            type: object
+            properties:
+              data:
+                title: ArrayOfMessageResult
+                type: array
+                items:
+                  $ref: '#/definitions/MessageResult'
+        400:
+          description: Bad request
+          schema:
+            $ref: '#/definitions/Error'
+    post:
+      tags:
+        - messages
+      description: |
+        Send message.
+      parameters:
+        - in: body
+          name: body
+          description: Message
+          required: false
+          schema:
+            type: object
+            properties:
+              to:
+                type: array
+                items:
+                  type: string
+                  description: Phone number
+              from:
+                type: string
+                description: From (Sender Id)
+              body:
+                type: string
+                description: Body
+              async:
+                type: boolean
+                description: Async
+            required:
+              - to
+              - body
+      responses:
+        200:
+          description: OK
+          schema:
+            type: object
+            properties:
+              data:
+                title: ArrayOfMessageResult
+                type: array
+                items:
+                  $ref: '#/definitions/MessageResult'
+        400:
+          description: Bad request
+          schema:
+            $ref: '#/definitions/Error'
+  /routes:
+    get:
+      tags:
+        - routes
+      description: |
+        Gets Route objects.
+      responses:
+        200:
+          description: OK
+          schema:
+            type: object
+            properties:
+              data:
+                title: ArrayOfRoute
+                type: array
+                items:
+                  $ref: '#/definitions/Route'
+    post:
+      tags:
+        - routes
+      description: |
+        Create a Route.
+      parameters:
+        - in: body
+          name: body
+          description: Route
+          required: true
+          schema:
+            $ref: "#/definitions/Route"
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/Route"
+        400:
+          description: Bad request (bad_request, route_already_exists, broker_not_found)
+          schema:
+            $ref: '#/definitions/Error'
+    put:
+      tags:
+        - routes
+      description: |
+        Reorder a Route in a route list.
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: "#/definitions/Reorder"
+      responses:
+        200:
+          description: Ok
+          schema:
+            type: object
+            properties:
+              data:
+                title: ArrayOfRoute
+                type: array
+                items:
+                  $ref: '#/definitions/Route'
+        400:
+          description: Bad request
+          schema:
+            $ref: '#/definitions/Error'
+  /routes/{route}:
+    put:
+      tags:
+        - routes
+      description: |
+        Replace a Route.
+      parameters:
+        - name: route
+          in: path
+          description: Name of Route.
+          required: true
+          type: string
+        - in: body
+          name: body
+          description: Message
+          required: true
+          schema:
+            $ref: "#/definitions/Route"
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/Route"
+        400:
+          description: Bad request
+          schema:
+            $ref: '#/definitions/Error'
+        404:
+          description: Route not found
+          schema:
+            $ref: '#/definitions/Error'
+    delete:
+      tags:
+        - routes
+      description: |
+        Delete a Route.
+      parameters:
+        - name: route
+          in: path
+          description: Name of Route.
+          required: true
+          type: string
+      responses:
+        204:
+          description: Ok
+        400:
+          description: Bad request
+          schema:
+            $ref: '#/definitions/Error'
+        404:
+          description: Route not found
+          schema:
+            $ref: '#/definitions/Error'
+definitions:
+  Message:
+    type: object
+    properties:
+      id:
+        type: string
+        description: Message Id
+      to:
+        type: array
+        items:
+          type: string
+          description: Phone number
+      from:
+        type: string
+        description: From (Sender Id)
+      body:
+        type: string
+        description: Body
+      async:
+        type: boolean
+        description: Async
+  MessageResult:
+    allOf:
+      - $ref: '#/definitions/Message'
+      - type: object
+    properties:
+      created_time:
+        type: string
+        description: Created time
+      sent_time:
+        type: string
+        description: Sent time
+      route:
+        type: string
+      broker:
+        type: string
+      status:
+        type: string
+      orignal:
+        type: object
+  Route:
+    type: object
+    properties:
+      name:
+        type: string
+      pattern:
+        type: string
+      broker:
+        type: string
+      from:
+        type: string
+      is_active:
+        type: boolean
+    required:
+      - name
+      - pattern
+      - broker
+  Reorder:
+    type: object
+    properties:
+      range_start:
+        type: integer
+        description: |
+          The position of the first route to be reordered.
+      range_length:
+        type: integer
+        description: |
+          The amount of routes to be reordered. Defaults to 1 if not set.
+      insert_before:
+        type: integer
+        description: |
+          The position where the routes should be inserted.
+  Error:
+    type: object
+    properties:
+      error:
+        type: string
+      error_description:
+        type: string
+    required:
+     - error
