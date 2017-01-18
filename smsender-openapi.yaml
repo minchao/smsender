@@ -60,16 +60,16 @@ paths:
                 type: array
                 items:
                   type: string
-                  description: Phone number
+                  description: The destination phone number (E.164 format)
               from:
                 type: string
-                description: From (Sender Id)
+                description: Sender Id (phone number or alphanumeric)
               body:
                 type: string
-                description: Body
+                description: The text of the message
               async:
                 type: boolean
-                description: Async
+                description: Enable a background sending mode that is optimized for bulk sending
             required:
               - to
               - body
@@ -216,16 +216,16 @@ definitions:
         type: array
         items:
           type: string
-          description: Phone number
+          description: The destination phone number (E.164 format)
       from:
         type: string
-        description: From (Sender Id)
+        description: Sender Id (phone number or alphanumeric)
       body:
         type: string
-        description: Body
+        description: The text of the message
       async:
         type: boolean
-        description: Async
+        description: Enable a background sending mode that is optimized for bulk sending
   MessageResult:
     allOf:
       - $ref: '#/definitions/Message'

@@ -29,18 +29,18 @@ var statusCodeMap = map[StatusCode]string{
 }
 
 type Data struct {
-	Id          string    `json:"id"`
-	To          string    `json:"to" db:"toNumber"`
-	From        string    `json:"from" db:"fromName"`
-	Body        string    `json:"body"`
-	Async       bool      `json:"async,omitempty"`
+	Id          string    `json:"id"`                 // Message Id
+	To          string    `json:"to" db:"toNumber"`   // The destination phone number (E.164 format)
+	From        string    `json:"from" db:"fromName"` // Sender Id (phone number or alphanumeric)
+	Body        string    `json:"body"`               // The text of the message
+	Async       bool      `json:"async,omitempty"`    // Enable a background sending mode that is optimized for bulk sending
 	CreatedTime time.Time `json:"created_time" db:"createdTime"`
 }
 
 type Result struct {
 	Data
 	SentTime *time.Time  `json:"sent_time" db:"sentTime"`
-	Latency  *int64      `json:"-"` // millisecond
+	Latency  *int64      `json:"-"` // Millisecond
 	Route    string      `json:"route"`
 	Broker   string      `json:"broker"`
 	Status   string      `json:"status"`
