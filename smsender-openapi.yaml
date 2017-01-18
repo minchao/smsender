@@ -4,7 +4,7 @@ info:
   version: "0.0.1"
   title: SMSender API
 
-host: localhost:8081
+host: localhost:8080
 schemes:
   - http
   - https

@@ -79,6 +79,11 @@ Need another broker? Just implement the Broker interface.
 
 Route can be define a phone number pattern to be matched with broker.
 
+## RESTful API
+
+The API documentation is written in YAML and found in the [smsender-openapi.yaml](https://github.com/minchao/smsender/blob/master/smsender-openapi.yaml).
+You can use the [Swagger Editor](http://editor.swagger.io/) to open the document.
+
 ## License
 
 See the [LICENSE](LICENSE.md) file for license rights and limitations (MIT).
