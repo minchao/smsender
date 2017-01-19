@@ -35,10 +35,11 @@ func (b Broker) Send(msg *model.Message, result *model.Result) {
 	)
 	if err != nil {
 		result.Status = model.StatusFailed.String()
-		result.Original = err
+		result.OriginalResponse = err
 	} else {
 		result.Status = convertStatus(resp.Status).String()
-		result.Original = resp
+		result.OriginalMessageId = &resp.Sid
+		result.OriginalResponse = resp
 	}
 }
 

@@ -9,19 +9,21 @@ import (
 
 const SqlMessageTable = `
 CREATE TABLE IF NOT EXISTS message (
-  id          varchar(40) COLLATE utf8_unicode_ci NOT NULL,
-  toNumber    varchar(20) COLLATE utf8_unicode_ci NOT NULL,
-  fromName    varchar(20) COLLATE utf8_unicode_ci NOT NULL,
-  body        text COLLATE utf8_unicode_ci NOT NULL,
-  async       tinyint(1) NOT NULL DEFAULT '0',
-  route       varchar(32) COLLATE utf8_unicode_ci NOT NULL,
-  broker      varchar(32) COLLATE utf8_unicode_ci NOT NULL,
-  status      varchar(20) COLLATE utf8_unicode_ci NOT NULL,
-  original    json DEFAULT NULL,
-  createdTime datetime(6) DEFAULT NULL,
-  sentTime    datetime(6) DEFAULT NULL,
-  latency     int(11) DEFAULT NULL,
-  PRIMARY KEY (id)
+  id                varchar(40) COLLATE utf8_unicode_ci NOT NULL,
+  toNumber          varchar(20) COLLATE utf8_unicode_ci NOT NULL,
+  fromName          varchar(20) COLLATE utf8_unicode_ci NOT NULL,
+  body              text COLLATE utf8_unicode_ci NOT NULL,
+  async             tinyint(1) NOT NULL DEFAULT '0',
+  route             varchar(32) COLLATE utf8_unicode_ci NOT NULL,
+  broker            varchar(32) COLLATE utf8_unicode_ci NOT NULL,
+  status            varchar(20) COLLATE utf8_unicode_ci NOT NULL,
+  originalMessageId varchar(64) COLLATE utf8_unicode_ci DEFAULT NULL,
+  originalResponse  json DEFAULT NULL,
+  createdTime       datetime(6) DEFAULT NULL,
+  sentTime          datetime(6) DEFAULT NULL,
+  latency           int(11) DEFAULT NULL,
+  PRIMARY KEY (id),
+  KEY brokerOriginalMessageId (broker, originalMessageId)
 ) DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci`
 
 type SqlMessageStore struct {
@@ -46,9 +48,9 @@ func (ms *SqlMessageStore) Get(id string) StoreChannel {
 		if err := ms.db.Get(&message, `SELECT * FROM message WHERE id = ?`, id); err != nil {
 			result.Err = err
 		} else {
-			if message.Original != nil {
-				if original, err := unmarshalOriginal(message.Original); err == nil {
-					message.Original = original
+			if message.OriginalResponse != nil {
+				if original, err := unmarshalOriginal(message.OriginalResponse); err == nil {
+					message.OriginalResponse = original
 				}
 			}
 			result.Data = message
@@ -81,9 +83,9 @@ func (ms *SqlMessageStore) GetByIds(ids []string) StoreChannel {
 			result.Err = err
 		} else {
 			for _, message := range messages {
-				if message.Original != nil {
-					if original, err := unmarshalOriginal(message.Original); err == nil {
-						message.Original = original
+				if message.OriginalResponse != nil {
+					if original, err := unmarshalOriginal(message.OriginalResponse); err == nil {
+						message.OriginalResponse = original
 					}
 				}
 			}
@@ -103,15 +105,29 @@ func (ms *SqlMessageStore) Save(message *model.Result) StoreChannel {
 	go func() {
 		result := StoreResult{}
 
-		var original *string
-		if message.Original != nil {
-			original, _ = marshalOriginal(message.Original)
+		var originalResponse *string
+		if message.OriginalResponse != nil {
+			originalResponse, _ = marshalOriginal(message.OriginalResponse)
 		}
 
 		_, err := ms.db.Exec(`INSERT INTO message
-			(id, toNumber, fromName, body, async, route, broker, status, original, createdTime, sentTime, latency)
+			(
+				id,
+				toNumber,
+				fromName,
+				body,
+				async,
+				route,
+				broker,
+				status,
+				originalMessageId,
+				originalResponse,
+				createdTime,
+				sentTime,
+				latency
+			)
 			VALUES
-			(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+			(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 			message.Id,
 			message.To,
 			message.From,
@@ -120,7 +136,8 @@ func (ms *SqlMessageStore) Save(message *model.Result) StoreChannel {
 			message.Route,
 			message.Broker,
 			message.Status,
-			original,
+			message.OriginalMessageId,
+			originalResponse,
 			message.CreatedTime,
 			message.SentTime,
 			message.Latency,
@@ -144,9 +161,9 @@ func (ms *SqlMessageStore) Update(message *model.Result) StoreChannel {
 	go func() {
 		result := StoreResult{}
 
-		var original *string
-		if message.Original != nil {
-			original, _ = marshalOriginal(message.Original)
+		var originalResponse *string
+		if message.OriginalResponse != nil {
+			originalResponse, _ = marshalOriginal(message.OriginalResponse)
 		}
 
 		_, err := ms.db.Exec(`UPDATE message
@@ -158,7 +175,8 @@ func (ms *SqlMessageStore) Update(message *model.Result) StoreChannel {
 				route = ?,
 				broker = ?,
 				status = ?,
-				original = ?,
+				originalMessageId = ?,
+				originalResponse = ?,
 				createdTime = ?,
 				sentTime = ?,
 				latency = ?
@@ -170,7 +188,8 @@ func (ms *SqlMessageStore) Update(message *model.Result) StoreChannel {
 			message.Route,
 			message.Broker,
 			message.Status,
-			original,
+			message.OriginalMessageId,
+			originalResponse,
 			message.CreatedTime,
 			message.SentTime,
 			message.Latency,

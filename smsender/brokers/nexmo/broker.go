@@ -43,16 +43,17 @@ func (b Broker) Send(msg *model.Message, result *model.Result) {
 	resp, err := b.client.SMS.Send(message)
 	if err != nil {
 		result.Status = model.StatusFailed.String()
-		result.Original = model.BrokerError{Error: err.Error()}
+		result.OriginalResponse = model.BrokerError{Error: err.Error()}
 	} else {
 		if resp.MessageCount > 0 {
 			respMsg := resp.Messages[0]
 
 			result.Status = convertStatus(respMsg.Status.String()).String()
+			result.OriginalMessageId = &respMsg.MessageID
 		} else {
 			result.Status = model.StatusFailed.String()
 		}
-		result.Original = resp
+		result.OriginalResponse = resp
 	}
 }
 

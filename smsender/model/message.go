@@ -39,12 +39,13 @@ type Data struct {
 
 type Result struct {
 	Data
-	SentTime *time.Time  `json:"sent_time" db:"sentTime"`
-	Latency  *int64      `json:"-"` // Millisecond
-	Route    string      `json:"route"`
-	Broker   string      `json:"broker"`
-	Status   string      `json:"status"`
-	Original interface{} `json:"original"`
+	SentTime          *time.Time  `json:"sent_time" db:"sentTime"`
+	Latency           *int64      `json:"-"` // Millisecond
+	Route             string      `json:"route"`
+	Broker            string      `json:"broker"`
+	Status            string      `json:"status"`
+	OriginalMessageId *string     `json:"original_message_id" db:"originalMessageId"`
+	OriginalResponse  interface{} `json:"original_response" db:"originalResponse"`
 }
 
 type Message struct {
