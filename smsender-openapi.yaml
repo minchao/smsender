@@ -35,10 +35,10 @@ paths:
             type: object
             properties:
               data:
-                title: ArrayOfMessageResult
+                title: ArrayOfMessageRecord
                 type: array
                 items:
-                  $ref: '#/definitions/MessageResult'
+                  $ref: '#/definitions/MessageRecord'
         400:
           description: Bad request
           schema:
@@ -233,18 +233,29 @@ definitions:
     properties:
       created_time:
         type: string
-        description: Created time
+        description: Message created time
       sent_time:
         type: string
-        description: Sent time
+        description: Message sent time
       route:
         type: string
       broker:
         type: string
       status:
         type: string
-      orignal:
+      original_message_id:
+        type: string
+      original_response:
         type: object
+  MessageRecord:
+    allOf:
+      - $ref: '#/definitions/MessageResult'
+      - type: object
+    properties:
+      original_receipt:
+        type: object
+      receipt_time:
+        type: string
   Route:
     type: object
     properties:
