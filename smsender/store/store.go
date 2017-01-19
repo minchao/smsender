@@ -24,4 +24,5 @@ type MessageStore interface {
 	GetByIds(ids []string) StoreChannel
 	Save(message *model.MessageRecord) StoreChannel
 	Update(message *model.MessageRecord) StoreChannel
+	UpdateReceipt(receipt *model.MessageReceipt) StoreChannel
 }

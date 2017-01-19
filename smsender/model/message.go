@@ -70,6 +70,24 @@ func NewAsyncMessageResult(message Message) *MessageResult {
 	return &result
 }
 
+func NewMessageReceipt(originalMessageId, broker, status string, receipt interface{}, created time.Time) *MessageReceipt {
+	return &MessageReceipt{
+		OriginalMessageId: originalMessageId,
+		Broker:            broker,
+		Status:            status,
+		OriginalReceipt:   receipt,
+		CreatedTime:       created,
+	}
+}
+
+type MessageReceipt struct {
+	OriginalMessageId string      `json:"original_message_id"`
+	Broker            string      `json:"broker"`
+	Status            string      `json:"status"`
+	OriginalReceipt   interface{} `json:"original_receipt" db:"originalReceipt"`
+	CreatedTime       time.Time   `json:"created_time" db:"createdTime"`
+}
+
 type MessageRecord struct {
 	MessageResult
 	OriginalReceipt interface{} `json:"original_receipt" db:"originalReceipt"`

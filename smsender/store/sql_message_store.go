@@ -234,6 +234,42 @@ func (ms *SqlMessageStore) Update(message *model.MessageRecord) StoreChannel {
 	return storeChannel
 }
 
+func (ms *SqlMessageStore) UpdateReceipt(receipt *model.MessageReceipt) StoreChannel {
+	storeChannel := make(StoreChannel, 1)
+
+	go func() {
+		result := StoreResult{}
+
+		var originalReceipt *string
+		if receipt.OriginalReceipt != nil {
+			originalReceipt, _ = marshalOriginal(receipt.OriginalReceipt)
+		}
+
+		_, err := ms.db.Exec(`UPDATE message
+			SET
+				status = ?,
+				originalReceipt = ?,
+				receiptTime = ?
+			WHERE broker = ? AND originalMessageId = ?`,
+			receipt.Status,
+			originalReceipt,
+			receipt.CreatedTime,
+			receipt.Broker,
+			receipt.OriginalMessageId,
+		)
+		if err != nil {
+			result.Err = err
+		} else {
+			result.Data = receipt
+		}
+
+		storeChannel <- result
+		close(storeChannel)
+	}()
+
+	return storeChannel
+}
+
 func marshalOriginal(original interface{}) (*string, error) {
 	if result, err := json.Marshal(original); err != nil {
 		return nil, err

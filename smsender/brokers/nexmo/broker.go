@@ -57,6 +57,9 @@ func (b Broker) Send(msg *model.Message, result *model.MessageResult) {
 	}
 }
 
+// TODO: see https://docs.nexmo.com/messaging/sms-api/api-reference#delivery_receipt
+func (b Broker) Callback(receiptsCh chan<- model.MessageReceipt) {}
+
 func convertStatus(rawStatus string) model.StatusCode {
 	switch rawStatus {
 	case nexmo.ResponseSuccess.String():

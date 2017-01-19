@@ -66,3 +66,6 @@ func (b Broker) Send(msg *model.Message, result *model.MessageResult) {
 		result.OriginalResponse = resp
 	}
 }
+
+// TODO: see http://docs.aws.amazon.com/sns/latest/dg/sms_stats_usage.html
+func (b Broker) Callback(receiptsCh chan<- model.MessageReceipt) {}

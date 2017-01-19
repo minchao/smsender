@@ -21,6 +21,7 @@ type Sender struct {
 	brokers   map[string]model.Broker
 	in        chan *model.Message
 	out       chan *model.Message
+	receipts  chan model.MessageReceipt
 	workerNum int
 	rwMutex   sync.RWMutex
 	init      sync.Once
@@ -33,6 +34,7 @@ func SMSender(workerNum int) *Sender {
 		senderSingleton.brokers = make(map[string]model.Broker)
 		senderSingleton.in = make(chan *model.Message, 1000)
 		senderSingleton.out = make(chan *model.Message, 1000)
+		senderSingleton.receipts = make(chan model.MessageReceipt, 1000)
 		senderSingleton.workerNum = workerNum
 		senderSingleton.AddBroker(dummy.NewBroker(DefaultBroker))
 	})
@@ -164,19 +166,25 @@ func (s *Sender) GetIncomingQueue() chan *model.Message {
 }
 
 func (s *Sender) Run() {
+	for _, broker := range s.brokers {
+		broker.Callback(s.receipts)
+	}
+
 	for i := 0; i < s.workerNum; i++ {
 		w := worker{i, s}
 		go func(w worker) {
-			for message := range s.out {
-				w.process(message)
+			for {
+				select {
+				case message := <-s.out:
+					w.process(message)
+				case receipt := <-s.receipts:
+					w.receipt(receipt)
+				}
 			}
 		}(w)
 	}
 
-	for {
-		select {
-		case msg := <-s.in:
-			s.out <- msg
-		}
+	for message := range s.in {
+		s.out <- message
 	}
 }

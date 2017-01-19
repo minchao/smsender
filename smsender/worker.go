@@ -69,3 +69,15 @@ func (w worker) process(message *model.Message) {
 		log1.Errorf("store update error: %v", r.Err)
 	}
 }
+
+func (w worker) receipt(receipt model.MessageReceipt) {
+	log1 := log.WithFields(log.Fields{
+		"worker_id":           w.id,
+		"original_message_id": receipt.OriginalMessageId,
+	})
+	log1.WithField("receipt", receipt).Info("handle the message receipt")
+
+	if r := <-w.sender.store.Message().UpdateReceipt(&receipt); r.Err != nil {
+		log1.Errorf("receipt update error: %v", r.Err)
+	}
+}

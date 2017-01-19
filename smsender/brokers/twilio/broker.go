@@ -43,6 +43,9 @@ func (b Broker) Send(msg *model.Message, result *model.MessageResult) {
 	}
 }
 
+// TODO: see https://www.twilio.com/docs/guides/sms/how-to-confirm-delivery
+func (b Broker) Callback(receiptsCh chan<- model.MessageReceipt) {}
+
 func convertStatus(rawStatus string) model.StatusCode {
 	switch rawStatus {
 	case "delivered":

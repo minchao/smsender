@@ -9,6 +9,7 @@ A SMS server written in Go (Golang).
 * Uses routes to determine which broker to send SMS.
 * SMS delivery worker.
 * SMS delivery records.
+* SMS delivery receipt.
 * RESTful API.
 
 ## Requirements
