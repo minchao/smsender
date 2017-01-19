@@ -2,7 +2,7 @@ package model
 
 type Broker interface {
 	Name() string
-	Send(msg *Message, result *Result)
+	Send(message *Message, result *MessageResult)
 }
 
 type BrokerError struct {

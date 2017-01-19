@@ -26,7 +26,7 @@ func (b Broker) Name() string {
 	return b.name
 }
 
-func (b Broker) Send(msg *model.Message, result *model.Result) {
+func (b Broker) Send(msg *model.Message, result *model.MessageResult) {
 	resp, err := twilio.NewMessage(
 		b.client,
 		msg.From,

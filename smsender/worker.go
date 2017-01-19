@@ -15,7 +15,7 @@ type worker struct {
 func (w worker) process(message *model.Message) {
 	var (
 		broker model.Broker
-		result *model.Result
+		result *model.MessageResult
 	)
 
 	if match, ok := w.sender.Match(message.To); ok {
@@ -38,7 +38,7 @@ func (w worker) process(message *model.Message) {
 	})
 	log1.WithField("message", *message).Info("worker process")
 
-	result = model.NewResult(*message, broker.Name())
+	result = model.NewMessageResult(*message, broker.Name())
 
 	// Save the send record to db
 	rch := w.sender.store.Message().Save(result)

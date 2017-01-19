@@ -16,6 +16,6 @@ func (b Broker) Name() string {
 	return b.name
 }
 
-func (b Broker) Send(msg *model.Message, result *model.Result) {
+func (b Broker) Send(msg *model.Message, result *model.MessageResult) {
 	result.Status = model.StatusSent.String()
 }

@@ -147,11 +147,11 @@ func (s *Sender) LoadRoutesFromDB() error {
 	return nil
 }
 
-func (s *Sender) GetMessageResults(ids []string) ([]*model.Result, error) {
+func (s *Sender) GetMessageResults(ids []string) ([]*model.MessageResult, error) {
 	if result := <-s.store.Message().GetByIds(ids); result.Err != nil {
 		return nil, result.Err
 	} else {
-		return result.Data.([]*model.Result), nil
+		return result.Data.([]*model.MessageResult), nil
 	}
 }
 

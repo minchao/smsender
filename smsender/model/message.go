@@ -37,7 +37,7 @@ type Data struct {
 	CreatedTime time.Time `json:"created_time" db:"createdTime"`
 }
 
-type Result struct {
+type MessageResult struct {
 	Data
 	SentTime          *time.Time  `json:"sent_time" db:"sentTime"`
 	Latency           *int64      `json:"-"` // Millisecond
@@ -50,8 +50,8 @@ type Result struct {
 
 type Message struct {
 	Data
-	Route  string      `json:"route"`
-	Result chan Result `json:"-"`
+	Route  string             `json:"route"`
+	Result chan MessageResult `json:"-"`
 }
 
 func NewMessage(to, from, body string, async bool) *Message {
@@ -69,13 +69,13 @@ func NewMessage(to, from, body string, async bool) *Message {
 	if async {
 		message.Async = true
 	} else {
-		message.Result = make(chan Result, 1)
+		message.Result = make(chan MessageResult, 1)
 	}
 	return &message
 }
 
-func NewResult(msg Message, broker string) *Result {
-	return &Result{
+func NewMessageResult(msg Message, broker string) *MessageResult {
+	return &MessageResult{
 		Data:   msg.Data,
 		Route:  msg.Route,
 		Broker: broker,
@@ -83,8 +83,8 @@ func NewResult(msg Message, broker string) *Result {
 	}
 }
 
-func NewAsyncResult(msg Message) *Result {
-	result := Result{
+func NewAsyncMessageResult(msg Message) *MessageResult {
+	result := MessageResult{
 		Data:   msg.Data,
 		Route:  StatusUnknown.String(),
 		Broker: StatusUnknown.String(),

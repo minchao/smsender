@@ -128,7 +128,7 @@ func (s *Server) Messages(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var data = []model.Result{}
+	var data = []model.MessageResult{}
 	for _, m := range messages {
 		data = append(data, *m)
 	}
@@ -144,7 +144,7 @@ type Message struct {
 }
 
 type MessageResults struct {
-	Data []model.Result `json:"data"`
+	Data []model.MessageResult `json:"data"`
 }
 
 func (s *Server) MessagesPost(w http.ResponseWriter, r *http.Request) {
@@ -160,8 +160,8 @@ func (s *Server) MessagesPost(w http.ResponseWriter, r *http.Request) {
 	var (
 		count         = len(msg.To)
 		messageClones = make([]model.Message, count)
-		resultChans   = make([]<-chan model.Result, count)
-		results       = make([]model.Result, count)
+		resultChans   = make([]<-chan model.MessageResult, count)
+		results       = make([]model.MessageResult, count)
 	)
 
 	if count > 100 {
@@ -178,7 +178,7 @@ func (s *Server) MessagesPost(w http.ResponseWriter, r *http.Request) {
 
 	if msg.Async {
 		for i, message := range messageClones {
-			results[i] = *model.NewAsyncResult(message)
+			results[i] = *model.NewAsyncMessageResult(message)
 		}
 	} else {
 		for i, c := range resultChans {

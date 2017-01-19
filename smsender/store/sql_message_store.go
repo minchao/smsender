@@ -44,7 +44,7 @@ func (ms *SqlMessageStore) Get(id string) StoreChannel {
 	go func() {
 		result := StoreResult{}
 
-		var message model.Result
+		var message model.MessageResult
 		if err := ms.db.Get(&message, `SELECT * FROM message WHERE id = ?`, id); err != nil {
 			result.Err = err
 		} else {
@@ -78,7 +78,7 @@ func (ms *SqlMessageStore) GetByIds(ids []string) StoreChannel {
 		}
 		query = ms.db.Rebind(query)
 
-		var messages []*model.Result
+		var messages []*model.MessageResult
 		if err := ms.db.Select(&messages, query, args...); err != nil {
 			result.Err = err
 		} else {
@@ -99,7 +99,7 @@ func (ms *SqlMessageStore) GetByIds(ids []string) StoreChannel {
 	return storeChannel
 }
 
-func (ms *SqlMessageStore) Save(message *model.Result) StoreChannel {
+func (ms *SqlMessageStore) Save(message *model.MessageResult) StoreChannel {
 	storeChannel := make(StoreChannel, 1)
 
 	go func() {
@@ -155,7 +155,7 @@ func (ms *SqlMessageStore) Save(message *model.Result) StoreChannel {
 	return storeChannel
 }
 
-func (ms *SqlMessageStore) Update(message *model.Result) StoreChannel {
+func (ms *SqlMessageStore) Update(message *model.MessageResult) StoreChannel {
 	storeChannel := make(StoreChannel, 1)
 
 	go func() {

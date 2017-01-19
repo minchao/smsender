@@ -32,7 +32,7 @@ func (b Broker) Name() string {
 	return b.name
 }
 
-func (b Broker) Send(msg *model.Message, result *model.Result) {
+func (b Broker) Send(msg *model.Message, result *model.MessageResult) {
 	message := &nexmo.SMSMessage{
 		From: msg.From,
 		To:   msg.To,

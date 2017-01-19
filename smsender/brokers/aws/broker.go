@@ -43,7 +43,7 @@ func (b Broker) Name() string {
 	return b.name
 }
 
-func (b Broker) Send(msg *model.Message, result *model.Result) {
+func (b Broker) Send(msg *model.Message, result *model.MessageResult) {
 	req, resp := b.svc.PublishRequest(&sns.PublishInput{
 		Message: aws.String(msg.Body),
 		MessageAttributes: map[string]*sns.MessageAttributeValue{
