@@ -41,7 +41,7 @@ func (w worker) process(message *model.Message) {
 	result = model.NewMessageResult(*message, broker.Name())
 
 	// Save the send record to db
-	rch := w.sender.store.Message().Save(result)
+	rch := w.sender.store.Message().Save(model.NewMessageRecord(*result, nil, nil))
 
 	broker.Send(message, result)
 
@@ -65,7 +65,7 @@ func (w worker) process(message *model.Message) {
 	if r := <-rch; r.Err != nil {
 		log1.Errorf("store save error: %v", r.Err)
 	}
-	if r := <-w.sender.store.Message().Update(result); r.Err != nil {
+	if r := <-w.sender.store.Message().Update(model.NewMessageRecord(*result, nil, nil)); r.Err != nil {
 		log1.Errorf("store update error: %v", r.Err)
 	}
 }

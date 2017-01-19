@@ -112,6 +112,10 @@ func (s *Server) RouteTest(w http.ResponseWriter, r *http.Request) {
 	render(w, http.StatusOK, RouteTestResult{Phone: phone, Route: route})
 }
 
+type MessageRecords struct {
+	Data []*model.MessageRecord `json:"data"`
+}
+
 func (s *Server) Messages(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	ids, _ := r.Form["ids"]
@@ -122,18 +126,13 @@ func (s *Server) Messages(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	messages, err := s.sender.GetMessageResults(ids)
+	messages, err := s.sender.GetMessageRecords(ids)
 	if err != nil {
 		render(w, http.StatusNotFound, errorMessage{Error: "not_found", ErrorDescription: err.Error()})
 		return
 	}
 
-	var data = []model.MessageResult{}
-	for _, m := range messages {
-		data = append(data, *m)
-	}
-
-	render(w, http.StatusOK, MessageResults{Data: data})
+	render(w, http.StatusOK, MessageRecords{Data: messages})
 }
 
 type Message struct {

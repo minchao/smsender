@@ -19,8 +19,10 @@ CREATE TABLE IF NOT EXISTS message (
   status            varchar(20) COLLATE utf8_unicode_ci NOT NULL,
   originalMessageId varchar(64) COLLATE utf8_unicode_ci DEFAULT NULL,
   originalResponse  json DEFAULT NULL,
+  originalReceipt   json DEFAULT NULL,
   createdTime       datetime(6) DEFAULT NULL,
   sentTime          datetime(6) DEFAULT NULL,
+  receiptTime       datetime(6) DEFAULT NULL,
   latency           int(11) DEFAULT NULL,
   PRIMARY KEY (id),
   KEY brokerOriginalMessageId (broker, originalMessageId)
@@ -44,13 +46,18 @@ func (ms *SqlMessageStore) Get(id string) StoreChannel {
 	go func() {
 		result := StoreResult{}
 
-		var message model.MessageResult
+		var message model.MessageRecord
 		if err := ms.db.Get(&message, `SELECT * FROM message WHERE id = ?`, id); err != nil {
 			result.Err = err
 		} else {
 			if message.OriginalResponse != nil {
 				if original, err := unmarshalOriginal(message.OriginalResponse); err == nil {
 					message.OriginalResponse = original
+				}
+			}
+			if message.OriginalReceipt != nil {
+				if original, err := unmarshalOriginal(message.OriginalReceipt); err == nil {
+					message.OriginalReceipt = original
 				}
 			}
 			result.Data = message
@@ -78,7 +85,7 @@ func (ms *SqlMessageStore) GetByIds(ids []string) StoreChannel {
 		}
 		query = ms.db.Rebind(query)
 
-		var messages []*model.MessageResult
+		var messages []*model.MessageRecord
 		if err := ms.db.Select(&messages, query, args...); err != nil {
 			result.Err = err
 		} else {
@@ -86,6 +93,11 @@ func (ms *SqlMessageStore) GetByIds(ids []string) StoreChannel {
 				if message.OriginalResponse != nil {
 					if original, err := unmarshalOriginal(message.OriginalResponse); err == nil {
 						message.OriginalResponse = original
+					}
+				}
+				if message.OriginalReceipt != nil {
+					if original, err := unmarshalOriginal(message.OriginalReceipt); err == nil {
+						message.OriginalReceipt = original
 					}
 				}
 			}
@@ -99,15 +111,18 @@ func (ms *SqlMessageStore) GetByIds(ids []string) StoreChannel {
 	return storeChannel
 }
 
-func (ms *SqlMessageStore) Save(message *model.MessageResult) StoreChannel {
+func (ms *SqlMessageStore) Save(message *model.MessageRecord) StoreChannel {
 	storeChannel := make(StoreChannel, 1)
 
 	go func() {
 		result := StoreResult{}
 
-		var originalResponse *string
+		var originalResponse, originalReceipt *string
 		if message.OriginalResponse != nil {
 			originalResponse, _ = marshalOriginal(message.OriginalResponse)
+		}
+		if message.OriginalReceipt != nil {
+			originalReceipt, _ = marshalOriginal(message.OriginalReceipt)
 		}
 
 		_, err := ms.db.Exec(`INSERT INTO message
@@ -122,12 +137,14 @@ func (ms *SqlMessageStore) Save(message *model.MessageResult) StoreChannel {
 				status,
 				originalMessageId,
 				originalResponse,
+				originalReceipt,
 				createdTime,
 				sentTime,
+				receiptTime,
 				latency
 			)
 			VALUES
-			(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+			(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 			message.Id,
 			message.To,
 			message.From,
@@ -138,8 +155,10 @@ func (ms *SqlMessageStore) Save(message *model.MessageResult) StoreChannel {
 			message.Status,
 			message.OriginalMessageId,
 			originalResponse,
+			originalReceipt,
 			message.CreatedTime,
 			message.SentTime,
+			message.ReceiptTime,
 			message.Latency,
 		)
 		if err != nil {
@@ -155,15 +174,18 @@ func (ms *SqlMessageStore) Save(message *model.MessageResult) StoreChannel {
 	return storeChannel
 }
 
-func (ms *SqlMessageStore) Update(message *model.MessageResult) StoreChannel {
+func (ms *SqlMessageStore) Update(message *model.MessageRecord) StoreChannel {
 	storeChannel := make(StoreChannel, 1)
 
 	go func() {
 		result := StoreResult{}
 
-		var originalResponse *string
+		var originalResponse, originalReceipt *string
 		if message.OriginalResponse != nil {
 			originalResponse, _ = marshalOriginal(message.OriginalResponse)
+		}
+		if message.OriginalReceipt != nil {
+			originalReceipt, _ = marshalOriginal(message.OriginalReceipt)
 		}
 
 		_, err := ms.db.Exec(`UPDATE message
@@ -177,6 +199,7 @@ func (ms *SqlMessageStore) Update(message *model.MessageResult) StoreChannel {
 				status = ?,
 				originalMessageId = ?,
 				originalResponse = ?,
+				originalReceipt = ?,
 				createdTime = ?,
 				sentTime = ?,
 				latency = ?
@@ -190,6 +213,7 @@ func (ms *SqlMessageStore) Update(message *model.MessageResult) StoreChannel {
 			message.Status,
 			message.OriginalMessageId,
 			originalResponse,
+			originalReceipt,
 			message.CreatedTime,
 			message.SentTime,
 			message.Latency,

@@ -48,6 +48,42 @@ type MessageResult struct {
 	OriginalResponse  interface{} `json:"original_response" db:"originalResponse"`
 }
 
+func NewMessageResult(message Message, broker string) *MessageResult {
+	return &MessageResult{
+		Data:   message.Data,
+		Route:  message.Route,
+		Broker: broker,
+		Status: StatusUnknown.String(),
+	}
+}
+
+func NewAsyncMessageResult(message Message) *MessageResult {
+	result := MessageResult{
+		Data:   message.Data,
+		Route:  StatusUnknown.String(),
+		Broker: StatusUnknown.String(),
+		Status: StatusQueued.String(),
+	}
+	if message.From == "" {
+		result.From = StatusUnknown.String()
+	}
+	return &result
+}
+
+type MessageRecord struct {
+	MessageResult
+	OriginalReceipt interface{} `json:"original_receipt" db:"originalReceipt"`
+	ReceiptTime     *time.Time  `json:"receipt_time" db:"receiptTime"`
+}
+
+func NewMessageRecord(result MessageResult, receipt interface{}, receiptTime *time.Time) *MessageRecord {
+	return &MessageRecord{
+		MessageResult:   result,
+		OriginalReceipt: receipt,
+		ReceiptTime:     receiptTime,
+	}
+}
+
 type Message struct {
 	Data
 	Route  string             `json:"route"`
@@ -72,26 +108,4 @@ func NewMessage(to, from, body string, async bool) *Message {
 		message.Result = make(chan MessageResult, 1)
 	}
 	return &message
-}
-
-func NewMessageResult(msg Message, broker string) *MessageResult {
-	return &MessageResult{
-		Data:   msg.Data,
-		Route:  msg.Route,
-		Broker: broker,
-		Status: StatusUnknown.String(),
-	}
-}
-
-func NewAsyncMessageResult(msg Message) *MessageResult {
-	result := MessageResult{
-		Data:   msg.Data,
-		Route:  StatusUnknown.String(),
-		Broker: StatusUnknown.String(),
-		Status: StatusQueued.String(),
-	}
-	if msg.From == "" {
-		result.From = StatusUnknown.String()
-	}
-	return &result
 }
