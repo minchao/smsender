@@ -202,6 +202,7 @@ func (ms *SqlMessageStore) Update(message *model.MessageRecord) StoreChannel {
 				originalReceipt = ?,
 				createdTime = ?,
 				sentTime = ?,
+				receiptTime = ?,
 				latency = ?
 			WHERE id = ?`,
 			message.To,
@@ -216,6 +217,7 @@ func (ms *SqlMessageStore) Update(message *model.MessageRecord) StoreChannel {
 			originalReceipt,
 			message.CreatedTime,
 			message.SentTime,
+			message.ReceiptTime,
 			message.Latency,
 			message.Id,
 		)
