@@ -14,13 +14,13 @@ func NewBroker(name string) *Broker {
 	}
 }
 
-func (b *Broker) Name() string {
+func (b Broker) Name() string {
 	return b.name
 }
 
-func (b *Broker) Send(message *model.Message, result *model.MessageResult) {
+func (b Broker) Send(message *model.Message, result *model.MessageResult) {
 	result.Status = model.StatusSent.String()
 	result.OriginalMessageId = &result.Id
 }
 
-func (b *Broker) Callback(receiptsCh chan<- model.MessageReceipt) {}
+func (b Broker) Callback(receiptsCh chan<- model.MessageReceipt) {}
