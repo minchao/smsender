@@ -4,9 +4,10 @@
         "connection": {
             "maxOpenConns": 100,
             "maxIdleConns": 50
-        },
+        }
     },
     "api": {
+        "siteURL": "",
         "addr": ":8080",
         "tls": false,
         "tlsCertFile": "",
