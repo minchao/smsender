@@ -39,6 +39,8 @@ func (s *Server) Run() {
 
 	for _, h := range s.sender.GetWebhooks() {
 		r.HandleFunc(h.Path, h.Func).Methods(h.Method)
+
+		log.Infof("Handle a webhook on %s %s", h.Method, h.Path)
 	}
 
 	n := negroni.New()
