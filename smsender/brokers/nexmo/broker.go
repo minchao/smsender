@@ -19,7 +19,7 @@ type Config struct {
 func (c Config) NewBroker(name string) *Broker {
 	client, err := nexmo.NewClientFromAPI(c.Key, c.Secret)
 	if err != nil {
-		log.Fatalf("Could not create the aws session: %s", err)
+		log.Fatalf("Could not create the nexmo client: %s", err)
 	}
 
 	return &Broker{
