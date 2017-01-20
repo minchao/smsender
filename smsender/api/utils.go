@@ -3,8 +3,6 @@ package api
 import (
 	"encoding/json"
 	"fmt"
-	"io"
-	"io/ioutil"
 	"net/http"
 
 	"gopkg.in/go-playground/validator.v9"
@@ -13,23 +11,6 @@ import (
 type errorMessage struct {
 	Error            string      `json:"error"`
 	ErrorDescription interface{} `json:"error_description,omitempty"`
-}
-
-func getInput(body io.Reader, to interface{}, v *validator.Validate) error {
-	data, err := ioutil.ReadAll(body)
-	if err != nil {
-		return err
-	}
-	err = json.Unmarshal(data, to)
-	if err != nil {
-		return err
-	}
-	if v != nil {
-		if err = v.Struct(to); err != nil {
-			return err
-		}
-	}
-	return nil
 }
 
 func formErrorMessage(err error) errorMessage {

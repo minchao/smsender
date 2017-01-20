@@ -30,7 +30,7 @@ type Route struct {
 
 func (s *Server) RoutePost(w http.ResponseWriter, r *http.Request) {
 	var route Route
-	err := getInput(r.Body, &route, utils.NewValidate())
+	err := utils.GetInput(r.Body, &route, utils.NewValidate())
 	if err != nil {
 		render(w, http.StatusBadRequest, formErrorMessage(err))
 		return
@@ -51,7 +51,7 @@ type Reorder struct {
 
 func (s *Server) RouteReorder(w http.ResponseWriter, r *http.Request) {
 	var reorder Reorder
-	err := getInput(r.Body, &reorder, utils.NewValidate())
+	err := utils.GetInput(r.Body, &reorder, utils.NewValidate())
 	if err != nil {
 		render(w, http.StatusBadRequest, formErrorMessage(err))
 		return
@@ -69,7 +69,7 @@ func (s *Server) RouteReorder(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) RoutePut(w http.ResponseWriter, r *http.Request) {
 	var route Route
-	err := getInput(r.Body, &route, utils.NewValidate())
+	err := utils.GetInput(r.Body, &route, utils.NewValidate())
 	if err != nil {
 		render(w, http.StatusBadRequest, formErrorMessage(err))
 		return
@@ -151,7 +151,7 @@ func (s *Server) MessagesPost(w http.ResponseWriter, r *http.Request) {
 	var msg Message
 	var validate = utils.NewValidate()
 	validate.RegisterValidation("phone", utils.IsPhoneNumber)
-	err := getInput(r.Body, &msg, validate)
+	err := utils.GetInput(r.Body, &msg, validate)
 	if err != nil {
 		render(w, http.StatusBadRequest, formErrorMessage(err))
 		return
