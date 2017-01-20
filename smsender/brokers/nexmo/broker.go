@@ -1,19 +1,25 @@
 package nexmo
 
 import (
+	"net/http"
+	"time"
+
 	log "github.com/Sirupsen/logrus"
 	"github.com/minchao/smsender/smsender/model"
+	"github.com/minchao/smsender/smsender/utils"
 	"gopkg.in/njern/gonexmo.v1"
 )
 
 type Broker struct {
-	name   string
-	client *nexmo.Client
+	name          string
+	client        *nexmo.Client
+	enableWebhook bool
 }
 
 type Config struct {
-	Key    string
-	Secret string
+	Key           string
+	Secret        string
+	EnableWebhook bool
 }
 
 func (c Config) NewBroker(name string) *Broker {
@@ -21,10 +27,10 @@ func (c Config) NewBroker(name string) *Broker {
 	if err != nil {
 		log.Fatalf("Could not create the nexmo client: %s", err)
 	}
-
 	return &Broker{
-		name:   name,
-		client: client,
+		name:          name,
+		client:        client,
+		enableWebhook: c.EnableWebhook,
 	}
 }
 
@@ -48,7 +54,7 @@ func (b Broker) Send(msg *model.Message, result *model.MessageResult) {
 		if resp.MessageCount > 0 {
 			respMsg := resp.Messages[0]
 
-			result.Status = convertStatus(respMsg.Status.String()).String()
+			result.Status = convertStatus(respMsg.Status.String())
 			result.OriginalMessageId = &respMsg.MessageID
 		} else {
 			result.Status = model.StatusFailed.String()
@@ -57,14 +63,80 @@ func (b Broker) Send(msg *model.Message, result *model.MessageResult) {
 	}
 }
 
-// TODO: see https://docs.nexmo.com/messaging/sms-api/api-reference#delivery_receipt
-func (b Broker) Callback(webhooks *[]*model.Webhook, receiptsCh chan<- model.MessageReceipt) {}
+type DeliveryReceipt struct {
+	Msisdn           string `json:"msisdn"`
+	To               string `json:"to"`
+	NetworkCode      string `json:"network-code"`
+	MessageId        string `json:"messageId"`
+	Price            string `json:"price"`
+	Status           string `json:"status"`
+	Scts             string `json:"scts"`
+	ErrCode          string `json:"err-code"`
+	MessageTimestamp string `json:"message-timestamp"`
+}
 
-func convertStatus(rawStatus string) model.StatusCode {
+// see https://docs.nexmo.com/messaging/sms-api/api-reference#delivery_receipt
+func (b Broker) Callback(webhooks *[]*model.Webhook, receiptsCh chan<- model.MessageReceipt) {
+	if !b.enableWebhook {
+		return
+	}
+
+	*webhooks = append(*webhooks, &model.Webhook{
+		Path: "/webhooks/" + b.Name(),
+		Func: func(w http.ResponseWriter, r *http.Request) {
+			var receipt DeliveryReceipt
+			err := utils.GetInput(r.Body, &receipt, nil)
+			if err != nil {
+				log.Errorf("webhooks '%s' json unmarshal error: %+v", b.name, receipt)
+
+				w.WriteHeader(http.StatusBadRequest)
+				return
+			}
+			if receipt.MessageId == "" || receipt.Status == "" {
+				log.Infof("webhooks '%s' empty request body", b.name)
+
+				// When you set the callback URL for delivery receipt,
+				// Nexmo will send several requests to make sure that webhook was okay (status code 200).
+				w.WriteHeader(http.StatusOK)
+				return
+			}
+
+			receiptsCh <- *model.NewMessageReceipt(
+				receipt.MessageId,
+				b.Name(),
+				convertDeliveryReceiptStatus(receipt.Status),
+				receipt,
+				time.Now())
+
+			w.WriteHeader(http.StatusOK)
+		},
+		Method: "POST",
+	})
+}
+
+func convertStatus(rawStatus string) string {
+	var status model.StatusCode
 	switch rawStatus {
 	case nexmo.ResponseSuccess.String():
-		return model.StatusSent
+		status = model.StatusSent
 	default:
-		return model.StatusFailed
+		status = model.StatusFailed
 	}
+	return status.String()
+}
+
+func convertDeliveryReceiptStatus(rawStatus string) string {
+	var status model.StatusCode
+	switch rawStatus {
+	case "delivered":
+		status = model.StatusDelivered
+	case "failed", "rejected":
+		status = model.StatusFailed
+	case "accepted", "buffered":
+		status = model.StatusQueued
+	default:
+		// expired, unknown
+		status = model.StatusUnknown
+	}
+	return status.String()
 }
