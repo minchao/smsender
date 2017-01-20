@@ -14,7 +14,7 @@ type Broker struct {
 	client        *twilio.TwilioClient
 	enableWebhook bool
 	siteURL       string
-	webhookURL    string
+	webhookPath   string
 }
 
 type Config struct {
@@ -35,7 +35,7 @@ func (c Config) NewBroker(name string) *Broker {
 		}
 		broker.enableWebhook = true
 		broker.siteURL = c.SiteURL
-		broker.webhookURL = c.SiteURL + "/webhooks/" + name
+		broker.webhookPath = "/webhooks/" + name
 	}
 	return broker
 }
@@ -47,7 +47,7 @@ func (b Broker) Name() string {
 func (b Broker) Send(message *model.Message, result *model.MessageResult) {
 	optionals := []twilio.Optional{twilio.Body(message.Body)}
 	if b.enableWebhook {
-		optionals = append(optionals, twilio.StatusCallback(b.webhookURL))
+		optionals = append(optionals, twilio.StatusCallback(b.siteURL+b.webhookPath))
 	}
 
 	resp, err := twilio.NewMessage(
@@ -84,7 +84,7 @@ func (b Broker) Callback(webhooks *[]*model.Webhook, receiptsCh chan<- model.Mes
 	}
 
 	*webhooks = append(*webhooks, &model.Webhook{
-		Path: "/webhooks/" + b.Name(),
+		Path: b.webhookPath,
 		Func: func(w http.ResponseWriter, r *http.Request) {
 			r.ParseForm()
 

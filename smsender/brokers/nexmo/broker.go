@@ -14,6 +14,7 @@ type Broker struct {
 	name          string
 	client        *nexmo.Client
 	enableWebhook bool
+	webhookPath   string
 }
 
 type Config struct {
@@ -31,6 +32,7 @@ func (c Config) NewBroker(name string) *Broker {
 		name:          name,
 		client:        client,
 		enableWebhook: c.EnableWebhook,
+		webhookPath:   "/webhooks/" + name,
 	}
 }
 
@@ -82,7 +84,7 @@ func (b Broker) Callback(webhooks *[]*model.Webhook, receiptsCh chan<- model.Mes
 	}
 
 	*webhooks = append(*webhooks, &model.Webhook{
-		Path: "/webhooks/" + b.Name(),
+		Path: b.webhookPath,
 		Func: func(w http.ResponseWriter, r *http.Request) {
 			var receipt DeliveryReceipt
 			err := utils.GetInput(r.Body, &receipt, nil)
