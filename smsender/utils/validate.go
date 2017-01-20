@@ -1,4 +1,4 @@
-package api
+package utils
 
 import (
 	"reflect"
@@ -8,7 +8,7 @@ import (
 	"gopkg.in/go-playground/validator.v9"
 )
 
-func newValidate() *validator.Validate {
+func NewValidate() *validator.Validate {
 	validate := validator.New()
 	validate.RegisterTagNameFunc(func(fld reflect.StructField) string {
 		name := strings.SplitN(fld.Tag.Get("json"), ",", 2)[0]
@@ -20,7 +20,7 @@ func newValidate() *validator.Validate {
 	return validate
 }
 
-func isPhoneNumber(fl validator.FieldLevel) bool {
+func IsPhoneNumber(fl validator.FieldLevel) bool {
 	phone, err := libphonenumber.Parse(fl.Field().String(), "")
 	if err != nil {
 		return false

@@ -5,6 +5,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/minchao/smsender/smsender/model"
+	"github.com/minchao/smsender/smsender/utils"
 )
 
 func (s *Server) Hello(w http.ResponseWriter, r *http.Request) {
@@ -29,7 +30,7 @@ type Route struct {
 
 func (s *Server) RoutePost(w http.ResponseWriter, r *http.Request) {
 	var route Route
-	err := getInput(r.Body, &route, newValidate())
+	err := getInput(r.Body, &route, utils.NewValidate())
 	if err != nil {
 		render(w, http.StatusBadRequest, formErrorMessage(err))
 		return
@@ -50,7 +51,7 @@ type Reorder struct {
 
 func (s *Server) RouteReorder(w http.ResponseWriter, r *http.Request) {
 	var reorder Reorder
-	err := getInput(r.Body, &reorder, newValidate())
+	err := getInput(r.Body, &reorder, utils.NewValidate())
 	if err != nil {
 		render(w, http.StatusBadRequest, formErrorMessage(err))
 		return
@@ -68,7 +69,7 @@ func (s *Server) RouteReorder(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) RoutePut(w http.ResponseWriter, r *http.Request) {
 	var route Route
-	err := getInput(r.Body, &route, newValidate())
+	err := getInput(r.Body, &route, utils.NewValidate())
 	if err != nil {
 		render(w, http.StatusBadRequest, formErrorMessage(err))
 		return
@@ -97,8 +98,8 @@ type RouteTestResult struct {
 func (s *Server) RouteTest(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	phone, _ := vars["phone"]
-	validate := newValidate()
-	validate.RegisterValidation("phone", isPhoneNumber)
+	validate := utils.NewValidate()
+	validate.RegisterValidation("phone", utils.IsPhoneNumber)
 	err := validate.Struct(struct {
 		Phone string `json:"phone" validate:"required,phone"`
 	}{Phone: phone})
@@ -119,7 +120,7 @@ type MessageRecords struct {
 func (s *Server) Messages(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	ids, _ := r.Form["ids"]
-	if err := newValidate().Struct(struct {
+	if err := utils.NewValidate().Struct(struct {
 		Ids []string `json:"ids" validate:"required,gt=0,dive,required"`
 	}{Ids: ids}); err != nil {
 		render(w, http.StatusBadRequest, formErrorMessage(err))
@@ -148,8 +149,8 @@ type MessageResults struct {
 
 func (s *Server) MessagesPost(w http.ResponseWriter, r *http.Request) {
 	var msg Message
-	var validate = newValidate()
-	validate.RegisterValidation("phone", isPhoneNumber)
+	var validate = utils.NewValidate()
+	validate.RegisterValidation("phone", utils.IsPhoneNumber)
 	err := getInput(r.Body, &msg, validate)
 	if err != nil {
 		render(w, http.StatusBadRequest, formErrorMessage(err))
