@@ -19,6 +19,7 @@ type Sender struct {
 	store     store.Store
 	router    Router
 	brokers   map[string]model.Broker
+	webhooks  []*model.Webhook
 	in        chan *model.Message
 	out       chan *model.Message
 	receipts  chan model.MessageReceipt
@@ -32,6 +33,7 @@ func SMSender(workerNum int) *Sender {
 		senderSingleton.store = store.NewSqlStore()
 		senderSingleton.router = *NewRouter()
 		senderSingleton.brokers = make(map[string]model.Broker)
+		senderSingleton.webhooks = make([]*model.Webhook, 0)
 		senderSingleton.in = make(chan *model.Message, 1000)
 		senderSingleton.out = make(chan *model.Message, 1000)
 		senderSingleton.receipts = make(chan model.MessageReceipt, 1000)
@@ -161,15 +163,21 @@ func (s *Sender) Match(phone string) (*model.Route, bool) {
 	return s.router.Match(phone)
 }
 
+func (s *Sender) GetWebhooks() []*model.Webhook {
+	return s.webhooks
+}
+
 func (s *Sender) GetIncomingQueue() chan *model.Message {
 	return s.in
 }
 
-func (s *Sender) Run() {
+func (s *Sender) InitWebhooks() {
 	for _, broker := range s.brokers {
-		broker.Callback(s.receipts)
+		broker.Callback(&s.webhooks, s.receipts)
 	}
+}
 
+func (s *Sender) Run() {
 	for i := 0; i < s.workerNum; i++ {
 		w := worker{i, s}
 		go func(w worker) {

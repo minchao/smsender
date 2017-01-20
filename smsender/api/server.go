@@ -37,6 +37,10 @@ func (s *Server) Run() {
 	r.HandleFunc("/messages", s.Messages).Methods("GET")
 	r.HandleFunc("/messages", s.MessagesPost).Methods("POST")
 
+	for _, h := range s.sender.GetWebhooks() {
+		r.HandleFunc(h.Path, h.Func).Methods(h.Method)
+	}
+
 	n := negroni.New()
 	n.UseFunc(logger)
 

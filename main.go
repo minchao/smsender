@@ -21,6 +21,7 @@ func main() {
 
 	sender.AddBroker(broker)
 	sender.LoadRoutesFromDB()
+	sender.InitWebhooks()
 	go sender.Run()
 
 	server := api.NewServer(sender)

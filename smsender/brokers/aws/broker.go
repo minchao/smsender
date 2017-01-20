@@ -68,4 +68,4 @@ func (b Broker) Send(msg *model.Message, result *model.MessageResult) {
 }
 
 // TODO: see http://docs.aws.amazon.com/sns/latest/dg/sms_stats_usage.html
-func (b Broker) Callback(receiptsCh chan<- model.MessageReceipt) {}
+func (b Broker) Callback(webhooks *[]*model.Webhook, receiptsCh chan<- model.MessageReceipt) {}
