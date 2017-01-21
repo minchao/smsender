@@ -78,12 +78,12 @@ type DeliveryReceipt struct {
 }
 
 // see https://docs.nexmo.com/messaging/sms-api/api-reference#delivery_receipt
-func (b Broker) Callback(webhooks *[]*model.Webhook, receiptsCh chan<- model.MessageReceipt) {
+func (b Broker) Callback(register func(webhook *model.Webhook), receiptsCh chan<- model.MessageReceipt) {
 	if !b.enableWebhook {
 		return
 	}
 
-	*webhooks = append(*webhooks, &model.Webhook{
+	register(&model.Webhook{
 		Path: b.webhookPath,
 		Func: func(w http.ResponseWriter, r *http.Request) {
 			var receipt DeliveryReceipt

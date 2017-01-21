@@ -78,12 +78,12 @@ type DeliveryReceipt struct {
 }
 
 // see https://www.twilio.com/docs/guides/sms/how-to-confirm-delivery
-func (b Broker) Callback(webhooks *[]*model.Webhook, receiptsCh chan<- model.MessageReceipt) {
+func (b Broker) Callback(register func(webhook *model.Webhook), receiptsCh chan<- model.MessageReceipt) {
 	if !b.enableWebhook {
 		return
 	}
 
-	*webhooks = append(*webhooks, &model.Webhook{
+	register(&model.Webhook{
 		Path: b.webhookPath,
 		Func: func(w http.ResponseWriter, r *http.Request) {
 			r.ParseForm()

@@ -173,7 +173,11 @@ func (s *Sender) GetIncomingQueue() chan *model.Message {
 
 func (s *Sender) InitWebhooks() {
 	for _, broker := range s.brokers {
-		broker.Callback(&s.webhooks, s.receipts)
+		broker.Callback(
+			func(webhook *model.Webhook) {
+				s.webhooks = append(s.webhooks, webhook)
+			},
+			s.receipts)
 	}
 }
 

@@ -23,4 +23,5 @@ func (b Broker) Send(message *model.Message, result *model.MessageResult) {
 	result.OriginalMessageId = &result.Id
 }
 
-func (b Broker) Callback(webhooks *[]*model.Webhook, receiptsCh chan<- model.MessageReceipt) {}
+func (b Broker) Callback(register func(webhook *model.Webhook), receiptsCh chan<- model.MessageReceipt) {
+}
