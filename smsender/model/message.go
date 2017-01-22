@@ -77,12 +77,12 @@ func NewMessageResult(message Message, broker string) *MessageResult {
 func NewAsyncMessageResult(message Message) *MessageResult {
 	result := MessageResult{
 		Data:   message.Data,
-		Route:  StatusUnknown.String(),
-		Broker: StatusUnknown.String(),
+		Route:  "unknown",
+		Broker: "unknown",
 		Status: StatusAccepted.String(),
 	}
 	if message.From == "" {
-		result.From = StatusUnknown.String()
+		result.From = "unknown"
 	}
 	return &result
 }
