@@ -121,16 +121,14 @@ func (b Broker) Callback(register func(webhook *model.Webhook), receiptsCh chan<
 func convertStatus(rawStatus string) string {
 	var status model.StatusCode
 	switch rawStatus {
+	case "accepted", "queued", "sending", "sent":
+		status = model.StatusSent
 	case "delivered":
 		status = model.StatusDelivered
-	case "failed", "undelivered":
-		status = model.StatusFailed
-	case "sent":
-		status = model.StatusSent
-	case "queued":
-		status = model.StatusQueued
+	case "undelivered", "failed":
+		status = model.StatusUndelivered
 	default:
-		status = model.StatusFailed
+		status = model.StatusUnknown
 	}
 	return status.String()
 }

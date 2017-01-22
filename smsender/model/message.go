@@ -13,19 +13,36 @@ func (c StatusCode) String() string {
 }
 
 const (
-	StatusDelivered StatusCode = iota
-	StatusFailed
-	StatusSent
+	// Default status, This should not be exported to client
+	StatusInit StatusCode = iota
+	// Received your API request to send a message
+	StatusAccepted
+	// The message is queued to be sent out
 	StatusQueued
+	// The message is in the process of dispatching to the upstream carrier
+	StatusSending
+	// The message was successfully accepted by the upstream carrie
+	StatusSent
+	// The message could not be sent to the upstream carrier
+	StatusFailed
+	// Received confirmation of message delivery from the upstream carrier
+	StatusDelivered
+	// Received that the message was not delivered from the upstream carrier
+	StatusUndelivered
+	// Received an undocumented status code from the upstream carrier
 	StatusUnknown
 )
 
 var statusCodeMap = map[StatusCode]string{
-	StatusDelivered: "delivered",
-	StatusFailed:    "failed",
-	StatusSent:      "sent",
-	StatusQueued:    "queued",
-	StatusUnknown:   "unknown",
+	StatusInit:        "init",
+	StatusAccepted:    "accepted",
+	StatusQueued:      "queued",
+	StatusSending:     "sending",
+	StatusSent:        "sent",
+	StatusFailed:      "failed",
+	StatusDelivered:   "delivered",
+	StatusUndelivered: "undelivered",
+	StatusUnknown:     "unknown",
 }
 
 type Data struct {
@@ -53,7 +70,7 @@ func NewMessageResult(message Message, broker string) *MessageResult {
 		Data:   message.Data,
 		Route:  message.Route,
 		Broker: broker,
-		Status: StatusUnknown.String(),
+		Status: StatusSending.String(),
 	}
 }
 
@@ -62,7 +79,7 @@ func NewAsyncMessageResult(message Message) *MessageResult {
 		Data:   message.Data,
 		Route:  StatusUnknown.String(),
 		Broker: StatusUnknown.String(),
-		Status: StatusQueued.String(),
+		Status: StatusAccepted.String(),
 	}
 	if message.From == "" {
 		result.From = StatusUnknown.String()
@@ -117,7 +134,7 @@ func NewMessage(to, from, body string, async bool) *Message {
 			Body:        body,
 			CreatedTime: time.Now(),
 		},
-		Route:  StatusUnknown.String(),
+		Route:  StatusInit.String(),
 		Result: nil,
 	}
 	if async {

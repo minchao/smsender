@@ -19,7 +19,7 @@ func (b Broker) Name() string {
 }
 
 func (b Broker) Send(message *model.Message, result *model.MessageResult) {
-	result.Status = model.StatusSent.String()
+	result.Status = model.StatusDelivered.String()
 	result.OriginalMessageId = &result.Id
 }
 

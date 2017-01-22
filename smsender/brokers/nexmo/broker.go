@@ -130,12 +130,12 @@ func convertStatus(rawStatus string) string {
 func convertDeliveryReceiptStatus(rawStatus string) string {
 	var status model.StatusCode
 	switch rawStatus {
+	case "accepted", "buffered":
+		status = model.StatusSent
 	case "delivered":
 		status = model.StatusDelivered
 	case "failed", "rejected":
-		status = model.StatusFailed
-	case "accepted", "buffered":
-		status = model.StatusQueued
+		status = model.StatusUndelivered
 	default:
 		// expired, unknown
 		status = model.StatusUnknown
