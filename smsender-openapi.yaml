@@ -287,10 +287,13 @@ definitions:
         type: string
       pattern:
         type: string
+        description: Phone number regular expression to be matched with a broker
       broker:
         type: string
+        description: Broker name
       from:
         type: string
+        description: Sender Id (phone number or alphanumeric)
       is_active:
         type: boolean
     required:
