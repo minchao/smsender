@@ -20,6 +20,15 @@ tags:
       | delivered | Received confirmation of message delivery from the upstream carrier |
       | undelivered | Received that the message was not delivered from the upstream carrier |
       | unknown | Received an undocumented status code from the upstream carrier |
+  - name: errors
+    description: |
+      All errors will return with the following JSON body:
+      ```json
+      {
+        "error": "ascii_error_code",
+        "error_description": "Human-readable ASCII text providing additional information, used to assist the client developer in understanding the error that occurred."
+      }
+      ```
 schemes:
   - http
   - https
