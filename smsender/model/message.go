@@ -169,7 +169,7 @@ func NewMessage(to, from, body string, async bool) *Message {
 			Body:        body,
 			CreatedTime: time.Now(),
 		},
-		Route:  StatusInit.String(),
+		Route:  "unknown",
 		Result: nil,
 	}
 	if async {
