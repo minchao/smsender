@@ -132,8 +132,12 @@ func (s *Server) Messages(w http.ResponseWriter, r *http.Request) {
 		render(w, http.StatusNotFound, errorMessage{Error: "not_found", ErrorDescription: err.Error()})
 		return
 	}
+	records := MessageRecords{Data: []*model.MessageRecord{}}
+	if len(messages) > 0 {
+		records.Data = messages
+	}
 
-	render(w, http.StatusOK, MessageRecords{Data: messages})
+	render(w, http.StatusOK, records)
 }
 
 type Message struct {
