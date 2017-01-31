@@ -45,9 +45,10 @@ func (w worker) process(message *model.Message) {
 
 	broker.Send(message, result)
 
-	sentTime := time.Now()
-	latency := sentTime.Sub(message.CreatedTime).Nanoseconds() / int64(time.Millisecond)
-	result.SentTime = &sentTime
+	now := time.Now()
+	latency := now.Sub(message.CreatedTime).Nanoseconds() / int64(time.Millisecond)
+	result.UpdatedTime = &now
+	result.SentTime = &now
 	result.Latency = &latency
 
 	log2 := log1.WithField("result", *result)
