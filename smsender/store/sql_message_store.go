@@ -1,8 +1,6 @@
 package store
 
 import (
-	"encoding/json"
-
 	"github.com/jmoiron/sqlx"
 	"github.com/minchao/smsender/smsender/model"
 )
@@ -50,16 +48,6 @@ func (ms *SqlMessageStore) Get(id string) StoreChannel {
 		if err := ms.db.Get(&message, `SELECT * FROM message WHERE id = ?`, id); err != nil {
 			result.Err = err
 		} else {
-			if message.OriginalResponse != nil {
-				if original, err := unmarshalOriginal(message.OriginalResponse); err == nil {
-					message.OriginalResponse = original
-				}
-			}
-			if message.OriginalReceipt != nil {
-				if original, err := unmarshalOriginal(message.OriginalReceipt); err == nil {
-					message.OriginalReceipt = original
-				}
-			}
 			result.Data = message
 		}
 
@@ -89,18 +77,6 @@ func (ms *SqlMessageStore) GetByIds(ids []string) StoreChannel {
 		if err := ms.db.Select(&messages, query, args...); err != nil {
 			result.Err = err
 		} else {
-			for _, message := range messages {
-				if message.OriginalResponse != nil {
-					if original, err := unmarshalOriginal(message.OriginalResponse); err == nil {
-						message.OriginalResponse = original
-					}
-				}
-				if message.OriginalReceipt != nil {
-					if original, err := unmarshalOriginal(message.OriginalReceipt); err == nil {
-						message.OriginalReceipt = original
-					}
-				}
-			}
 			result.Data = messages
 		}
 
@@ -116,14 +92,6 @@ func (ms *SqlMessageStore) Save(message *model.MessageRecord) StoreChannel {
 
 	go func() {
 		result := StoreResult{}
-
-		var originalResponse, originalReceipt *string
-		if message.OriginalResponse != nil {
-			originalResponse, _ = marshalOriginal(message.OriginalResponse)
-		}
-		if message.OriginalReceipt != nil {
-			originalReceipt, _ = marshalOriginal(message.OriginalReceipt)
-		}
 
 		_, err := ms.db.Exec(`INSERT INTO message
 			(
@@ -154,8 +122,8 @@ func (ms *SqlMessageStore) Save(message *model.MessageRecord) StoreChannel {
 			message.Broker,
 			message.Status,
 			message.OriginalMessageId,
-			originalResponse,
-			originalReceipt,
+			message.OriginalResponse,
+			message.OriginalReceipt,
 			message.CreatedTime,
 			message.SentTime,
 			message.ReceiptTime,
@@ -179,14 +147,6 @@ func (ms *SqlMessageStore) Update(message *model.MessageRecord) StoreChannel {
 
 	go func() {
 		result := StoreResult{}
-
-		var originalResponse, originalReceipt *string
-		if message.OriginalResponse != nil {
-			originalResponse, _ = marshalOriginal(message.OriginalResponse)
-		}
-		if message.OriginalReceipt != nil {
-			originalReceipt, _ = marshalOriginal(message.OriginalReceipt)
-		}
 
 		_, err := ms.db.Exec(`UPDATE message
 			SET
@@ -213,8 +173,8 @@ func (ms *SqlMessageStore) Update(message *model.MessageRecord) StoreChannel {
 			message.Broker,
 			message.Status,
 			message.OriginalMessageId,
-			originalResponse,
-			originalReceipt,
+			message.OriginalResponse,
+			message.OriginalReceipt,
 			message.CreatedTime,
 			message.SentTime,
 			message.ReceiptTime,
@@ -240,11 +200,6 @@ func (ms *SqlMessageStore) UpdateReceipt(receipt *model.MessageReceipt) StoreCha
 	go func() {
 		result := StoreResult{}
 
-		var originalReceipt *string
-		if receipt.OriginalReceipt != nil {
-			originalReceipt, _ = marshalOriginal(receipt.OriginalReceipt)
-		}
-
 		_, err := ms.db.Exec(`UPDATE message
 			SET
 				status = ?,
@@ -252,7 +207,7 @@ func (ms *SqlMessageStore) UpdateReceipt(receipt *model.MessageReceipt) StoreCha
 				receiptTime = ?
 			WHERE broker = ? AND originalMessageId = ?`,
 			receipt.Status,
-			originalReceipt,
+			model.MarshalJSON(receipt),
 			receipt.CreatedTime,
 			receipt.Broker,
 			receipt.OriginalMessageId,
@@ -268,21 +223,4 @@ func (ms *SqlMessageStore) UpdateReceipt(receipt *model.MessageReceipt) StoreCha
 	}()
 
 	return storeChannel
-}
-
-func marshalOriginal(original interface{}) (*string, error) {
-	if result, err := json.Marshal(original); err != nil {
-		return nil, err
-	} else {
-		str := string(result)
-		return &str, nil
-	}
-}
-
-func unmarshalOriginal(original interface{}) (interface{}, error) {
-	var result interface{}
-	if err := json.Unmarshal([]byte(original.([]uint8)), &result); err != nil {
-		return nil, err
-	}
-	return result, nil
 }

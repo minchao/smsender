@@ -51,7 +51,7 @@ func (b Broker) Send(msg *model.Message, result *model.MessageResult) {
 	resp, err := b.client.SMS.Send(message)
 	if err != nil {
 		result.Status = model.StatusFailed.String()
-		result.OriginalResponse = model.BrokerError{Error: err.Error()}
+		result.OriginalResponse = model.MarshalJSON(model.BrokerError{Error: err.Error()})
 	} else {
 		if resp.MessageCount > 0 {
 			respMsg := resp.Messages[0]
@@ -61,7 +61,7 @@ func (b Broker) Send(msg *model.Message, result *model.MessageResult) {
 		} else {
 			result.Status = model.StatusFailed.String()
 		}
-		result.OriginalResponse = resp
+		result.OriginalResponse = model.MarshalJSON(resp)
 	}
 }
 

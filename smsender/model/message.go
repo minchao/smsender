@@ -56,13 +56,13 @@ type Data struct {
 
 type MessageResult struct {
 	Data
-	SentTime          *time.Time  `json:"sent_time" db:"sentTime"`
-	Latency           *int64      `json:"-"` // Millisecond
-	Route             string      `json:"route"`
-	Broker            string      `json:"broker"`
-	Status            string      `json:"status"`
-	OriginalMessageId *string     `json:"original_message_id" db:"originalMessageId"`
-	OriginalResponse  interface{} `json:"original_response" db:"originalResponse"`
+	SentTime          *time.Time `json:"sent_time" db:"sentTime"`
+	Latency           *int64     `json:"-"` // Millisecond
+	Route             string     `json:"route"`
+	Broker            string     `json:"broker"`
+	Status            string     `json:"status"`
+	OriginalMessageId *string    `json:"original_message_id" db:"originalMessageId"`
+	OriginalResponse  JSON       `json:"original_response" db:"originalResponse"`
 }
 
 func NewMessageResult(message Message, broker string) *MessageResult {
@@ -98,8 +98,8 @@ func NewMessageReceipt(originalMessageId, broker, status string, receipt interfa
 }
 
 type MessageReceipt struct {
-	OriginalMessageId string      `json:"original_message_id"`
-	Broker            string      `json:"broker"`
+	OriginalMessageId string      `json:"-"`
+	Broker            string      `json:"-"`
 	Status            string      `json:"status"`
 	OriginalReceipt   interface{} `json:"original_receipt" db:"originalReceipt"`
 	CreatedTime       time.Time   `json:"created_time" db:"createdTime"`
@@ -107,11 +107,11 @@ type MessageReceipt struct {
 
 type MessageRecord struct {
 	MessageResult
-	OriginalReceipt interface{} `json:"original_receipt" db:"originalReceipt"`
-	ReceiptTime     *time.Time  `json:"receipt_time" db:"receiptTime"`
+	OriginalReceipt JSON       `json:"original_receipt" db:"originalReceipt"`
+	ReceiptTime     *time.Time `json:"receipt_time" db:"receiptTime"`
 }
 
-func NewMessageRecord(result MessageResult, receipt interface{}, receiptTime *time.Time) *MessageRecord {
+func NewMessageRecord(result MessageResult, receipt JSON, receiptTime *time.Time) *MessageRecord {
 	return &MessageRecord{
 		MessageResult:   result,
 		OriginalReceipt: receipt,

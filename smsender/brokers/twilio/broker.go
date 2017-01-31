@@ -58,11 +58,11 @@ func (b Broker) Send(message *model.Message, result *model.MessageResult) {
 	)
 	if err != nil {
 		result.Status = model.StatusFailed.String()
-		result.OriginalResponse = err
+		result.OriginalResponse = model.MarshalJSON(err)
 	} else {
 		result.Status = convertStatus(resp.Status)
 		result.OriginalMessageId = &resp.Sid
-		result.OriginalResponse = resp
+		result.OriginalResponse = model.MarshalJSON(resp)
 	}
 }
 
