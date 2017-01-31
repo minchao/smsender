@@ -22,7 +22,7 @@ type RouteStore interface {
 type MessageStore interface {
 	Get(id string) StoreChannel
 	GetByIds(ids []string) StoreChannel
+	GetByBrokerAndMessageId(broker, originalMessageId string) StoreChannel
 	Save(message *model.MessageRecord) StoreChannel
 	Update(message *model.MessageRecord) StoreChannel
-	UpdateReceipt(receipt *model.MessageReceipt) StoreChannel
 }

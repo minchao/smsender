@@ -12,6 +12,15 @@ func (c StatusCode) String() string {
 	return statusCodeMap[c]
 }
 
+func statusStringToCode(status string) StatusCode {
+	for k, v := range statusCodeMap {
+		if v == status {
+			return k
+		}
+	}
+	return StatusUnknown
+}
+
 const (
 	// Default status, This should not be exported to client
 	StatusInit StatusCode = iota
@@ -21,16 +30,16 @@ const (
 	StatusQueued
 	// The message is in the process of dispatching to the upstream carrier
 	StatusSending
-	// The message was successfully accepted by the upstream carrie
-	StatusSent
 	// The message could not be sent to the upstream carrier
 	StatusFailed
-	// Received confirmation of message delivery from the upstream carrier
-	StatusDelivered
-	// Received that the message was not delivered from the upstream carrier
-	StatusUndelivered
+	// The message was successfully accepted by the upstream carrie
+	StatusSent
 	// Received an undocumented status code from the upstream carrier
 	StatusUnknown
+	// Received that the message was not delivered from the upstream carrier
+	StatusUndelivered
+	// Received confirmation of message delivery from the upstream carrier
+	StatusDelivered
 )
 
 var statusCodeMap = map[StatusCode]string{
@@ -38,11 +47,11 @@ var statusCodeMap = map[StatusCode]string{
 	StatusAccepted:    "accepted",
 	StatusQueued:      "queued",
 	StatusSending:     "sending",
-	StatusSent:        "sent",
 	StatusFailed:      "failed",
-	StatusDelivered:   "delivered",
-	StatusUndelivered: "undelivered",
+	StatusSent:        "sent",
 	StatusUnknown:     "unknown",
+	StatusUndelivered: "undelivered",
+	StatusDelivered:   "delivered",
 }
 
 type Data struct {
@@ -56,6 +65,7 @@ type Data struct {
 
 type MessageResult struct {
 	Data
+	UpdatedTime       *time.Time `json:"updated_time" db:"updatedTime"`
 	SentTime          *time.Time `json:"sent_time" db:"sentTime"`
 	Latency           *int64     `json:"-"` // Millisecond
 	Route             string     `json:"route"`
@@ -87,6 +97,14 @@ func NewAsyncMessageResult(message Message) *MessageResult {
 	return &result
 }
 
+type MessageReceipt struct {
+	OriginalMessageId string      `json:"-"`
+	Broker            string      `json:"-"`
+	Status            string      `json:"status"`
+	OriginalReceipt   interface{} `json:"original_receipt"`
+	CreatedTime       time.Time   `json:"created_time"`
+}
+
 func NewMessageReceipt(originalMessageId, broker, status string, receipt interface{}, created time.Time) *MessageReceipt {
 	return &MessageReceipt{
 		OriginalMessageId: originalMessageId,
@@ -97,26 +115,43 @@ func NewMessageReceipt(originalMessageId, broker, status string, receipt interfa
 	}
 }
 
-type MessageReceipt struct {
-	OriginalMessageId string      `json:"-"`
-	Broker            string      `json:"-"`
-	Status            string      `json:"status"`
-	OriginalReceipt   interface{} `json:"original_receipt" db:"originalReceipt"`
-	CreatedTime       time.Time   `json:"created_time" db:"createdTime"`
-}
-
 type MessageRecord struct {
 	MessageResult
-	OriginalReceipt JSON       `json:"original_receipt" db:"originalReceipt"`
-	ReceiptTime     *time.Time `json:"receipt_time" db:"receiptTime"`
+	OriginalReceipts JSON `json:"original_receipts" db:"originalReceipts"`
 }
 
-func NewMessageRecord(result MessageResult, receipt JSON, receiptTime *time.Time) *MessageRecord {
+func NewMessageRecord(result MessageResult, receipts JSON) *MessageRecord {
 	return &MessageRecord{
-		MessageResult:   result,
-		OriginalReceipt: receipt,
-		ReceiptTime:     receiptTime,
+		MessageResult:    result,
+		OriginalReceipts: receipts,
 	}
+}
+
+func (m *MessageRecord) GetReceipts() []MessageReceipt {
+	var receipts []MessageReceipt
+	m.OriginalReceipts.Unmarshal(&receipts)
+	return receipts
+}
+
+func (m *MessageRecord) SetReceipts(receipts []MessageReceipt) {
+	m.OriginalReceipts = MarshalJSON(receipts)
+}
+
+func (m *MessageRecord) AddReceipt(receipt MessageReceipt) {
+	receipts := m.GetReceipts()
+	receipts = append(receipts, receipt)
+	m.SetReceipts(receipts)
+}
+
+func (m *MessageRecord) HandleReceipt(receipt MessageReceipt) {
+	m.AddReceipt(receipt)
+
+	if rStatus := statusStringToCode(receipt.Status); rStatus > StatusSent && rStatus > statusStringToCode(m.Status) {
+		m.Status = receipt.Status
+	}
+
+	now := time.Now()
+	m.UpdatedTime = &now
 }
 
 type Message struct {

@@ -17,10 +17,10 @@ CREATE TABLE IF NOT EXISTS message (
   status            varchar(20) COLLATE utf8_unicode_ci NOT NULL,
   originalMessageId varchar(64) COLLATE utf8_unicode_ci DEFAULT NULL,
   originalResponse  json DEFAULT NULL,
-  originalReceipt   json DEFAULT NULL,
+  originalReceipts  json DEFAULT NULL,
   createdTime       datetime(6) DEFAULT NULL,
+  updatedTime       datetime(6) DEFAULT NULL,
   sentTime          datetime(6) DEFAULT NULL,
-  receiptTime       datetime(6) DEFAULT NULL,
   latency           int(11) DEFAULT NULL,
   PRIMARY KEY (id),
   KEY brokerOriginalMessageId (broker, originalMessageId)
@@ -48,7 +48,7 @@ func (ms *SqlMessageStore) Get(id string) StoreChannel {
 		if err := ms.db.Get(&message, `SELECT * FROM message WHERE id = ?`, id); err != nil {
 			result.Err = err
 		} else {
-			result.Data = message
+			result.Data = &message
 		}
 
 		storeChannel <- result
@@ -87,6 +87,27 @@ func (ms *SqlMessageStore) GetByIds(ids []string) StoreChannel {
 	return storeChannel
 }
 
+func (ms *SqlMessageStore) GetByBrokerAndMessageId(broker, originalMessageId string) StoreChannel {
+	storeChannel := make(StoreChannel, 1)
+
+	go func() {
+		result := StoreResult{}
+
+		var message model.MessageRecord
+		if err := ms.db.Get(&message, `SELECT * FROM message
+			WHERE broker = ? AND originalMessageId = ?`, broker, originalMessageId); err != nil {
+			result.Err = err
+		} else {
+			result.Data = &message
+		}
+
+		storeChannel <- result
+		close(storeChannel)
+	}()
+
+	return storeChannel
+}
+
 func (ms *SqlMessageStore) Save(message *model.MessageRecord) StoreChannel {
 	storeChannel := make(StoreChannel, 1)
 
@@ -105,10 +126,10 @@ func (ms *SqlMessageStore) Save(message *model.MessageRecord) StoreChannel {
 				status,
 				originalMessageId,
 				originalResponse,
-				originalReceipt,
+				originalReceipts,
 				createdTime,
+				updatedTime,
 				sentTime,
-				receiptTime,
 				latency
 			)
 			VALUES
@@ -123,10 +144,10 @@ func (ms *SqlMessageStore) Save(message *model.MessageRecord) StoreChannel {
 			message.Status,
 			message.OriginalMessageId,
 			message.OriginalResponse,
-			message.OriginalReceipt,
+			message.OriginalReceipts,
 			message.CreatedTime,
+			message.UpdatedTime,
 			message.SentTime,
-			message.ReceiptTime,
 			message.Latency,
 		)
 		if err != nil {
@@ -159,10 +180,10 @@ func (ms *SqlMessageStore) Update(message *model.MessageRecord) StoreChannel {
 				status = ?,
 				originalMessageId = ?,
 				originalResponse = ?,
-				originalReceipt = ?,
+				originalReceipts = ?,
 				createdTime = ?,
+				updatedTime = ?,
 				sentTime = ?,
-				receiptTime = ?,
 				latency = ?
 			WHERE id = ?`,
 			message.To,
@@ -174,10 +195,10 @@ func (ms *SqlMessageStore) Update(message *model.MessageRecord) StoreChannel {
 			message.Status,
 			message.OriginalMessageId,
 			message.OriginalResponse,
-			message.OriginalReceipt,
+			message.OriginalReceipts,
 			message.CreatedTime,
+			message.UpdatedTime,
 			message.SentTime,
-			message.ReceiptTime,
 			message.Latency,
 			message.Id,
 		)
@@ -185,37 +206,6 @@ func (ms *SqlMessageStore) Update(message *model.MessageRecord) StoreChannel {
 			result.Err = err
 		} else {
 			result.Data = message
-		}
-
-		storeChannel <- result
-		close(storeChannel)
-	}()
-
-	return storeChannel
-}
-
-func (ms *SqlMessageStore) UpdateReceipt(receipt *model.MessageReceipt) StoreChannel {
-	storeChannel := make(StoreChannel, 1)
-
-	go func() {
-		result := StoreResult{}
-
-		_, err := ms.db.Exec(`UPDATE message
-			SET
-				status = ?,
-				originalReceipt = ?,
-				receiptTime = ?
-			WHERE broker = ? AND originalMessageId = ?`,
-			receipt.Status,
-			model.MarshalJSON(receipt),
-			receipt.CreatedTime,
-			receipt.Broker,
-			receipt.OriginalMessageId,
-		)
-		if err != nil {
-			result.Err = err
-		} else {
-			result.Data = receipt
 		}
 
 		storeChannel <- result
