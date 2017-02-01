@@ -43,7 +43,7 @@ func TestNewMessageRecord(t *testing.T) {
 
 	messageRecord := NewMessageRecord(
 		MessageResult{
-			Data: Data{
+			MessageData: MessageData{
 				Id:          "b288anp82b37873aj510",
 				To:          "+886987654321",
 				From:        "+1234567890",

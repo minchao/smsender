@@ -6,7 +6,7 @@ import (
 	"github.com/rs/xid"
 )
 
-type Data struct {
+type MessageData struct {
 	Id          string    `json:"id"`                 // Message Id
 	To          string    `json:"to" db:"toNumber"`   // The destination phone number (E.164 format)
 	From        string    `json:"from" db:"fromName"` // Sender Id (phone number or alphanumeric)
@@ -16,7 +16,7 @@ type Data struct {
 }
 
 type MessageResult struct {
-	Data
+	MessageData
 	UpdatedTime       *time.Time `json:"updated_time" db:"updatedTime"`
 	SentTime          *time.Time `json:"sent_time" db:"sentTime"`
 	Latency           *int64     `json:"-"` // Millisecond
@@ -29,19 +29,19 @@ type MessageResult struct {
 
 func NewMessageResult(message Message, provider string) *MessageResult {
 	return &MessageResult{
-		Data:     message.Data,
-		Route:    message.Route,
-		Provider: provider,
-		Status:   StatusSending,
+		MessageData: message.MessageData,
+		Route:       message.Route,
+		Provider:    provider,
+		Status:      StatusSending,
 	}
 }
 
 func NewAsyncMessageResult(message Message) *MessageResult {
 	result := MessageResult{
-		Data:     message.Data,
-		Route:    "unknown",
-		Provider: "unknown",
-		Status:   StatusAccepted,
+		MessageData: message.MessageData,
+		Route:       "unknown",
+		Provider:    "unknown",
+		Status:      StatusAccepted,
 	}
 	if message.From == "" {
 		result.From = "unknown"
@@ -107,14 +107,14 @@ func (m *MessageRecord) HandleReceipt(receipt MessageReceipt) {
 }
 
 type Message struct {
-	Data
+	MessageData
 	Route  string             `json:"route"`
 	Result chan MessageResult `json:"-"`
 }
 
 func NewMessage(to, from, body string, async bool) *Message {
 	message := Message{
-		Data: Data{
+		MessageData: MessageData{
 			Id:          xid.New().String(),
 			To:          to,
 			From:        from,
