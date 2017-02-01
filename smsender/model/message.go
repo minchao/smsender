@@ -6,54 +6,6 @@ import (
 	"github.com/rs/xid"
 )
 
-type StatusCode int
-
-func (c StatusCode) String() string {
-	return statusCodeMap[c]
-}
-
-func statusStringToCode(status string) StatusCode {
-	for k, v := range statusCodeMap {
-		if v == status {
-			return k
-		}
-	}
-	return StatusUnknown
-}
-
-const (
-	// Default status, This should not be exported to client
-	StatusInit StatusCode = iota
-	// Received your API request to send a message
-	StatusAccepted
-	// The message is queued to be sent out
-	StatusQueued
-	// The message is in the process of dispatching to the upstream carrier
-	StatusSending
-	// The message could not be sent to the upstream carrier
-	StatusFailed
-	// The message was successfully accepted by the upstream carrie
-	StatusSent
-	// Received an undocumented status code from the upstream carrier
-	StatusUnknown
-	// Received that the message was not delivered from the upstream carrier
-	StatusUndelivered
-	// Received confirmation of message delivery from the upstream carrier
-	StatusDelivered
-)
-
-var statusCodeMap = map[StatusCode]string{
-	StatusInit:        "init",
-	StatusAccepted:    "accepted",
-	StatusQueued:      "queued",
-	StatusSending:     "sending",
-	StatusFailed:      "failed",
-	StatusSent:        "sent",
-	StatusUnknown:     "unknown",
-	StatusUndelivered: "undelivered",
-	StatusDelivered:   "delivered",
-}
-
 type Data struct {
 	Id          string    `json:"id"`                 // Message Id
 	To          string    `json:"to" db:"toNumber"`   // The destination phone number (E.164 format)
@@ -70,7 +22,7 @@ type MessageResult struct {
 	Latency           *int64     `json:"-"` // Millisecond
 	Route             string     `json:"route"`
 	Provider          string     `json:"provider"`
-	Status            string     `json:"status"`
+	Status            StatusCode `json:"status"`
 	OriginalMessageId *string    `json:"original_message_id" db:"originalMessageId"`
 	OriginalResponse  JSON       `json:"original_response" db:"originalResponse"`
 }
@@ -80,7 +32,7 @@ func NewMessageResult(message Message, provider string) *MessageResult {
 		Data:     message.Data,
 		Route:    message.Route,
 		Provider: provider,
-		Status:   StatusSending.String(),
+		Status:   StatusSending,
 	}
 }
 
@@ -89,7 +41,7 @@ func NewAsyncMessageResult(message Message) *MessageResult {
 		Data:     message.Data,
 		Route:    "unknown",
 		Provider: "unknown",
-		Status:   StatusAccepted.String(),
+		Status:   StatusAccepted,
 	}
 	if message.From == "" {
 		result.From = "unknown"
@@ -100,12 +52,12 @@ func NewAsyncMessageResult(message Message) *MessageResult {
 type MessageReceipt struct {
 	OriginalMessageId string      `json:"-"`
 	Provider          string      `json:"-"`
-	Status            string      `json:"status"`
+	Status            StatusCode  `json:"status"`
 	OriginalReceipt   interface{} `json:"original_receipt"`
 	CreatedTime       time.Time   `json:"created_time"`
 }
 
-func NewMessageReceipt(originalMessageId, provider, status string, receipt interface{}, created time.Time) *MessageReceipt {
+func NewMessageReceipt(originalMessageId, provider string, status StatusCode, receipt interface{}, created time.Time) *MessageReceipt {
 	return &MessageReceipt{
 		OriginalMessageId: originalMessageId,
 		Provider:          provider,
@@ -146,7 +98,7 @@ func (m *MessageRecord) AddReceipt(receipt MessageReceipt) {
 func (m *MessageRecord) HandleReceipt(receipt MessageReceipt) {
 	m.AddReceipt(receipt)
 
-	if rStatus := statusStringToCode(receipt.Status); rStatus > StatusSent && rStatus > statusStringToCode(m.Status) {
+	if receipt.Status > StatusSent && receipt.Status > m.Status {
 		m.Status = receipt.Status
 	}
 

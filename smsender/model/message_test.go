@@ -56,7 +56,7 @@ func TestNewMessageRecord(t *testing.T) {
 			Latency:           nil,
 			Route:             "dummy",
 			Provider:          "dummy",
-			Status:            "delivered",
+			Status:            StatusDelivered,
 			OriginalMessageId: &originalMessageId,
 			OriginalResponse:  JSON(`{"response":"response"}`),
 		},
@@ -71,13 +71,13 @@ func TestNewMessageRecord(t *testing.T) {
 		Status:    "delivered",
 	}
 
-	messageRecord.AddReceipt(*NewMessageReceipt(originalMessageId, "dummy", "delivered", receipt, ct))
+	messageRecord.AddReceipt(*NewMessageReceipt(originalMessageId, "dummy", StatusDelivered, receipt, ct))
 
 	record, err := json.Marshal(messageRecord)
 	if err != nil {
 		t.Error("MessageRecord marshal error:", err.Error())
 	}
 	if !reflect.DeepEqual(record, j.Bytes()) {
-		t.Errorf("NewMessageRecord returned '%s', want '%s'", j, record)
+		t.Errorf("NewMessageRecord returned %s, want %s", record, j)
 	}
 }

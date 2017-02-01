@@ -58,10 +58,10 @@ func (b Provider) Send(msg *model.Message, result *model.MessageResult) {
 	err := req.Send()
 
 	if err != nil {
-		result.Status = model.StatusFailed.String()
+		result.Status = model.StatusFailed
 		result.OriginalResponse = model.MarshalJSON(model.ProviderError{Error: err.Error()})
 	} else {
-		result.Status = model.StatusSent.String()
+		result.Status = model.StatusSent
 		result.OriginalMessageId = resp.MessageId
 		result.OriginalResponse = model.MarshalJSON(resp)
 	}

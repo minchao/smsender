@@ -50,7 +50,7 @@ func (b Provider) Send(msg *model.Message, result *model.MessageResult) {
 
 	resp, err := b.client.SMS.Send(message)
 	if err != nil {
-		result.Status = model.StatusFailed.String()
+		result.Status = model.StatusFailed
 		result.OriginalResponse = model.MarshalJSON(model.ProviderError{Error: err.Error()})
 	} else {
 		if resp.MessageCount > 0 {
@@ -59,7 +59,7 @@ func (b Provider) Send(msg *model.Message, result *model.MessageResult) {
 			result.Status = convertStatus(respMsg.Status.String())
 			result.OriginalMessageId = &respMsg.MessageID
 		} else {
-			result.Status = model.StatusFailed.String()
+			result.Status = model.StatusFailed
 		}
 		result.OriginalResponse = model.MarshalJSON(resp)
 	}
@@ -116,7 +116,7 @@ func (b Provider) Callback(register func(webhook *model.Webhook), receiptsCh cha
 	})
 }
 
-func convertStatus(rawStatus string) string {
+func convertStatus(rawStatus string) model.StatusCode {
 	var status model.StatusCode
 	switch rawStatus {
 	case nexmo.ResponseSuccess.String():
@@ -124,10 +124,10 @@ func convertStatus(rawStatus string) string {
 	default:
 		status = model.StatusFailed
 	}
-	return status.String()
+	return status
 }
 
-func convertDeliveryReceiptStatus(rawStatus string) string {
+func convertDeliveryReceiptStatus(rawStatus string) model.StatusCode {
 	var status model.StatusCode
 	switch rawStatus {
 	case "accepted", "buffered":
@@ -140,5 +140,5 @@ func convertDeliveryReceiptStatus(rawStatus string) string {
 		// expired, unknown
 		status = model.StatusUnknown
 	}
-	return status.String()
+	return status
 }

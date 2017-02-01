@@ -57,7 +57,7 @@ func (b Provider) Send(message *model.Message, result *model.MessageResult) {
 		optionals...,
 	)
 	if err != nil {
-		result.Status = model.StatusFailed.String()
+		result.Status = model.StatusFailed
 		result.OriginalResponse = model.MarshalJSON(err)
 	} else {
 		result.Status = convertStatus(resp.Status)
@@ -118,7 +118,7 @@ func (b Provider) Callback(register func(webhook *model.Webhook), receiptsCh cha
 	})
 }
 
-func convertStatus(rawStatus string) string {
+func convertStatus(rawStatus string) model.StatusCode {
 	var status model.StatusCode
 	switch rawStatus {
 	case "accepted", "queued", "sending", "sent":
@@ -130,5 +130,5 @@ func convertStatus(rawStatus string) string {
 	default:
 		status = model.StatusUnknown
 	}
-	return status.String()
+	return status
 }

@@ -53,9 +53,9 @@ func (w worker) process(message *model.Message) {
 
 	log2 := log1.WithField("result", *result)
 	switch result.Status {
-	case model.StatusSent.String(), model.StatusDelivered.String():
+	case model.StatusSent, model.StatusDelivered:
 		log2.Info("provider send message")
-	case model.StatusFailed.String(), model.StatusUndelivered.String(), model.StatusUnknown.String():
+	case model.StatusFailed, model.StatusUndelivered, model.StatusUnknown:
 		log2.Error("provider send message failed")
 	default:
 		// Unexpected status

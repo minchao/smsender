@@ -19,7 +19,7 @@ func (b Provider) Name() string {
 }
 
 func (b Provider) Send(message *model.Message, result *model.MessageResult) {
-	result.Status = model.StatusDelivered.String()
+	result.Status = model.StatusDelivered
 	result.OriginalMessageId = &result.Id
 }
 
