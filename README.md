@@ -5,8 +5,8 @@
 
 A SMS server written in Go (Golang).
 
-* Support various SMS brokers.
-* Uses routes to determine which broker to send SMS.
+* Support various SMS providers.
+* Uses routes to determine which provider to send SMS.
 * SMS delivery worker.
 * SMS delivery records.
 * SMS delivery receipt.
@@ -42,12 +42,12 @@ db:
   dsn: "user:password@tcp(localhost:3306)/dbname?parseTime=true&loc=Local"
 ```
 
-Registering brokers on the sender server.
+Registering providers on the sender server.
 
-Add the broker key and secret to config.yml:
+Add the provider key and secret to config.yml:
 
 ```yaml
-brokers:
+providers:
   nexmo:
     key: "NEXMO_KEY"
     secret: "NEXMO_SECRET"
@@ -58,12 +58,12 @@ Add the following code to main.go:
 ```go
     sender := smsender.SMSender(config.GetInt("worker.num"))
     
-	nexmoBroker := nexmo.Config{
-		Key:    config.GetString("brokers.nexmo.key"),
-		Secret: config.GetString("brokers.nexmo.secret"),
-	}.NewBroker("nexmo")
+	nexmoProvider := nexmo.Config{
+		Key:    config.GetString("providers.nexmo.key"),
+		Secret: config.GetString("providers.nexmo.secret"),
+	}.NewProvider("nexmo")
 	
-	sender.AddBroker(nexmoBroker)
+	sender.AddProvider(nexmoProvider)
 	sender.Run()
 ```
 
@@ -79,19 +79,19 @@ Run:
 ./bin/smsender
 ```
 
-## Brokers
+## Providers
 
-Support brokers
+Support providers
 
 * [AWS SNS (SMS)](https://aws.amazon.com/sns/)
 * [Nexmo](https://www.nexmo.com/)
 * [Twilio](https://www.twilio.com/)
 
-Need another broker? Just implement the [Broker](https://github.com/minchao/smsender/blob/master/smsender/model/broker.go) interface.
+Need another provider? Just implement the [Provider](https://github.com/minchao/smsender/blob/master/smsender/model/provider.go) interface.
 
 ## Matching Routes
 
-Route can be define a phone number pattern to be matched with broker.
+Route can be define a phone number pattern to be matched with provider.
 
 ## RESTful API
 

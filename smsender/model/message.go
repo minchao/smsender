@@ -69,27 +69,27 @@ type MessageResult struct {
 	SentTime          *time.Time `json:"sent_time" db:"sentTime"`
 	Latency           *int64     `json:"-"` // Millisecond
 	Route             string     `json:"route"`
-	Broker            string     `json:"broker"`
+	Provider          string     `json:"provider"`
 	Status            string     `json:"status"`
 	OriginalMessageId *string    `json:"original_message_id" db:"originalMessageId"`
 	OriginalResponse  JSON       `json:"original_response" db:"originalResponse"`
 }
 
-func NewMessageResult(message Message, broker string) *MessageResult {
+func NewMessageResult(message Message, provider string) *MessageResult {
 	return &MessageResult{
-		Data:   message.Data,
-		Route:  message.Route,
-		Broker: broker,
-		Status: StatusSending.String(),
+		Data:     message.Data,
+		Route:    message.Route,
+		Provider: provider,
+		Status:   StatusSending.String(),
 	}
 }
 
 func NewAsyncMessageResult(message Message) *MessageResult {
 	result := MessageResult{
-		Data:   message.Data,
-		Route:  "unknown",
-		Broker: "unknown",
-		Status: StatusAccepted.String(),
+		Data:     message.Data,
+		Route:    "unknown",
+		Provider: "unknown",
+		Status:   StatusAccepted.String(),
 	}
 	if message.From == "" {
 		result.From = "unknown"
@@ -99,16 +99,16 @@ func NewAsyncMessageResult(message Message) *MessageResult {
 
 type MessageReceipt struct {
 	OriginalMessageId string      `json:"-"`
-	Broker            string      `json:"-"`
+	Provider          string      `json:"-"`
 	Status            string      `json:"status"`
 	OriginalReceipt   interface{} `json:"original_receipt"`
 	CreatedTime       time.Time   `json:"created_time"`
 }
 
-func NewMessageReceipt(originalMessageId, broker, status string, receipt interface{}, created time.Time) *MessageReceipt {
+func NewMessageReceipt(originalMessageId, provider, status string, receipt interface{}, created time.Time) *MessageReceipt {
 	return &MessageReceipt{
 		OriginalMessageId: originalMessageId,
-		Broker:            broker,
+		Provider:          provider,
 		Status:            status,
 		OriginalReceipt:   receipt,
 		CreatedTime:       created,

@@ -4,20 +4,20 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/minchao/smsender/smsender/brokers/dummy"
 	"github.com/minchao/smsender/smsender/model"
+	"github.com/minchao/smsender/smsender/providers/dummy"
 )
 
 func createRouter() *Router {
-	dummyBroker1 := dummy.NewBroker("dummy1")
-	dummyBroker2 := dummy.NewBroker("dummy2")
+	dummyProvider1 := dummy.NewProvider("dummy1")
+	dummyProvider2 := dummy.NewProvider("dummy2")
 	router := Router{}
 
-	router.Add(model.NewRoute("default", `^\+.*`, dummyBroker1, true))
-	router.Add(model.NewRoute("japan", `^\+81`, dummyBroker2, true))
-	router.Add(model.NewRoute("taiwan", `^\+886`, dummyBroker2, true))
-	router.Add(model.NewRoute("telco", `^\+886987`, dummyBroker2, true))
-	router.Add(model.NewRoute("user", `^\+886987654321`, dummyBroker2, true))
+	router.Add(model.NewRoute("default", `^\+.*`, dummyProvider1, true))
+	router.Add(model.NewRoute("japan", `^\+81`, dummyProvider2, true))
+	router.Add(model.NewRoute("taiwan", `^\+886`, dummyProvider2, true))
+	router.Add(model.NewRoute("telco", `^\+886987`, dummyProvider2, true))
+	router.Add(model.NewRoute("user", `^\+886987654321`, dummyProvider2, true))
 
 	return &router
 }
@@ -60,11 +60,11 @@ func TestRouter_Get(t *testing.T) {
 
 func TestRouter_Set(t *testing.T) {
 	router := createRouter()
-	broker := dummy.NewBroker("dummy")
+	provider := dummy.NewProvider("dummy")
 
-	route := model.NewRoute("taiwan", `^\+8869`, broker, true).SetFrom("sender")
+	route := model.NewRoute("taiwan", `^\+8869`, provider, true).SetFrom("sender")
 
-	if err := router.Set(route.Name, route.Pattern, route.GetBroker(), route.From, true); err == nil {
+	if err := router.Set(route.Name, route.Pattern, route.GetProvider(), route.From, true); err == nil {
 		newRoute := router.Get("taiwan")
 		if newRoute == nil {
 			t.Fatal("route is not equal")
@@ -75,14 +75,14 @@ func TestRouter_Set(t *testing.T) {
 		if newRoute.Pattern != route.Pattern {
 			t.Fatal("route.Pattern is not equal")
 		}
-		if newRoute.GetBroker() == nil || newRoute.GetBroker().Name() != route.GetBroker().Name() {
-			t.Fatal("route.Broker is not equal")
+		if newRoute.GetProvider() == nil || newRoute.GetProvider().Name() != route.GetProvider().Name() {
+			t.Fatal("route.Provider is not equal")
 		}
 		if newRoute.From != route.From {
 			t.Fatal("route.From is not equal")
 		}
 	}
-	if err := router.Set("france", "", broker, "", true); err == nil {
+	if err := router.Set("france", "", provider, "", true); err == nil {
 		t.Fatal("set route should be failed")
 	}
 }
@@ -103,9 +103,9 @@ func TestRouter_Remove(t *testing.T) {
 func TestRouter_Reorder(t *testing.T) {
 	newRouter := func() *Router {
 		router := Router{}
-		dummyBroker := dummy.NewBroker("dummy")
+		provider := dummy.NewProvider("dummy")
 		for _, r := range []string{"D", "C", "B", "A"} {
-			router.Add(model.NewRoute(r, "", dummyBroker, true))
+			router.Add(model.NewRoute(r, "", provider, true))
 		}
 		return &router
 	}
@@ -152,7 +152,7 @@ type routeTest struct {
 	phone       string
 	shouldMatch bool
 	route       string
-	broker      string
+	provider    string
 }
 
 func TestRouter_Match(t *testing.T) {
@@ -163,37 +163,37 @@ func TestRouter_Match(t *testing.T) {
 			phone:       "+886987654321",
 			shouldMatch: true,
 			route:       "user",
-			broker:      "dummy2",
+			provider:    "dummy2",
 		},
 		{
 			phone:       "+886987654322",
 			shouldMatch: true,
 			route:       "telco",
-			broker:      "dummy2",
+			provider:    "dummy2",
 		},
 		{
 			phone:       "+886900000001",
 			shouldMatch: true,
 			route:       "taiwan",
-			broker:      "dummy2",
+			provider:    "dummy2",
 		},
 		{
 			phone:       "+819000000001",
 			shouldMatch: true,
 			route:       "japan",
-			broker:      "dummy2",
+			provider:    "dummy2",
 		},
 		{
 			phone:       "+10000000001",
 			shouldMatch: true,
 			route:       "default",
-			broker:      "dummy1",
+			provider:    "dummy1",
 		},
 		{
 			phone:       "woo",
 			shouldMatch: false,
 			route:       "",
-			broker:      "",
+			provider:    "",
 		},
 	}
 
@@ -206,8 +206,8 @@ func TestRouter_Match(t *testing.T) {
 			if test.route != match.Name {
 				t.Fatalf("test '%d' route.Name is not equal", i)
 			}
-			if test.broker != match.GetBroker().Name() {
-				t.Fatalf("test '%d' route.Broker is not equal", i)
+			if test.provider != match.GetProvider().Name() {
+				t.Fatalf("test '%d' route.Provider is not equal", i)
 			}
 		} else {
 			if ok {

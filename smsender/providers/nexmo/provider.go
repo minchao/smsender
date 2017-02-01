@@ -10,7 +10,7 @@ import (
 	"gopkg.in/njern/gonexmo.v1"
 )
 
-type Broker struct {
+type Provider struct {
 	name          string
 	client        *nexmo.Client
 	enableWebhook bool
@@ -23,12 +23,12 @@ type Config struct {
 	EnableWebhook bool
 }
 
-func (c Config) NewBroker(name string) *Broker {
+func (c Config) NewProvider(name string) *Provider {
 	client, err := nexmo.NewClientFromAPI(c.Key, c.Secret)
 	if err != nil {
 		log.Fatalf("Could not create the nexmo client: %s", err)
 	}
-	return &Broker{
+	return &Provider{
 		name:          name,
 		client:        client,
 		enableWebhook: c.EnableWebhook,
@@ -36,11 +36,11 @@ func (c Config) NewBroker(name string) *Broker {
 	}
 }
 
-func (b Broker) Name() string {
+func (b Provider) Name() string {
 	return b.name
 }
 
-func (b Broker) Send(msg *model.Message, result *model.MessageResult) {
+func (b Provider) Send(msg *model.Message, result *model.MessageResult) {
 	message := &nexmo.SMSMessage{
 		From: msg.From,
 		To:   msg.To,
@@ -51,7 +51,7 @@ func (b Broker) Send(msg *model.Message, result *model.MessageResult) {
 	resp, err := b.client.SMS.Send(message)
 	if err != nil {
 		result.Status = model.StatusFailed.String()
-		result.OriginalResponse = model.MarshalJSON(model.BrokerError{Error: err.Error()})
+		result.OriginalResponse = model.MarshalJSON(model.ProviderError{Error: err.Error()})
 	} else {
 		if resp.MessageCount > 0 {
 			respMsg := resp.Messages[0]
@@ -78,7 +78,7 @@ type DeliveryReceipt struct {
 }
 
 // see https://docs.nexmo.com/messaging/sms-api/api-reference#delivery_receipt
-func (b Broker) Callback(register func(webhook *model.Webhook), receiptsCh chan<- model.MessageReceipt) {
+func (b Provider) Callback(register func(webhook *model.Webhook), receiptsCh chan<- model.MessageReceipt) {
 	if !b.enableWebhook {
 		return
 	}

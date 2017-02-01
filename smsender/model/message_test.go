@@ -23,7 +23,7 @@ func TestNewMessageRecord(t *testing.T) {
       "updated_time":"2017-01-01T00:00:03.1415926+08:00",
       "sent_time":"2017-01-01T00:00:03.1415926+08:00",
       "route":"dummy",
-      "broker":"dummy",
+      "provider":"dummy",
       "status":"delivered",
       "original_message_id":"b288anp82b37873aj510",
       "original_response":{
@@ -55,7 +55,7 @@ func TestNewMessageRecord(t *testing.T) {
 			SentTime:          &ct,
 			Latency:           nil,
 			Route:             "dummy",
-			Broker:            "dummy",
+			Provider:          "dummy",
 			Status:            "delivered",
 			OriginalMessageId: &originalMessageId,
 			OriginalResponse:  JSON(`{"response":"response"}`),

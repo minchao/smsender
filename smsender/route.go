@@ -7,7 +7,7 @@ import (
 	"github.com/minchao/smsender/smsender/model"
 )
 
-// Router registers routes to be matched and dispatches a broker.
+// Router registers routes to be matched and dispatches a provider.
 type Router struct {
 	routes []*model.Route
 	sync.RWMutex
@@ -56,7 +56,7 @@ func (r *Router) SetAll(routes []*model.Route) {
 	r.routes = routes
 }
 
-func (r *Router) Set(name, pattern string, broker model.Broker, from string, isActive bool) error {
+func (r *Router) Set(name, pattern string, provider model.Provider, from string, isActive bool) error {
 	r.Lock()
 	defer r.Unlock()
 	_, route := r.get(name)
@@ -64,8 +64,8 @@ func (r *Router) Set(name, pattern string, broker model.Broker, from string, isA
 		return errors.New("route not found")
 	}
 	route.Pattern = pattern
-	route.Broker = broker.Name()
-	route.SetBroker(broker)
+	route.Provider = provider.Name()
+	route.SetProvider(provider)
 	route.From = from
 	route.IsActive = isActive
 	return nil

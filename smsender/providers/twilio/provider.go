@@ -9,7 +9,7 @@ import (
 	"github.com/minchao/smsender/smsender/model"
 )
 
-type Broker struct {
+type Provider struct {
 	name          string
 	client        *twilio.TwilioClient
 	enableWebhook bool
@@ -24,27 +24,27 @@ type Config struct {
 	SiteURL       string
 }
 
-func (c Config) NewBroker(name string) *Broker {
-	broker := &Broker{
+func (c Config) NewProvider(name string) *Provider {
+	provider := &Provider{
 		name:   name,
 		client: twilio.NewClient(c.Sid, c.Token),
 	}
 	if c.EnableWebhook {
 		if c.SiteURL == "" {
-			log.Fatal("Could not create the twilio broker: SiteURL cannot be empty")
+			log.Fatal("Could not create the twilio provider: SiteURL cannot be empty")
 		}
-		broker.enableWebhook = true
-		broker.siteURL = c.SiteURL
-		broker.webhookPath = "/webhooks/" + name
+		provider.enableWebhook = true
+		provider.siteURL = c.SiteURL
+		provider.webhookPath = "/webhooks/" + name
 	}
-	return broker
+	return provider
 }
 
-func (b Broker) Name() string {
+func (b Provider) Name() string {
 	return b.name
 }
 
-func (b Broker) Send(message *model.Message, result *model.MessageResult) {
+func (b Provider) Send(message *model.Message, result *model.MessageResult) {
 	optionals := []twilio.Optional{twilio.Body(message.Body)}
 	if b.enableWebhook {
 		optionals = append(optionals, twilio.StatusCallback(b.siteURL+b.webhookPath))
@@ -78,7 +78,7 @@ type DeliveryReceipt struct {
 }
 
 // see https://www.twilio.com/docs/guides/sms/how-to-confirm-delivery
-func (b Broker) Callback(register func(webhook *model.Webhook), receiptsCh chan<- model.MessageReceipt) {
+func (b Provider) Callback(register func(webhook *model.Webhook), receiptsCh chan<- model.MessageReceipt) {
 	if !b.enableWebhook {
 		return
 	}

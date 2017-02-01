@@ -4,7 +4,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/minchao/smsender/smsender"
 	"github.com/minchao/smsender/smsender/api"
-	"github.com/minchao/smsender/smsender/brokers/dummy"
+	"github.com/minchao/smsender/smsender/providers/dummy"
 	config "github.com/spf13/viper"
 )
 
@@ -17,9 +17,9 @@ func main() {
 
 	sender := smsender.SMSender(config.GetInt("worker.num"))
 
-	broker := dummy.NewBroker("dummy")
+	provider := dummy.NewProvider("dummy")
 
-	sender.AddBroker(broker)
+	sender.AddProvider(provider)
 	sender.LoadRoutesFromDB()
 	sender.InitWebhooks()
 	go sender.Run()

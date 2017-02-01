@@ -6,19 +6,19 @@ import (
 	"sync"
 
 	log "github.com/Sirupsen/logrus"
-	"github.com/minchao/smsender/smsender/brokers/dummy"
 	"github.com/minchao/smsender/smsender/model"
+	"github.com/minchao/smsender/smsender/providers/dummy"
 	"github.com/minchao/smsender/smsender/store"
 )
 
-const DefaultBroker = "_default_"
+const DefaultProvider = "_default_"
 
 var senderSingleton Sender
 
 type Sender struct {
 	store     store.Store
 	router    Router
-	brokers   map[string]model.Broker
+	providers map[string]model.Provider
 	webhooks  []*model.Webhook
 	in        chan *model.Message
 	out       chan *model.Message
@@ -32,33 +32,33 @@ func SMSender(workerNum int) *Sender {
 	senderSingleton.init.Do(func() {
 		senderSingleton.store = store.NewSqlStore()
 		senderSingleton.router = *NewRouter()
-		senderSingleton.brokers = make(map[string]model.Broker)
+		senderSingleton.providers = make(map[string]model.Provider)
 		senderSingleton.webhooks = make([]*model.Webhook, 0)
 		senderSingleton.in = make(chan *model.Message, 1000)
 		senderSingleton.out = make(chan *model.Message, 1000)
 		senderSingleton.receipts = make(chan model.MessageReceipt, 1000)
 		senderSingleton.workerNum = workerNum
-		senderSingleton.AddBroker(dummy.NewBroker(DefaultBroker))
+		senderSingleton.AddProvider(dummy.NewProvider(DefaultProvider))
 	})
 	return &senderSingleton
 }
 
-func (s *Sender) GetBroker(name string) model.Broker {
+func (s *Sender) GetProvider(name string) model.Provider {
 	s.rwMutex.RLock()
 	defer s.rwMutex.RUnlock()
-	if broker, exists := s.brokers[name]; exists {
-		return broker
+	if provider, exists := s.providers[name]; exists {
+		return provider
 	}
 	return nil
 }
 
-func (s *Sender) AddBroker(broker model.Broker) {
+func (s *Sender) AddProvider(provider model.Provider) {
 	s.rwMutex.Lock()
 	defer s.rwMutex.Unlock()
-	if _, exists := s.brokers[broker.Name()]; exists {
-		panic(fmt.Sprintf("broker '%s' already added", broker.Name()))
+	if _, exists := s.providers[provider.Name()]; exists {
+		panic(fmt.Sprintf("provider '%s' already added", provider.Name()))
 	}
-	s.brokers[broker.Name()] = broker
+	s.providers[provider.Name()] = provider
 }
 
 func (s *Sender) GetRoutes() []*model.Route {
@@ -70,26 +70,26 @@ func (s *Sender) AddRoute(route *model.Route) {
 	s.SaveRoutesToDB()
 }
 
-func (s *Sender) AddRouteWith(name, pattern, brokerName, from string, isActive bool) error {
+func (s *Sender) AddRouteWith(name, pattern, providerName, from string, isActive bool) error {
 	route := s.router.Get(name)
 	if route != nil {
 		return errors.New("route already exists")
 	}
-	broker := s.GetBroker(brokerName)
-	if broker == nil {
-		return errors.New("broker not found")
+	provider := s.GetProvider(providerName)
+	if provider == nil {
+		return errors.New("provider not found")
 	}
-	s.router.Add(model.NewRoute(name, pattern, broker, isActive).SetFrom(from))
+	s.router.Add(model.NewRoute(name, pattern, provider, isActive).SetFrom(from))
 	s.SaveRoutesToDB()
 	return nil
 }
 
-func (s *Sender) SetRouteWith(name, pattern, brokerName, from string, isActive bool) error {
-	broker := s.GetBroker(brokerName)
-	if broker == nil {
-		return errors.New("broker not found")
+func (s *Sender) SetRouteWith(name, pattern, providerName, from string, isActive bool) error {
+	provider := s.GetProvider(providerName)
+	if provider == nil {
+		return errors.New("provider not found")
 	}
-	if err := s.router.Set(name, pattern, broker, from, isActive); err != nil {
+	if err := s.router.Set(name, pattern, provider, from, isActive); err != nil {
 		return err
 	}
 	s.SaveRoutesToDB()
@@ -141,8 +141,8 @@ func (s *Sender) LoadRoutesFromDB() error {
 	routes := []*model.Route{}
 	routeRows := result.Data.([]*model.Route)
 	for _, r := range routeRows {
-		if broker := s.GetBroker(r.Broker); broker != nil {
-			routes = append(routes, model.NewRoute(r.Name, r.Pattern, broker, r.IsActive).SetFrom(r.From))
+		if provider := s.GetProvider(r.Provider); provider != nil {
+			routes = append(routes, model.NewRoute(r.Name, r.Pattern, provider, r.IsActive).SetFrom(r.From))
 		}
 	}
 
@@ -172,8 +172,8 @@ func (s *Sender) GetIncomingQueue() chan *model.Message {
 }
 
 func (s *Sender) InitWebhooks() {
-	for _, broker := range s.brokers {
-		broker.Callback(
+	for _, provider := range s.providers {
+		provider.Callback(
 			func(webhook *model.Webhook) {
 				s.webhooks = append(s.webhooks, webhook)
 			},

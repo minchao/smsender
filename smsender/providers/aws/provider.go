@@ -9,7 +9,7 @@ import (
 	"github.com/minchao/smsender/smsender/model"
 )
 
-type Broker struct {
+type Provider struct {
 	name string
 	svc  *sns.SNS
 }
@@ -20,7 +20,7 @@ type Config struct {
 	Secret string
 }
 
-func (c Config) NewBroker(name string) *Broker {
+func (c Config) NewProvider(name string) *Provider {
 	sess, err := session.NewSession(&aws.Config{
 		Region: aws.String(c.Region),
 		Credentials: credentials.NewStaticCredentials(
@@ -33,17 +33,17 @@ func (c Config) NewBroker(name string) *Broker {
 		log.Fatalf("Could not create the aws session: %s", err)
 	}
 
-	return &Broker{
+	return &Provider{
 		name: name,
 		svc:  sns.New(sess),
 	}
 }
 
-func (b Broker) Name() string {
+func (b Provider) Name() string {
 	return b.name
 }
 
-func (b Broker) Send(msg *model.Message, result *model.MessageResult) {
+func (b Provider) Send(msg *model.Message, result *model.MessageResult) {
 	req, resp := b.svc.PublishRequest(&sns.PublishInput{
 		Message: aws.String(msg.Body),
 		MessageAttributes: map[string]*sns.MessageAttributeValue{
@@ -59,7 +59,7 @@ func (b Broker) Send(msg *model.Message, result *model.MessageResult) {
 
 	if err != nil {
 		result.Status = model.StatusFailed.String()
-		result.OriginalResponse = model.MarshalJSON(model.BrokerError{Error: err.Error()})
+		result.OriginalResponse = model.MarshalJSON(model.ProviderError{Error: err.Error()})
 	} else {
 		result.Status = model.StatusSent.String()
 		result.OriginalMessageId = resp.MessageId
@@ -68,5 +68,5 @@ func (b Broker) Send(msg *model.Message, result *model.MessageResult) {
 }
 
 // TODO: see http://docs.aws.amazon.com/sns/latest/dg/sms_stats_usage.html
-func (b Broker) Callback(register func(webhook *model.Webhook), receiptsCh chan<- model.MessageReceipt) {
+func (b Provider) Callback(register func(webhook *model.Webhook), receiptsCh chan<- model.MessageReceipt) {
 }

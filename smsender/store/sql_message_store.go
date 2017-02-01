@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS message (
   body              text COLLATE utf8_unicode_ci NOT NULL,
   async             tinyint(1) NOT NULL DEFAULT '0',
   route             varchar(32) COLLATE utf8_unicode_ci NOT NULL,
-  broker            varchar(32) COLLATE utf8_unicode_ci NOT NULL,
+  provider          varchar(32) COLLATE utf8_unicode_ci NOT NULL,
   status            varchar(20) COLLATE utf8_unicode_ci NOT NULL,
   originalMessageId varchar(64) COLLATE utf8_unicode_ci DEFAULT NULL,
   originalResponse  json DEFAULT NULL,
@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS message (
   sentTime          datetime(6) DEFAULT NULL,
   latency           int(11) DEFAULT NULL,
   PRIMARY KEY (id),
-  KEY brokerOriginalMessageId (broker, originalMessageId)
+  KEY providerOriginalMessageId (provider, originalMessageId)
 ) DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci`
 
 type SqlMessageStore struct {
@@ -87,7 +87,7 @@ func (ms *SqlMessageStore) GetByIds(ids []string) StoreChannel {
 	return storeChannel
 }
 
-func (ms *SqlMessageStore) GetByBrokerAndMessageId(broker, originalMessageId string) StoreChannel {
+func (ms *SqlMessageStore) GetByProviderAndMessageId(provider, originalMessageId string) StoreChannel {
 	storeChannel := make(StoreChannel, 1)
 
 	go func() {
@@ -95,7 +95,7 @@ func (ms *SqlMessageStore) GetByBrokerAndMessageId(broker, originalMessageId str
 
 		var message model.MessageRecord
 		if err := ms.db.Get(&message, `SELECT * FROM message
-			WHERE broker = ? AND originalMessageId = ?`, broker, originalMessageId); err != nil {
+			WHERE provider = ? AND originalMessageId = ?`, provider, originalMessageId); err != nil {
 			result.Err = err
 		} else {
 			result.Data = &message
@@ -122,7 +122,7 @@ func (ms *SqlMessageStore) Save(message *model.MessageRecord) StoreChannel {
 				body,
 				async,
 				route,
-				broker,
+				provider,
 				status,
 				originalMessageId,
 				originalResponse,
@@ -140,7 +140,7 @@ func (ms *SqlMessageStore) Save(message *model.MessageRecord) StoreChannel {
 			message.Body,
 			message.Async,
 			message.Route,
-			message.Broker,
+			message.Provider,
 			message.Status,
 			message.OriginalMessageId,
 			message.OriginalResponse,
@@ -176,7 +176,7 @@ func (ms *SqlMessageStore) Update(message *model.MessageRecord) StoreChannel {
 				body = ?,
 				async = ?,
 				route = ?,
-				broker = ?,
+				provider = ?,
 				status = ?,
 				originalMessageId = ?,
 				originalResponse = ?,
@@ -191,7 +191,7 @@ func (ms *SqlMessageStore) Update(message *model.MessageRecord) StoreChannel {
 			message.Body,
 			message.Async,
 			message.Route,
-			message.Broker,
+			message.Provider,
 			message.Status,
 			message.OriginalMessageId,
 			message.OriginalResponse,

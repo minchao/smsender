@@ -14,8 +14,8 @@ type worker struct {
 
 func (w worker) process(message *model.Message) {
 	var (
-		broker model.Broker
-		result *model.MessageResult
+		provider model.Provider
+		result   *model.MessageResult
 	)
 
 	if match, ok := w.sender.Match(message.To); ok {
@@ -23,27 +23,27 @@ func (w worker) process(message *model.Message) {
 			message.From = match.From
 		}
 		message.Route = match.Name
-		broker = match.GetBroker()
+		provider = match.GetProvider()
 	}
 
-	// No route matched, use the default broker
-	if broker == nil {
-		broker = w.sender.GetBroker(DefaultBroker)
+	// No route matched, use the default provider
+	if provider == nil {
+		provider = w.sender.GetProvider(DefaultProvider)
 	}
 
 	log1 := log.WithFields(log.Fields{
 		"message_id": message.Id,
 		"worker_id":  w.id,
-		"broker":     broker.Name(),
+		"provider":   provider.Name(),
 	})
 	log1.WithField("message", *message).Info("worker process")
 
-	result = model.NewMessageResult(*message, broker.Name())
+	result = model.NewMessageResult(*message, provider.Name())
 
 	// Save the send record to db
 	rch := w.sender.store.Message().Save(model.NewMessageRecord(*result, nil))
 
-	broker.Send(message, result)
+	provider.Send(message, result)
 
 	now := time.Now()
 	latency := now.Sub(message.CreatedTime).Nanoseconds() / int64(time.Millisecond)
@@ -54,9 +54,9 @@ func (w worker) process(message *model.Message) {
 	log2 := log1.WithField("result", *result)
 	switch result.Status {
 	case model.StatusSent.String(), model.StatusDelivered.String():
-		log2.Info("broker send message")
+		log2.Info("provider send message")
 	case model.StatusFailed.String(), model.StatusUndelivered.String(), model.StatusUnknown.String():
-		log2.Error("broker send message failed")
+		log2.Error("provider send message failed")
 	default:
 		// Unexpected status
 		log2.Error("unexpected message status")
@@ -82,7 +82,7 @@ func (w worker) receipt(receipt model.MessageReceipt) {
 	})
 	log1.WithField("receipt", receipt).Info("handle the message receipt")
 
-	r := <-w.sender.store.Message().GetByBrokerAndMessageId(receipt.Broker, receipt.OriginalMessageId)
+	r := <-w.sender.store.Message().GetByProviderAndMessageId(receipt.Provider, receipt.OriginalMessageId)
 	if r.Err != nil {
 		log1.Errorf("receipt update error: message not found. %v", r.Err)
 		return

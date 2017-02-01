@@ -6,31 +6,31 @@ type Route struct {
 	Id       int64  `json:"-"`
 	Name     string `json:"name"`
 	Pattern  string `json:"pattern"`
-	Broker   string `json:"broker"`
+	Provider string `json:"provider"`
 	From     string `json:"from" db:"fromName"`
 	IsActive bool   `json:"is_active" db:"isActive"`
-	broker   Broker
+	provider Provider
 	regex    *regexp.Regexp
 }
 
-func NewRoute(name, pattern string, broker Broker, isActive bool) *Route {
+func NewRoute(name, pattern string, provider Provider, isActive bool) *Route {
 	return &Route{
 		Name:     name,
 		Pattern:  pattern,
-		Broker:   broker.Name(),
+		Provider: provider.Name(),
 		IsActive: isActive,
-		broker:   broker,
+		provider: provider,
 		regex:    regexp.MustCompile(pattern),
 	}
 }
 
-func (r *Route) SetBroker(broker Broker) *Route {
-	r.broker = broker
+func (r *Route) SetProvider(provider Provider) *Route {
+	r.provider = provider
 	return r
 }
 
-func (r *Route) GetBroker() Broker {
-	return r.broker
+func (r *Route) GetProvider() Provider {
+	return r.provider
 }
 
 func (r *Route) SetFrom(from string) *Route {

@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS route (
   id       int(11) NOT NULL AUTO_INCREMENT,
   name     varchar(32) COLLATE utf8_unicode_ci NOT NULL,
   pattern  varchar(32) COLLATE utf8_unicode_ci NOT NULL,
-  broker   varchar(32) COLLATE utf8_unicode_ci NOT NULL,
+  provider varchar(32) COLLATE utf8_unicode_ci NOT NULL,
   fromName varchar(20) COLLATE utf8_unicode_ci NOT NULL,
   isActive tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (id),
@@ -55,9 +55,9 @@ func (rs *SqlRouteStore) SaveAll(routes []*model.Route) StoreChannel {
 		tx.MustExec(`TRUNCATE TABLE route`)
 		for _, route := range routes {
 			tx.MustExec(`INSERT INTO route
-				(name, pattern, broker, fromName, isActive)
+				(name, pattern, provider, fromName, isActive)
 				VALUES (?, ?, ?, ?, ?)`,
-				route.Name, route.Pattern, route.Broker, route.From, route.IsActive)
+				route.Name, route.Pattern, route.Provider, route.From, route.IsActive)
 		}
 		if err := tx.Commit(); err != nil {
 			result.Err = err

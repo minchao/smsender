@@ -147,7 +147,7 @@ paths:
           schema:
             $ref: "#/definitions/Route"
         400:
-          description: Bad request (bad_request, route_already_exists, broker_not_found)
+          description: Bad request (bad_request, route_already_exists, provider_not_found)
           schema:
             $ref: '#/definitions/Error'
     put:
@@ -263,7 +263,7 @@ definitions:
         description: Message sent time
       route:
         type: string
-      broker:
+      provider:
         type: string
       status:
         type: string
@@ -287,10 +287,10 @@ definitions:
         type: string
       pattern:
         type: string
-        description: Phone number regular expression to be matched with a broker
-      broker:
+        description: Phone number regular expression to be matched with a provider
+      provider:
         type: string
-        description: Broker name
+        description: Provider name
       from:
         type: string
         description: Sender Id (phone number or alphanumeric)
@@ -299,7 +299,7 @@ definitions:
     required:
       - name
       - pattern
-      - broker
+      - provider
   Reorder:
     type: object
     properties:
