@@ -68,6 +68,7 @@ func (w worker) process(message *model.Message) {
 
 	if r := <-rch; r.Err != nil {
 		log1.Errorf("store save error: %v", r.Err)
+		return
 	}
 	if r := <-w.sender.store.Message().Update(model.NewMessageRecord(*result, nil)); r.Err != nil {
 		log1.Errorf("store update error: %v", r.Err)
@@ -84,6 +85,7 @@ func (w worker) receipt(receipt model.MessageReceipt) {
 	r := <-w.sender.store.Message().GetByBrokerAndMessageId(receipt.Broker, receipt.OriginalMessageId)
 	if r.Err != nil {
 		log1.Errorf("receipt update error: message not found. %v", r.Err)
+		return
 	}
 
 	message := r.Data.(*model.MessageRecord)
