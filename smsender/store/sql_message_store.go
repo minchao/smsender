@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS message (
   originalMessageId varchar(64) COLLATE utf8_unicode_ci DEFAULT NULL,
   originalResponse  json DEFAULT NULL,
   originalReceipts  json DEFAULT NULL,
-  createdTime       datetime(6) DEFAULT NULL,
+  createdTime       datetime(6) NOT NULL,
   updatedTime       datetime(6) DEFAULT NULL,
   sentTime          datetime(6) DEFAULT NULL,
   latency           int(11) DEFAULT NULL,
