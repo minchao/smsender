@@ -26,9 +26,9 @@ func (w worker) process(message *model.Message) {
 		provider = match.GetProvider()
 	}
 
-	// No route matched, use the default provider
+	// No route matched
 	if provider == nil {
-		provider = w.sender.GetProvider(DefaultProvider)
+		provider = w.sender.NotFoundProvider
 	}
 
 	log1 := log.WithFields(log.Fields{

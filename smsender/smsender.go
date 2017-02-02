@@ -9,14 +9,12 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/gorilla/mux"
 	"github.com/minchao/smsender/smsender/model"
-	"github.com/minchao/smsender/smsender/providers/dummy"
+	"github.com/minchao/smsender/smsender/providers/not_found"
 	"github.com/minchao/smsender/smsender/store"
 	"github.com/minchao/smsender/smsender/utils"
 	config "github.com/spf13/viper"
 	"github.com/urfave/negroni"
 )
-
-const DefaultProvider = "_default_"
 
 var senderSingleton Sender
 
@@ -31,6 +29,9 @@ type Sender struct {
 	rwMutex   sync.RWMutex
 	init      sync.Once
 
+	// Configurable Provider to be used when no route matches.
+	NotFoundProvider model.Provider
+	// HTTP server router
 	MuxRouter *mux.Router
 }
 
@@ -43,7 +44,7 @@ func SMSender() *Sender {
 		senderSingleton.out = make(chan *model.Message, 1000)
 		senderSingleton.receipts = make(chan model.MessageReceipt, 1000)
 		senderSingleton.workerNum = config.GetInt("worker.num")
-		senderSingleton.AddProvider(dummy.NewProvider(DefaultProvider))
+		senderSingleton.NotFoundProvider = not_found.NewProvider(model.NotFoundProvider)
 		senderSingleton.MuxRouter = mux.NewRouter().StrictSlash(true)
 	})
 	return &senderSingleton
