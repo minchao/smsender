@@ -15,15 +15,14 @@ func main() {
 		log.Fatalf("Fatal error config file: %s", err)
 	}
 
-	sender := smsender.SMSender(config.GetInt("worker.num"))
+	sender := smsender.SMSender()
 
 	provider := dummy.NewProvider("dummy")
 
 	sender.AddProvider(provider)
 	sender.LoadRoutesFromDB()
-	sender.InitWebhooks()
-	go sender.Run()
 
-	server := api.NewServer(sender)
-	server.Run()
+	api.NewServer(sender)
+
+	sender.Run()
 }

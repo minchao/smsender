@@ -3,25 +3,27 @@ db:
   connection:
     maxOpenConns: 100
     maxIdleConns: 50
-api:
+http:
+  enable: true
   siteURL: ""
   addr: ":8080"
   tls: false
   tlsCertFile: ""
   tlsKeyFile: ""
-  cors:
-    enable: false
-    origins:
-      - # "http://127.0.0.1:8080"
-    headers:
-      - "*"
-    methods:
-      - "GET"
-      - "POST"
-      - "PUT"
-      - "PATCH"
-      - "DELETE"
-    debug: false
+  api:
+    cors:
+      enable: false
+      origins:
+        - # "http://127.0.0.1:8080"
+      headers:
+        - "*"
+      methods:
+        - "GET"
+        - "POST"
+        - "PUT"
+        - "PATCH"
+        - "DELETE"
+      debug: false
 worker:
   num: 100
 providers:

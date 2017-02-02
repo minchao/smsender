@@ -6,26 +6,29 @@
             "maxIdleConns": 50
         }
     },
-    "api": {
+    "http": {
+        "enable": true,
         "siteURL": "",
         "addr": ":8080",
         "tls": false,
         "tlsCertFile": "",
         "tlsKeyFile": "",
-        "cors": {
-            "enable": false,
-            "origins": [],
-            "headers": [
-                "*"
-            ],
-            "methods": [
-                "GET",
-                "POST",
-                "PUT",
-                "PATCH",
-                "DELETE"
-            ],
-            "debug": false
+        "api": {
+            "cors": {
+                "enable": false,
+                "origins": [],
+                "headers": [
+                    "*"
+                ],
+                "methods": [
+                    "GET",
+                    "POST",
+                    "PUT",
+                    "PATCH",
+                    "DELETE"
+                ],
+                "debug": false
+            }
         }
     },
     "worker": {

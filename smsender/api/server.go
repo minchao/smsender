@@ -1,8 +1,6 @@
 package api
 
 import (
-	"net/http"
-
 	log "github.com/Sirupsen/logrus"
 	"github.com/gorilla/mux"
 	"github.com/minchao/smsender/smsender"
@@ -22,50 +20,36 @@ func NewServer(sender *smsender.Sender) *Server {
 		sender: sender,
 		out:    sender.GetIncomingQueue(),
 	}
+	server.init()
 	return &server
 }
 
-func (s *Server) Run() {
-	r := mux.NewRouter().StrictSlash(true)
-	r.HandleFunc("/", s.Hello).Methods("GET")
-	r.HandleFunc("/routes", s.Routes).Methods("GET")
-	r.HandleFunc("/routes", s.RoutePost).Methods("POST")
-	r.HandleFunc("/routes", s.RouteReorder).Methods("PUT")
-	r.HandleFunc("/routes/{route}", s.RoutePut).Methods("PUT")
-	r.HandleFunc("/routes/{route}", s.RouteDelete).Methods("DELETE")
-	r.HandleFunc("/routes/test/{phone}", s.RouteTest).Methods("GET")
-	r.HandleFunc("/messages", s.Messages).Methods("GET")
-	r.HandleFunc("/messages", s.MessagesPost).Methods("POST")
+func (s *Server) init() {
+	log.Debug("init API")
 
-	for _, h := range s.sender.GetWebhooks() {
-		r.HandleFunc(h.Path, h.Func).Methods(h.Method)
-
-		log.Infof("Handle a webhook on %s %s", h.Method, h.Path)
-	}
+	router := mux.NewRouter().PathPrefix("/api").Subrouter().StrictSlash(true)
+	router.HandleFunc("/", s.Hello).Methods("GET")
+	router.HandleFunc("/routes", s.Routes).Methods("GET")
+	router.HandleFunc("/routes", s.RoutePost).Methods("POST")
+	router.HandleFunc("/routes", s.RouteReorder).Methods("PUT")
+	router.HandleFunc("/routes/{route}", s.RoutePut).Methods("PUT")
+	router.HandleFunc("/routes/{route}", s.RouteDelete).Methods("DELETE")
+	router.HandleFunc("/routes/test/{phone}", s.RouteTest).Methods("GET")
+	router.HandleFunc("/messages", s.Messages).Methods("GET")
+	router.HandleFunc("/messages", s.MessagesPost).Methods("POST")
 
 	n := negroni.New()
-	n.UseFunc(logger)
 
-	if config.GetBool("api.cors.enable") {
+	if config.GetBool("http.api.cors.enable") {
 		n.Use(cors.New(cors.Options{
-			AllowedOrigins: config.GetStringSlice("api.cors.origins"),
-			AllowedHeaders: config.GetStringSlice("api.cors.headers"),
-			AllowedMethods: config.GetStringSlice("api.cors.methods"),
-			Debug:          config.GetBool("api.cors.debug"),
+			AllowedOrigins: config.GetStringSlice("http.api.cors.origins"),
+			AllowedHeaders: config.GetStringSlice("http.api.cors.headers"),
+			AllowedMethods: config.GetStringSlice("http.api.cors.methods"),
+			Debug:          config.GetBool("http.api.cors.debug"),
 		}))
 	}
 
-	n.UseHandler(r)
+	n.UseHandler(router)
 
-	addr := config.GetString("api.addr")
-	if config.GetBool("api.tls") {
-		log.Infof("Listening for HTTPS on %s", addr)
-		log.Fatal(http.ListenAndServeTLS(addr,
-			config.GetString("api.tlsCertFile"),
-			config.GetString("api.tlsKeyFile"),
-			n))
-	} else {
-		log.Infof("Listening for HTTP on %s", addr)
-		log.Fatal(http.ListenAndServe(addr, n))
-	}
+	s.sender.MuxRouter.PathPrefix("/api").Handler(n)
 }

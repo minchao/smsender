@@ -1,4 +1,4 @@
-package api
+package utils
 
 import (
 	"net/http"
@@ -7,7 +7,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 )
 
-func logger(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
+func Logger(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
 	start := time.Now()
 	path := r.URL.Path
 

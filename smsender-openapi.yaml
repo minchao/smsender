@@ -5,6 +5,7 @@ info:
   title: SMSender API
 
 host: localhost:8080
+basePath: /api
 tags:
   - name: messages
     description: |
