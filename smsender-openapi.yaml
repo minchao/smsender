@@ -16,11 +16,11 @@ tags:
       | accepted | Received your API request to send a message |
       | queued | The message is queued to be sent out |
       | sending | The message is in the process of dispatching to the upstream carrier |
-      | sent | The message was successfully accepted by the upstream carrie |
       | failed | The message could not be sent to the upstream carrier |
-      | delivered | Received confirmation of message delivery from the upstream carrier |
-      | undelivered | Received that the message was not delivered from the upstream carrier |
+      | sent | The message was successfully accepted by the upstream carrie |
       | unknown | Received an undocumented status code from the upstream carrier |
+      | undelivered | Received that the message was not delivered from the upstream carrier |
+      | delivered | Received confirmation of message delivery from the upstream carrier |
   - name: errors
     description: |
       All errors will return with the following JSON body:
