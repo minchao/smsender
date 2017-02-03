@@ -51,5 +51,5 @@ func (s *Server) init() {
 
 	n.UseHandler(router)
 
-	s.sender.MuxRouter.PathPrefix("/api").Handler(n)
+	s.sender.HTTPRouter.PathPrefix("/api").Handler(n)
 }

@@ -28,11 +28,11 @@ type Sender struct {
 	workerNum int
 	rwMutex   sync.RWMutex
 	init      sync.Once
-
+	
 	// Configurable Provider to be used when no route matches.
 	NotFoundProvider model.Provider
 	// HTTP server router
-	MuxRouter *mux.Router
+	HTTPRouter *mux.Router
 }
 
 func SMSender() *Sender {
@@ -45,7 +45,7 @@ func SMSender() *Sender {
 		senderSingleton.receipts = make(chan model.MessageReceipt, 1000)
 		senderSingleton.workerNum = config.GetInt("worker.num")
 		senderSingleton.NotFoundProvider = not_found.NewProvider(model.NotFoundProvider)
-		senderSingleton.MuxRouter = mux.NewRouter().StrictSlash(true)
+		senderSingleton.HTTPRouter = mux.NewRouter().StrictSlash(true)
 	})
 	return &senderSingleton
 }
@@ -188,7 +188,7 @@ func (s *Sender) initWebhooks() {
 	for _, provider := range s.providers {
 		provider.Callback(
 			func(webhook *model.Webhook) {
-				s.MuxRouter.HandleFunc(webhook.Path, webhook.Func).Methods(webhook.Method)
+				s.HTTPRouter.HandleFunc(webhook.Path, webhook.Func).Methods(webhook.Method)
 			},
 			s.receipts)
 	}
@@ -217,7 +217,7 @@ func (s *Sender) runHTTPServer() {
 
 	n := negroni.New()
 	n.UseFunc(utils.Logger)
-	n.UseHandler(s.MuxRouter)
+	n.UseHandler(s.HTTPRouter)
 
 	go func() {
 		addr := config.GetString("http.addr")
