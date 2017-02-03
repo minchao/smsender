@@ -113,11 +113,11 @@ func (s *Server) RouteTest(w http.ResponseWriter, r *http.Request) {
 	render(w, http.StatusOK, RouteTestResult{Phone: phone, Route: route})
 }
 
-type MessageFindByIdsRecords struct {
+type MessagesFindByIdsResults struct {
 	Data []*model.MessageRecord `json:"data"`
 }
 
-func (s *Server) MessageFindByIds(w http.ResponseWriter, r *http.Request) {
+func (s *Server) MessagesFindByIds(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	ids, _ := r.Form["ids"]
 	if err := utils.NewValidate().Struct(struct {
@@ -132,7 +132,7 @@ func (s *Server) MessageFindByIds(w http.ResponseWriter, r *http.Request) {
 		render(w, http.StatusNotFound, errorMessage{Error: "not_found", ErrorDescription: err.Error()})
 		return
 	}
-	records := MessageFindByIdsRecords{Data: []*model.MessageRecord{}}
+	records := MessagesFindByIdsResults{Data: []*model.MessageRecord{}}
 	if len(messages) > 0 {
 		records.Data = messages
 	}
@@ -140,19 +140,19 @@ func (s *Server) MessageFindByIds(w http.ResponseWriter, r *http.Request) {
 	render(w, http.StatusOK, records)
 }
 
-type Message struct {
+type MessagesPost struct {
 	To    []string `json:"to" validate:"required,gt=0,dive,phone"`
 	From  string   `json:"from"`
 	Body  string   `json:"body" validate:"required"`
 	Async bool     `json:"async,omitempty"`
 }
 
-type MessageResults struct {
+type MessagesPostResults struct {
 	Data []model.MessageResult `json:"data"`
 }
 
 func (s *Server) MessagesPost(w http.ResponseWriter, r *http.Request) {
-	var msg Message
+	var msg MessagesPost
 	var validate = utils.NewValidate()
 	validate.RegisterValidation("phone", utils.IsPhoneNumber)
 	err := utils.GetInput(r.Body, &msg, validate)
@@ -190,5 +190,5 @@ func (s *Server) MessagesPost(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	render(w, http.StatusOK, MessageResults{Data: results})
+	render(w, http.StatusOK, MessagesPostResults{Data: results})
 }
