@@ -18,7 +18,7 @@ func (w worker) process(message *model.Message) {
 		result   *model.MessageResult
 	)
 
-	if match, ok := w.sender.Match(message.To); ok {
+	if match, ok := w.sender.Router.Match(message.To); ok {
 		if message.From == "" && match.From != "" {
 			message.From = match.From
 		}
@@ -28,7 +28,7 @@ func (w worker) process(message *model.Message) {
 
 	// No route matched
 	if provider == nil {
-		provider = w.sender.NotFoundProvider
+		provider = w.sender.Router.NotFoundProvider
 	}
 
 	log1 := log.WithFields(log.Fields{

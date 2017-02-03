@@ -17,7 +17,7 @@ type RouteResults struct {
 }
 
 func (s *Server) Routes(w http.ResponseWriter, r *http.Request) {
-	render(w, http.StatusOK, RouteResults{Data: s.sender.GetRoutes()})
+	render(w, http.StatusOK, RouteResults{Data: s.sender.Router.GetAll()})
 }
 
 type Route struct {
@@ -35,7 +35,7 @@ func (s *Server) RoutePost(w http.ResponseWriter, r *http.Request) {
 		render(w, http.StatusBadRequest, formErrorMessage(err))
 		return
 	}
-	if err := s.sender.AddRouteWith(route.Name, route.Pattern, route.Provider, route.From, route.IsActive); err != nil {
+	if err := s.sender.Router.AddWith(route.Name, route.Pattern, route.Provider, route.From, route.IsActive); err != nil {
 		render(w, http.StatusBadRequest, formErrorMessage(err))
 		return
 	}
@@ -59,12 +59,12 @@ func (s *Server) RouteReorder(w http.ResponseWriter, r *http.Request) {
 	if reorder.RangeLength == 0 {
 		reorder.RangeLength = 1
 	}
-	if err := s.sender.ReorderRoutes(reorder.RangeStart, reorder.RangeLength, reorder.InsertBefore); err != nil {
+	if err := s.sender.Router.Reorder(reorder.RangeStart, reorder.RangeLength, reorder.InsertBefore); err != nil {
 		render(w, http.StatusBadRequest, formErrorMessage(err))
 		return
 	}
 
-	render(w, http.StatusOK, RouteResults{Data: s.sender.GetRoutes()})
+	render(w, http.StatusOK, RouteResults{Data: s.sender.Router.GetAll()})
 }
 
 func (s *Server) RoutePut(w http.ResponseWriter, r *http.Request) {
@@ -74,7 +74,7 @@ func (s *Server) RoutePut(w http.ResponseWriter, r *http.Request) {
 		render(w, http.StatusBadRequest, formErrorMessage(err))
 		return
 	}
-	if err := s.sender.SetRouteWith(route.Name, route.Pattern, route.Provider, route.From, route.IsActive); err != nil {
+	if err := s.sender.Router.SetWith(route.Name, route.Pattern, route.Provider, route.From, route.IsActive); err != nil {
 		render(w, http.StatusBadRequest, formErrorMessage(err))
 		return
 	}
@@ -85,7 +85,7 @@ func (s *Server) RoutePut(w http.ResponseWriter, r *http.Request) {
 func (s *Server) RouteDelete(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	routeName, _ := vars["route"]
-	s.sender.RemoveRoute(routeName)
+	s.sender.Router.Remove(routeName)
 
 	render(w, http.StatusNoContent, nil)
 }
@@ -108,7 +108,7 @@ func (s *Server) RouteTest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	route, _ := s.sender.Match(phone)
+	route, _ := s.sender.Router.Match(phone)
 
 	render(w, http.StatusOK, RouteTestResult{Phone: phone, Route: route})
 }

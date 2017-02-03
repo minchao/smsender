@@ -19,8 +19,8 @@ func main() {
 
 	provider := dummy.NewProvider("dummy")
 
-	sender.AddProvider(provider)
-	sender.LoadRoutesFromDB()
+	sender.Router.AddProvider(provider)
+	sender.Router.LoadFromDB()
 
 	api.NewServer(sender)
 
