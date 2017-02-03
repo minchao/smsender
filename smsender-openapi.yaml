@@ -38,36 +38,7 @@ consumes:
 produces:
   - application/json
 paths:
-  /messages/findByIds:
-    get:
-      tags:
-        - messages
-      description: |
-        Gets specific Message objects.
-      parameters:
-        - in: query
-          name: ids
-          description: Message Id of array
-          required: true
-          type: array
-          items:
-            type: string
-          collectionFormat: multi
-      responses:
-        200:
-          description: OK
-          schema:
-            type: object
-            properties:
-              data:
-                title: ArrayOfMessageRecord
-                type: array
-                items:
-                  $ref: '#/definitions/MessageRecord'
-        400:
-          description: Bad request
-          schema:
-            $ref: '#/definitions/Error'
+  /messages:
     post:
       tags:
         - messages
@@ -109,6 +80,36 @@ paths:
                 type: array
                 items:
                   $ref: '#/definitions/MessageResult'
+        400:
+          description: Bad request
+          schema:
+            $ref: '#/definitions/Error'
+  /messages/findByIds:
+    get:
+      tags:
+        - messages
+      description: |
+        Gets specific Message objects.
+      parameters:
+        - in: query
+          name: ids
+          description: Message Id of array
+          required: true
+          type: array
+          items:
+            type: string
+          collectionFormat: multi
+      responses:
+        200:
+          description: OK
+          schema:
+            type: object
+            properties:
+              data:
+                title: ArrayOfMessageRecord
+                type: array
+                items:
+                  $ref: '#/definitions/MessageRecord'
         400:
           description: Bad request
           schema:
