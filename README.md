@@ -14,10 +14,12 @@ A SMS server written in Go (Golang).
 
 ## Requirements
 
-* Go
+* [Go](https://golang.org/)
 * MySQL >= 5.7
 
 ## Installing
+
+Getting the project:
 
 ```bash
 go get github.com/minchao/smsender
