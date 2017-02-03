@@ -113,11 +113,11 @@ func (s *Server) RouteTest(w http.ResponseWriter, r *http.Request) {
 	render(w, http.StatusOK, RouteTestResult{Phone: phone, Route: route})
 }
 
-type MessageRecords struct {
+type MessageFindByIdsRecords struct {
 	Data []*model.MessageRecord `json:"data"`
 }
 
-func (s *Server) Messages(w http.ResponseWriter, r *http.Request) {
+func (s *Server) MessageFindByIds(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	ids, _ := r.Form["ids"]
 	if err := utils.NewValidate().Struct(struct {
@@ -132,7 +132,7 @@ func (s *Server) Messages(w http.ResponseWriter, r *http.Request) {
 		render(w, http.StatusNotFound, errorMessage{Error: "not_found", ErrorDescription: err.Error()})
 		return
 	}
-	records := MessageRecords{Data: []*model.MessageRecord{}}
+	records := MessageFindByIdsRecords{Data: []*model.MessageRecord{}}
 	if len(messages) > 0 {
 		records.Data = messages
 	}

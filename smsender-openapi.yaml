@@ -38,7 +38,7 @@ consumes:
 produces:
   - application/json
 paths:
-  /messages:
+  /messages/findByIds:
     get:
       tags:
         - messages
