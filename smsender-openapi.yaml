@@ -125,7 +125,7 @@ paths:
           description: Bad request
           schema:
             $ref: '#/definitions/Error'
-  /messages/findByIds:
+  /messages/byIds:
     get:
       tags:
         - messages
