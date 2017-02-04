@@ -39,11 +39,52 @@ produces:
   - application/json
 paths:
   /messages:
+    get:
+      tags:
+        - messages
+      description: |
+        Gets Message objects.
+      parameters:
+        - in: query
+          name: start
+          description: The start of the range
+          type: string
+        - in: query
+          name: end
+          description: The end of the range
+          type: string
+        - in: query
+          name: to
+          description: The destination phone number (E.164 format)
+          type: string
+        - in: query
+          name: status
+          description: The status of the message
+          type: string
+        - in: query
+          name: limit
+          description: The Maximum number of objects that may be returned
+          type: integer
+      responses:
+        200:
+          description: OK
+          schema:
+            type: object
+            properties:
+              data:
+                title: ArrayOfMessageRecord
+                type: array
+                items:
+                  $ref: '#/definitions/MessageRecord'
+        400:
+          description: Bad request
+          schema:
+            $ref: '#/definitions/Error'
     post:
       tags:
         - messages
       description: |
-        Send message.
+        Send Message.
       parameters:
         - in: body
           name: body
@@ -269,6 +310,7 @@ definitions:
         type: string
       status:
         type: string
+        description: The status of the message
       original_message_id:
         type: string
       original_response:
