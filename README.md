@@ -58,7 +58,7 @@ providers:
 Add the following code to main.go:
 
 ```go
-    sender := smsender.SMSender(config.GetInt("worker.num"))
+    sender := smsender.SMSender()
     
 	nexmoProvider := nexmo.Config{
 		Key:    config.GetString("providers.nexmo.key"),
