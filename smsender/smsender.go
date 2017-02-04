@@ -2,6 +2,7 @@ package smsender
 
 import (
 	"net/http"
+	"net/url"
 	"sync"
 
 	log "github.com/Sirupsen/logrus"
@@ -27,6 +28,7 @@ type Sender struct {
 	Router *Router
 	// HTTP server router
 	HTTPRouter *mux.Router
+	siteURL    *url.URL
 }
 
 func SMSender() *Sender {
@@ -38,6 +40,11 @@ func SMSender() *Sender {
 		senderSingleton.workerNum = config.GetInt("worker.num")
 		senderSingleton.Router = NewRouter(senderSingleton.store, not_found.NewProvider(model.NotFoundProvider))
 		senderSingleton.HTTPRouter = mux.NewRouter().StrictSlash(true)
+		var err error
+		senderSingleton.siteURL, err = url.Parse(config.GetString("http.siteURL"))
+		if err != nil {
+			log.Fatalln("siteURL err:", err)
+		}
 	})
 	return &senderSingleton
 }
@@ -52,6 +59,10 @@ func (s *Sender) GetMessagesByIds(ids []string) ([]*model.MessageRecord, error) 
 
 func (s *Sender) GetIncomingQueue() chan *model.Message {
 	return s.in
+}
+
+func (s *Sender) GetSiteURL() *url.URL {
+	return s.siteURL
 }
 
 func (s *Sender) Run() {
