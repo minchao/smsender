@@ -127,7 +127,7 @@ func (s *Server) MessagesFindByIds(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	messages, err := s.sender.GetMessageRecords(ids)
+	messages, err := s.sender.GetMessagesByIds(ids)
 	if err != nil {
 		render(w, http.StatusNotFound, errorMessage{Error: "not_found", ErrorDescription: err.Error()})
 		return

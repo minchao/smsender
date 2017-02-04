@@ -42,7 +42,7 @@ func SMSender() *Sender {
 	return &senderSingleton
 }
 
-func (s *Sender) GetMessageRecords(ids []string) ([]*model.MessageRecord, error) {
+func (s *Sender) GetMessagesByIds(ids []string) ([]*model.MessageRecord, error) {
 	result := <-s.store.Message().GetByIds(ids)
 	if result.Err != nil {
 		return nil, result.Err
