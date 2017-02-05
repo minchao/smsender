@@ -5,6 +5,7 @@ import (
 	"net/url"
 	"strconv"
 
+	"github.com/go-playground/form"
 	"github.com/gorilla/mux"
 	"github.com/minchao/smsender/smsender/model"
 	"github.com/minchao/smsender/smsender/utils"
@@ -116,11 +117,11 @@ func (s *Server) RouteTest(w http.ResponseWriter, r *http.Request) {
 }
 
 type messagesRequest struct {
-	To     string `json:"to" validate:"omitempty,phone"`
-	Status string `json:"status"`
-	Since  string `json:"since" validate:"omitempty,unixmicro"`
-	Until  string `json:"until" validate:"omitempty,unixmicro"`
-	Limit  int    `json:"limit" validate:"omitempty,gt=0"`
+	To     string `json:"to" form:"to" validate:"omitempty,phone"`
+	Status string `json:"status" form:"status"`
+	Since  string `json:"since" form:"since" validate:"omitempty,unixmicro"`
+	Until  string `json:"until" form:"until" validate:"omitempty,unixmicro"`
+	Limit  int    `json:"limit" form:"limit" validate:"omitempty,gt=0"`
 }
 
 type paging struct {
@@ -134,18 +135,13 @@ type ressagesResults struct {
 }
 
 func (s *Server) Messages(w http.ResponseWriter, r *http.Request) {
-	values := r.URL.Query()
-	limit, _ := strconv.Atoi(values.Get("limit"))
-	if limit == 0 || limit > 100 {
-		limit = 100
-		values.Set("limit", "100")
+	var req messagesRequest
+	if err := form.NewDecoder().Decode(&req, r.URL.Query()); err != nil {
+		render(w, http.StatusBadRequest, errorMessage{Error: "bad_request", ErrorDescription: err.Error()})
+		return
 	}
-	req := messagesRequest{
-		To:     values.Get("to"),
-		Status: values.Get("status"),
-		Since:  values.Get("since"),
-		Until:  values.Get("until"),
-		Limit:  limit,
+	if req.Limit == 0 || req.Limit > 100 {
+		req.Limit = 100
 	}
 
 	validate := utils.NewValidate()
@@ -191,6 +187,9 @@ func (s *Server) Messages(w http.ResponseWriter, r *http.Request) {
 
 		url, _ := url.Parse("api/messages")
 		url = s.sender.GetSiteURL().ResolveReference(url)
+
+		values, _ := form.NewEncoder().Encode(&req)
+		cleanEmptyURLValues(&values)
 
 		delete(params, "until")
 

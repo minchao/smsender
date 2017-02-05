@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/url"
 
 	"gopkg.in/go-playground/validator.v9"
 )
@@ -44,4 +45,12 @@ func renderInternalServerError(w http.ResponseWriter, err error) error {
 	return render(w,
 		http.StatusInternalServerError,
 		errorMessage{Error: "internal_server_error", ErrorDescription: err.Error()})
+}
+
+func cleanEmptyURLValues(values *url.Values) {
+	for k, _ := range *values {
+		if values.Get(k) == "" {
+			delete(*values, k)
+		}
+	}
 }
