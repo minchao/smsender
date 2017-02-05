@@ -16,6 +16,8 @@ type Server struct {
 }
 
 func InitAPI(sender *smsender.Sender) *Server {
+	log.Debug("api.InitAPI")
+
 	server := Server{
 		sender: sender,
 		out:    sender.GetIncomingQueue(),
@@ -25,8 +27,6 @@ func InitAPI(sender *smsender.Sender) *Server {
 }
 
 func (s *Server) init() {
-	log.Debug("init API")
-
 	router := mux.NewRouter().PathPrefix("/api").Subrouter().StrictSlash(true)
 	router.HandleFunc("/", s.Hello).Methods("GET")
 	router.HandleFunc("/routes", s.Routes).Methods("GET")

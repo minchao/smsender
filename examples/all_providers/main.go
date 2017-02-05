@@ -39,7 +39,7 @@ func main() {
 	}.NewProvider("twilio"))
 	sender.Router.LoadFromDB()
 
-	api.NewServer(sender)
+	api.InitAPI(sender)
 
 	sender.Run()
 }
