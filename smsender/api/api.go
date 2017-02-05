@@ -15,7 +15,7 @@ type Server struct {
 	out    chan<- *model.Message
 }
 
-func NewServer(sender *smsender.Sender) *Server {
+func InitAPI(sender *smsender.Sender) *Server {
 	server := Server{
 		sender: sender,
 		out:    sender.GetIncomingQueue(),

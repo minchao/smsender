@@ -22,7 +22,7 @@ func main() {
 	sender.Router.AddProvider(provider)
 	sender.Router.LoadFromDB()
 
-	api.NewServer(sender)
+	api.InitAPI(sender)
 
 	sender.Run()
 }
