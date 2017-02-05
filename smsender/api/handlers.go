@@ -2,6 +2,8 @@ package api
 
 import (
 	"net/http"
+	"net/url"
+	"strconv"
 
 	"github.com/gorilla/mux"
 	"github.com/minchao/smsender/smsender/model"
@@ -111,6 +113,111 @@ func (s *Server) RouteTest(w http.ResponseWriter, r *http.Request) {
 	route, _ := s.sender.Router.Match(phone)
 
 	render(w, http.StatusOK, RouteTestResult{Phone: phone, Route: route})
+}
+
+type messagesRequest struct {
+	To     string `json:"to" validate:"omitempty,phone"`
+	Status string `json:"status"`
+	Since  string `json:"since" validate:"omitempty,unixmicro"`
+	Until  string `json:"until" validate:"omitempty,unixmicro"`
+	Limit  int    `json:"limit" validate:"omitempty,gt=0"`
+}
+
+type paging struct {
+	Previous string `json:"previous,omitempty"`
+	Next     string `json:"next,omitempty"`
+}
+
+type ressagesResults struct {
+	Data   []*model.MessageRecord `json:"data"`
+	Paging paging                 `json:"paging"`
+}
+
+func (s *Server) Messages(w http.ResponseWriter, r *http.Request) {
+	values := r.URL.Query()
+	limit, _ := strconv.Atoi(values.Get("limit"))
+	if limit == 0 || limit > 100 {
+		limit = 100
+		values.Set("limit", "100")
+	}
+	req := messagesRequest{
+		To:     values.Get("to"),
+		Status: values.Get("status"),
+		Since:  values.Get("since"),
+		Until:  values.Get("until"),
+		Limit:  limit,
+	}
+
+	validate := utils.NewValidate()
+	validate.RegisterValidation("phone", utils.IsPhoneNumber)
+	validate.RegisterValidation("unixmicro", utils.IsTimeUnixMicro)
+	if err := validate.Struct(req); err != nil {
+		render(w, http.StatusBadRequest, formErrorMessage(err))
+		return
+	}
+
+	params := make(map[string]interface{})
+	if req.To != "" {
+		params["to"] = req.To
+	}
+	if req.Status != "" {
+		params["status"] = req.Status
+	}
+	if req.Since != "" {
+		params["since"], _ = utils.UnixMicroStringToTime(req.Since)
+	}
+	if req.Until != "" {
+		params["until"], _ = utils.UnixMicroStringToTime(req.Until)
+	}
+	params["limit"] = req.Limit
+
+	messages, err := s.sender.SearchMessages(params)
+	if err != nil {
+		render(w, http.StatusBadRequest, errorMessage{Error: "not_found", ErrorDescription: err.Error()})
+		return
+	}
+
+	results := ressagesResults{
+		Data:   messages,
+		Paging: paging{},
+	}
+
+	if len(messages) == 0 {
+		results.Data = []*model.MessageRecord{}
+	} else {
+		// Generate the paging data
+		since := messages[0].MessageData.CreatedTime
+		until := messages[len(messages)-1].MessageData.CreatedTime
+
+		url, _ := url.Parse("api/messages")
+		url = s.sender.GetSiteURL().ResolveReference(url)
+
+		delete(params, "until")
+
+		params["since"] = since
+		prevMessages, _ := s.sender.SearchMessages(params)
+		if len(prevMessages) > 0 {
+			values.Del("until")
+			values.Set("since", strconv.FormatInt(since.UnixNano()/1000, 10))
+			url.RawQuery = values.Encode()
+
+			results.Paging.Previous = url.String()
+		}
+
+		delete(params, "since")
+
+		params["until"] = until
+		nextMessages, _ := s.sender.SearchMessages(params)
+		if len(nextMessages) > 0 {
+			values.Del("since")
+			values.Set("until", strconv.FormatInt(until.UnixNano()/1000, 10))
+			url.RawQuery = values.Encode()
+
+			results.Paging.Next = url.String()
+		}
+	}
+
+	render(w, http.StatusOK, results)
 }
 
 type MessagesGetByIdsResults struct {

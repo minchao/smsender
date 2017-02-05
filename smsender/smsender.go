@@ -49,6 +49,14 @@ func SMSender() *Sender {
 	return &senderSingleton
 }
 
+func (s *Sender) SearchMessages(params map[string]interface{}) ([]*model.MessageRecord, error) {
+	result := <-s.store.Message().Search(params)
+	if result.Err != nil {
+		return nil, result.Err
+	}
+	return result.Data.([]*model.MessageRecord), nil
+}
+
 func (s *Sender) GetMessagesByIds(ids []string) ([]*model.MessageRecord, error) {
 	result := <-s.store.Message().GetByIds(ids)
 	if result.Err != nil {

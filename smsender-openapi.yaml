@@ -46,12 +46,12 @@ paths:
         Gets Message objects.
       parameters:
         - in: query
-          name: start
-          description: The start of the range
+          name: since
+          description: The since of the range (UnixMicro)
           type: string
         - in: query
-          name: end
-          description: The end of the range
+          name: until
+          description: The until of the range (UnixMicro)
           type: string
         - in: query
           name: to

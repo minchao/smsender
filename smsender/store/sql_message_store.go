@@ -108,6 +108,60 @@ func (ms *SqlMessageStore) GetByProviderAndMessageId(provider, originalMessageId
 	return storeChannel
 }
 
+func (ms *SqlMessageStore) Search(params map[string]interface{}) StoreChannel {
+	storeChannel := make(StoreChannel, 1)
+
+	go func() {
+		result := StoreResult{}
+
+		query := "SELECT * FROM message"
+		where := ""
+		args := []interface{}{}
+
+		if since, ok := params["since"]; ok {
+			where += " createdTime > ?"
+			args = append(args, since)
+		}
+		if until, ok := params["until"]; ok {
+			where += sqlAndWhere(where)
+			where += " createdTime < ?"
+			args = append(args, until)
+		}
+		if to, ok := params["to"]; ok {
+			where += sqlAndWhere(where)
+			where += " toNumber = ?"
+			args = append(args, to)
+		}
+		if status, ok := params["status"]; ok {
+			where += sqlAndWhere(where)
+			where += " status = ?"
+			args = append(args, status)
+		}
+		if where != "" {
+			query += " WHERE" + where
+		}
+
+		query += " ORDER BY createdTime DESC"
+
+		if limit, ok := params["limit"]; ok {
+			query += " LIMIT ?"
+			args = append(args, limit)
+		}
+
+		var messages []*model.MessageRecord
+		if err := ms.db.Select(&messages, query, args...); err != nil {
+			result.Err = err
+		} else {
+			result.Data = messages
+		}
+
+		storeChannel <- result
+		close(storeChannel)
+	}()
+
+	return storeChannel
+}
+
 func (ms *SqlMessageStore) Save(message *model.MessageRecord) StoreChannel {
 	storeChannel := make(StoreChannel, 1)
 

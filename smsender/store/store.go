@@ -24,5 +24,6 @@ type MessageStore interface {
 	GetByIds(ids []string) StoreChannel
 	GetByProviderAndMessageId(provider, originalMessageId string) StoreChannel
 	Save(message *model.MessageRecord) StoreChannel
+	Search(params map[string]interface{}) StoreChannel
 	Update(message *model.MessageRecord) StoreChannel
 }

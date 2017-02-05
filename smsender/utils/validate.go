@@ -2,7 +2,10 @@ package utils
 
 import (
 	"reflect"
+	"regexp"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/ttacon/libphonenumber"
 	"gopkg.in/go-playground/validator.v9"
@@ -29,4 +32,29 @@ func IsPhoneNumber(fl validator.FieldLevel) bool {
 		return false
 	}
 	return true
+}
+
+func IsTimeRFC3339(fl validator.FieldLevel) bool {
+	_, err := time.Parse(time.RFC3339, fl.Field().String())
+	if err != nil {
+		return false
+	}
+	return true
+}
+
+func IsTimeUnixMicro(fl validator.FieldLevel) bool {
+	field := fl.Field()
+
+	switch field.Kind() {
+	case reflect.Int64:
+		s := strconv.FormatInt(field.Int(), 10)
+		if len(s) == 16 {
+			return true
+		}
+	case reflect.String:
+		if matched, _ := regexp.MatchString(`^\d{16}$`, fl.Field().String()); matched {
+			return true
+		}
+	}
+	return false
 }

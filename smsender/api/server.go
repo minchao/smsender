@@ -35,6 +35,7 @@ func (s *Server) init() {
 	router.HandleFunc("/routes/{route}", s.RoutePut).Methods("PUT")
 	router.HandleFunc("/routes/{route}", s.RouteDelete).Methods("DELETE")
 	router.HandleFunc("/routes/test/{phone}", s.RouteTest).Methods("GET")
+	router.HandleFunc("/messages", s.Messages).Methods("GET")
 	router.HandleFunc("/messages/byIds", s.MessagesGetByIds).Methods("GET")
 	router.HandleFunc("/messages", s.MessagesPost).Methods("POST")
 
