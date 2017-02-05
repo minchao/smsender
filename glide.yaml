@@ -3,7 +3,7 @@ import:
 - package: github.com/Sirupsen/logrus
   version: ^0.11.0
 - package: github.com/aws/aws-sdk-go
-  version: ^1.6.9
+  version: ^1.6.18
   subpackages:
   - aws
   - aws/credentials
@@ -20,6 +20,7 @@ import:
 - package: github.com/ttacon/libphonenumber
 - package: github.com/urfave/negroni
 - package: gopkg.in/go-playground/validator.v9
-  version: ^9.3.2
+  version: ^9.3.3
+- package: github.com/go-playground/form
 - package: gopkg.in/njern/gonexmo.v1
   version: ^1.0.1

@@ -1,8 +1,8 @@
-hash: ed511ce8118f3b017270c924e9f1dca932dc3c77631577e23971300a28ac6c58
-updated: 2017-01-14T17:48:27.280950128+08:00
+hash: 30e2c7a452e311ecedc65b70b881ddc2a08de48a576e5bf5bd124b7dfd7bd633
+updated: 2017-02-05T21:31:05.708385431+08:00
 imports:
 - name: github.com/aws/aws-sdk-go
-  version: 63ce630574a5ec05ecd8e8de5cea16332a5a684d
+  version: 3f8f870ec9939e32b3372abf74d24e468bcd285d
   subpackages:
   - aws
   - aws/awserr
@@ -37,6 +37,8 @@ imports:
   version: fd9ec7deca8bf46ecd2a795baaacf2b3a9be1197
 - name: github.com/go-ini/ini
   version: 6f66b0e091edb3c7b380f7c4f0f884274d550b67
+- name: github.com/go-playground/form
+  version: d18f24949d2fcf4b367cff1424a9e1a60dd5507f
 - name: github.com/go-playground/locales
   version: 273913d3b2ff7127452603d55dd3f6f888e4f268
   subpackages:
@@ -129,7 +131,7 @@ imports:
   - transform
   - unicode/norm
 - name: gopkg.in/go-playground/validator.v9
-  version: 077c3830f3971d4a44a94c2249b67ce8c53198fc
+  version: 691ea5506371685479307baaf0e623e850de4dbf
 - name: gopkg.in/njern/gonexmo.v1
   version: c83191e580d14eb435e39f0317a89c6912b094a4
 - name: gopkg.in/yaml.v2
