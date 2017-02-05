@@ -24,6 +24,8 @@ http:
         - "PATCH"
         - "DELETE"
       debug: false
+  web:
+    enable: true
 worker:
   num: 100
 providers:

@@ -29,6 +29,9 @@
                 ],
                 "debug": false
             }
+        },
+        "web": {
+            "enable": true
         }
     },
     "worker": {
