@@ -1,7 +1,15 @@
 var path = require('path');
 var webpack = require('webpack');
 
-module.exports = {
+const NPM_TARGET = process.env.npm_lifecycle_event;
+
+var DEV = false;
+
+if (NPM_TARGET === 'dev') {
+    DEV = true;
+}
+
+var config = {
     devtool: 'eval',
     entry: [
         './src/index'
@@ -23,3 +31,18 @@ module.exports = {
         }]
     }
 };
+
+// Development mode configuration
+if (DEV) {
+    config.entry = [
+      'react-hot-loader/patch',
+      'webpack-dev-server/client?http://localhost:3000',
+      'webpack/hot/only-dev-server',
+      './src/index'
+    ]
+    config.plugins.push(new webpack.HotModuleReplacementPlugin())
+}
+
+console.log(config)
+
+module.exports = config;
