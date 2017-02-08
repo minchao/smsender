@@ -1,7 +1,10 @@
 import React from 'react';
 import {render} from 'react-dom';
-import { AppContainer } from 'react-hot-loader';
+import {AppContainer} from 'react-hot-loader';
+import injectTapEventPlugin from 'react-tap-event-plugin';
 import App from './App';
+
+injectTapEventPlugin();
 
 render(
     <AppContainer>
@@ -13,7 +16,7 @@ render(
 if (module.hot) {
     module.hot.accept('./App', () => {
         const NextApp = require('./App').default;
-        
+
         render(
             <AppContainer>
                 <NextApp />
