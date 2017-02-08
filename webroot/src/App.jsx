@@ -31,7 +31,7 @@ class App extends Component {
                             </Route>
                         </Router>
                     </Provider>
-                    <DevTools />
+                    {module.hot ? <DevTools /> : null}
                 </div>
             </MuiThemeProvider>
         )
