@@ -43,6 +43,4 @@ if (DEV) {
     config.plugins.push(new webpack.HotModuleReplacementPlugin())
 }
 
-console.log(config)
-
 module.exports = config;
