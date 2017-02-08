@@ -1,9 +1,14 @@
 html {
     font-family: 'Roboto', sans-serif;
+    -webkit-font-smoothing: antialiased;
 }
 
 body {
     margin: 0;
     font-size: 13px;
     line-height: 20px;
+}
+
+body, h1, h2, h3, h4, h5, h6 {
+    margin: 0;
 }

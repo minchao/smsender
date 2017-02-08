@@ -1,12 +1,14 @@
 import React, {Component} from 'react';
 import {Provider, observer} from 'mobx-react';
 import DevTools from 'mobx-react-devtools';
+import {RouterStore, syncHistoryWithStore} from 'mobx-react-router';
+import {Router, IndexRoute, Route, browserHistory} from 'react-router';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import lightBaseTheme from 'material-ui/styles/baseThemes/lightBaseTheme';
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
-import {RouterStore, syncHistoryWithStore} from 'mobx-react-router';
-import {Router, IndexRoute, Route, browserHistory} from 'react-router';
-import Home from './routes/Home';
+import Home from './components/Home';
+import Console from './components/Console';
+import SMSPage from './components/sms/SMSPage';
 
 const routingStore = new RouterStore();
 
@@ -24,6 +26,9 @@ class App extends Component {
                     <Provider {...stores}>
                         <Router history={history}>
                             <Route path="/" component={Home} />
+                            <Route path="console" component={Console}>
+                                <Route path="sms" component={SMSPage} />
+                            </Route>
                         </Router>
                     </Provider>
                     <DevTools />
