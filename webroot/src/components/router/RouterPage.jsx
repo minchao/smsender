@@ -8,7 +8,7 @@ import {blue500} from 'material-ui/styles/colors';
 import SvgIconKeyboardArrowUp from 'material-ui/svg-icons/hardware/keyboard-arrow-up';
 import SvgIconKeyboardArrowDown from 'material-ui/svg-icons/hardware/keyboard-arrow-down';
 import Title from './../Title';
-import RouteModel from './RouteModel';
+import RouteDialog from './RouteDialog';
 
 const styles = {
     reorder: {
@@ -28,11 +28,11 @@ class RouterPage extends Component {
         };
     }
 
-    handleOpenRouteModel = () => {
+    handleOpenRouteDialog = () => {
         this.setState({open: true});
     };
 
-    handleCloseRouteModel = () => {
+    handleCloseRouteDialog = () => {
         this.setState({open: false});
     };
 
@@ -58,7 +58,7 @@ class RouterPage extends Component {
                         <RaisedButton
                             label="Create"
                             primary={true}
-                            onTouchTap={this.handleOpenRouteModel}
+                            onTouchTap={this.handleOpenRouteDialog}
                         />
                     </ToolbarGroup>
                 </Toolbar>
@@ -113,7 +113,7 @@ class RouterPage extends Component {
                     </TableBody>
                 </Table>
 
-                <RouteModel open={this.state.open} handleClose={this.handleCloseRouteModel} />
+                <RouteDialog open={this.state.open} handleClose={this.handleCloseRouteDialog} />
 
             </div>
         );

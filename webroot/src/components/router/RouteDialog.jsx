@@ -6,7 +6,7 @@ import MenuItem from 'material-ui/MenuItem';
 import Toggle from 'material-ui/Toggle';
 import FlatButton from 'material-ui/FlatButton';
 
-export default class RouteModel extends Component {
+export default class RouteDialog extends Component {
 
     constructor(props) {
         super(props);
