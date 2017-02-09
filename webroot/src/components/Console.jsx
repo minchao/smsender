@@ -29,6 +29,7 @@ class Routes extends Component {
                 >
                     <AppBar title="SMSender" />
                     <MenuItem onTouchTap={() => push("/console/sms")}>SMS</MenuItem>
+                    <MenuItem onTouchTap={() => push("/console/router")}>Router</MenuItem>
                 </Drawer>
             </div>
         );

@@ -8,6 +8,7 @@ import lightBaseTheme from 'material-ui/styles/baseThemes/lightBaseTheme';
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
 import Home from './components/Home';
 import Console from './components/Console';
+import RouterPage from './components/router/RouterPage';
 import SMSPage from './components/sms/SMSPage';
 
 const routingStore = new RouterStore();
@@ -28,6 +29,7 @@ class App extends Component {
                             <Route path="/" component={Home} />
                             <Route path="console" component={Console}>
                                 <Route path="sms" component={SMSPage} />
+                                <Route path="router" component={RouterPage} />
                             </Route>
                         </Router>
                     </Provider>
