@@ -28,7 +28,7 @@ class SMSPage extends Component {
             <div>
                 <Title title="SMS" />
 
-                <p>Message delivery logs</p>
+                <p>Messages delivery logs</p>
 
                 <Toolbar>
                     <ToolbarGroup firstChild={true} style={{width: "100%"}}>
@@ -70,7 +70,6 @@ class SMSPage extends Component {
                         <RaisedButton
                             label="Filter"
                             primary={true}
-                            style={{}}
                         />
                     </ToolbarGroup>
                 </Toolbar>
@@ -95,6 +94,15 @@ class SMSPage extends Component {
                         </TableRow>
                     </TableBody>
                 </Table>
+
+                <div style={{marginTop: 20, textAlign: "center"}}>
+                    <RaisedButton
+                        label="Prev"
+                    />
+                    <RaisedButton
+                        label="Next"
+                    />
+                </div>
             </div>
         );
     }
