@@ -1,12 +1,13 @@
 import {observable, computed, reaction} from 'mobx';
 
+import {getAPI} from '../utils';
 import RouteModel from '../models/RouteModel';
 
 export default class RouteStore {
     @observable routes = [];
 
     sync() {
-        fetch('http://localhost:8081/api/routes', {method: 'get'})
+        fetch(getAPI('/api/routes'), {method: 'get'})
             .then(response => {
                 if (!response.ok) throw new Error(response.statusText)
                 return response.json()
