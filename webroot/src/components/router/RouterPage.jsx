@@ -7,8 +7,10 @@ import IconButton from 'material-ui/IconButton';
 import {blue500} from 'material-ui/styles/colors';
 import SvgIconKeyboardArrowUp from 'material-ui/svg-icons/hardware/keyboard-arrow-up';
 import SvgIconKeyboardArrowDown from 'material-ui/svg-icons/hardware/keyboard-arrow-down';
+
 import Title from './../Title';
 import RouteDialog from './RouteDialog';
+import RouteStore from '../../stores/RouteStore';
 
 const styles = {
     reorder: {
@@ -18,7 +20,11 @@ const styles = {
 
 @inject('routing')
 @observer
-class RouterPage extends Component {
+export default class RouterPage extends Component {
+
+    static defaultProps = {
+        store: new RouteStore()
+    }
 
     constructor(props) {
         super(props);
@@ -26,6 +32,10 @@ class RouterPage extends Component {
             open: false,
             value: "nexmo"
         };
+    }
+
+    componentDidMount() {
+        this.props.store.sync()
     }
 
     handleOpenRouteDialog = () => {
@@ -74,42 +84,23 @@ class RouterPage extends Component {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        <TableRow>
-                            <TableRowColumn>Taiwan</TableRowColumn>
-                            <TableRowColumn>\+886</TableRowColumn>
-                            <TableRowColumn>nexmo</TableRowColumn>
-                            <TableRowColumn>active</TableRowColumn>
-                            <TableRowColumn style={styles.reorder}>
-                                <IconButton>
-                                    <SvgIconKeyboardArrowDown color={blue500} />
-                                </IconButton>
-                            </TableRowColumn>
-                        </TableRow>
-                        <TableRow>
-                            <TableRowColumn>USA</TableRowColumn>
-                            <TableRowColumn>\+1</TableRowColumn>
-                            <TableRowColumn>nexmo</TableRowColumn>
-                            <TableRowColumn>active</TableRowColumn>
-                            <TableRowColumn style={styles.reorder}>
-                                <IconButton>
-                                    <SvgIconKeyboardArrowUp color={blue500} />
-                                </IconButton>
-                                <IconButton>
-                                    <SvgIconKeyboardArrowDown color={blue500} />
-                                </IconButton>
-                            </TableRowColumn>
-                        </TableRow>
-                        <TableRow>
-                            <TableRowColumn>Japan</TableRowColumn>
-                            <TableRowColumn>\+81</TableRowColumn>
-                            <TableRowColumn>nexmo</TableRowColumn>
-                            <TableRowColumn>active</TableRowColumn>
-                            <TableRowColumn style={styles.reorder}>
-                                <IconButton style={{zIndex: 9999}}>
-                                    <SvgIconKeyboardArrowUp color={blue500} />
-                                </IconButton>
-                            </TableRowColumn>
-                        </TableRow>
+                        {this.props.store.routes.map((route, i) => (
+                            <TableRow key={i}>
+                                <TableRowColumn>{route.name}</TableRowColumn>
+                                <TableRowColumn>{route.pattern}</TableRowColumn>
+                                <TableRowColumn>{route.provider}</TableRowColumn>
+                                <TableRowColumn>{route.is_active ? "enable": "disable"}</TableRowColumn>
+                                <TableRowColumn style={styles.reorder}>
+                                    <IconButton>
+                                        {i == 0 ? null : <SvgIconKeyboardArrowUp color={blue500} />}
+                                    </IconButton>
+                                    <IconButton>
+                                        {i == this.props.store.routes.length - 1 ? null : <SvgIconKeyboardArrowDown color={blue500} />}
+                                    </IconButton>
+                                </TableRowColumn>
+
+                            </TableRow>
+                        ))}
                     </TableBody>
                 </Table>
 
@@ -119,5 +110,3 @@ class RouterPage extends Component {
         );
     }
 }
-
-export default RouterPage;
