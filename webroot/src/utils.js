@@ -1,7 +1,7 @@
 var baseURL = '';
 
 if (module.hot) {
-    baseURL = 'http://localhost:3000';
+    baseURL = 'http://localhost:8080';
 }
 
 export function getAPI(api) {
