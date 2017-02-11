@@ -15,12 +15,17 @@ func (s *Server) Hello(w http.ResponseWriter, r *http.Request) {
 	render(w, http.StatusOK, "Hello!")
 }
 
-type RouteResults struct {
-	Data []*model.Route `json:"data"`
+type provider struct {
+	Name string `json:"name"`
+}
+
+type routeResults struct {
+	Data      []*model.Route `json:"data"`
+	Providers []*provider    `json:"providers"`
 }
 
 func (s *Server) Routes(w http.ResponseWriter, r *http.Request) {
-	render(w, http.StatusOK, RouteResults{Data: s.sender.Router.GetAll()})
+	render(w, http.StatusOK, routeResults{Data: s.sender.Router.GetAll(), Providers: s.getProviders()})
 }
 
 type Route struct {
@@ -67,7 +72,7 @@ func (s *Server) RouteReorder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	render(w, http.StatusOK, RouteResults{Data: s.sender.Router.GetAll()})
+	render(w, http.StatusOK, routeResults{Data: s.sender.Router.GetAll(), Providers: s.getProviders()})
 }
 
 func (s *Server) RoutePut(w http.ResponseWriter, r *http.Request) {
@@ -297,4 +302,12 @@ func (s *Server) MessagesPost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	render(w, http.StatusOK, MessagesPostResults{Data: results})
+}
+
+func (s *Server) getProviders() []*provider {
+	providers := []*provider{}
+	for _, p := range s.sender.Router.GetProviders() {
+		providers = append(providers, &provider{Name: p.Name()})
+	}
+	return providers
 }

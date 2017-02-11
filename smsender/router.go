@@ -31,6 +31,12 @@ func NewRouter(store store.Store, notFoundProvider model.Provider) *Router {
 	}
 }
 
+func (r *Router) GetProviders() map[string]model.Provider {
+	r.pMutex.RLock()
+	defer r.pMutex.RUnlock()
+	return r.providers
+}
+
 func (r *Router) GetProvider(name string) model.Provider {
 	r.pMutex.RLock()
 	defer r.pMutex.RUnlock()
