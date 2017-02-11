@@ -15,5 +15,5 @@ func UnixMicroStringToTime(s string) (time.Time, error) {
 	sec, _ := strconv.ParseInt(s[:10], 10, 64)
 	nsec, _ := strconv.ParseInt(s[10:], 10, 64)
 
-	return time.Unix(sec, nsec), nil
+	return time.Unix(sec, nsec*1000), nil
 }
