@@ -116,10 +116,12 @@ func (ms *SqlMessageStore) Search(params map[string]interface{}) StoreChannel {
 
 		query := "SELECT * FROM message"
 		where := ""
+		order := "DESC"
 		args := []interface{}{}
 
 		if since, ok := params["since"]; ok {
 			where += " createdTime > ?"
+			order = "ASC"
 			args = append(args, since)
 		}
 		if until, ok := params["until"]; ok {
@@ -141,7 +143,7 @@ func (ms *SqlMessageStore) Search(params map[string]interface{}) StoreChannel {
 			query += " WHERE" + where
 		}
 
-		query += " ORDER BY createdTime DESC"
+		query += " ORDER BY createdTime " + order
 
 		if limit, ok := params["limit"]; ok {
 			query += " LIMIT ?"
@@ -152,6 +154,14 @@ func (ms *SqlMessageStore) Search(params map[string]interface{}) StoreChannel {
 		if err := ms.db.Select(&messages, query, args...); err != nil {
 			result.Err = err
 		} else {
+			length := len(messages)
+			if order == "ASC" && length > 1 {
+				// Reverse the messages slice
+				for i, j := 0, length-1; i < j; i, j = i+1, j-1 {
+					messages[i], messages[j] = messages[j], messages[i]
+				}
+			}
+
 			result.Data = messages
 		}
 
