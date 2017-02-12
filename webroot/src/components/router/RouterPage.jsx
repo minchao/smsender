@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import {inject, observer} from 'mobx-react';
+import {action, observable} from 'mobx';
 import {Toolbar, ToolbarGroup, ToolbarSeparator, ToolbarTitle} from 'material-ui/Toolbar';
 import {Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn} from 'material-ui/Table';
 import RaisedButton from 'material-ui/RaisedButton';
@@ -26,29 +27,65 @@ export default class RouterPage extends Component {
         store: new RouteStore()
     }
 
+    @observable isOpen = false;
+    @observable route = {
+        isNew: true,
+        name: '',
+        pattern: '',
+        provider: '',
+        is_active: false
+    };
+
     constructor(props) {
         super(props);
-        this.state = {
-            open: false,
-            value: "nexmo"
-        };
+        this.openRouteDialog = this.openRouteDialog.bind(this);
+        this.closeRouteDialog = this.closeRouteDialog.bind(this);
+        this.setRoute = this.setRoute.bind(this);
+        this.createRoute = this.createRoute.bind(this);
+        this.updateRoute = this.updateRoute.bind(this);
     }
 
     componentDidMount() {
         this.props.store.sync()
     }
 
-    handleOpenRouteDialog = () => {
-        this.setState({open: true});
+    @action openRouteDialog() {
+        this.isOpen = true;
     };
 
-    handleCloseRouteDialog = () => {
-        this.setState({open: false});
+    @action closeRouteDialog() {
+        this.isOpen = false;
     };
+
+    @action setRoute(route) {
+        if (route) {
+            this.route.isNew = false;
+            this.route.name = route.name;
+            this.route.pattern = route.pattern;
+            this.route.provider = route.provider;
+            this.route.is_active = route.is_active;
+        } else {
+            this.route.isNew = true;
+            this.route.name = '';
+            this.route.pattern = '';
+            this.route.provider = '';
+            this.route.is_active = false;
+        }
+    }
+
+    createRoute() {
+        this.setRoute(null);
+        this.openRouteDialog();
+    }
+
+    updateRoute(e) {
+        e.preventDefault();
+        this.setRoute(this.props.store.getByName(e.target.name));
+        this.openRouteDialog();
+    }
 
     render() {
-
-        const { location, push, goBack } = this.props.routing;
+        const hasRoutes = this.props.store.routes.length != 0;
 
         return (
             <div>
@@ -68,13 +105,13 @@ export default class RouterPage extends Component {
                         <RaisedButton
                             label="Create"
                             primary={true}
-                            onTouchTap={this.handleOpenRouteDialog}
+                            onTouchTap={this.createRoute}
                         />
                     </ToolbarGroup>
                 </Toolbar>
 
-                <Table multiSelectable={true}>
-                    <TableHeader>
+                <Table multiSelectable={hasRoutes}>
+                    <TableHeader displaySelectAll={hasRoutes}>
                         <TableRow>
                             <TableHeaderColumn>NAME</TableHeaderColumn>
                             <TableHeaderColumn>PATTERN</TableHeaderColumn>
@@ -83,19 +120,39 @@ export default class RouterPage extends Component {
                             <TableHeaderColumn>REORDER</TableHeaderColumn>
                         </TableRow>
                     </TableHeader>
-                    <TableBody>
-                        {this.props.store.routes.map((route, i) => (
+                    <TableBody displayRowCheckbox={hasRoutes}>
+                        {(!hasRoutes)
+                            ?
+                            (
+                                <TableRow>
+                                    <TableRowColumn>No data</TableRowColumn>
+                                </TableRow>
+                            )
+                            :
+                            this.props.store.routes.map((route, i) => (
                             <TableRow key={i}>
-                                <TableRowColumn>{route.name}</TableRowColumn>
+                                <TableRowColumn>
+                                    <a
+                                        href="#"
+                                        name={route.name}
+                                        onClick={this.updateRoute}
+                                    >
+                                    {route.name}
+                                    </a>
+                                </TableRowColumn>
                                 <TableRowColumn>{route.pattern}</TableRowColumn>
                                 <TableRowColumn>{route.provider}</TableRowColumn>
                                 <TableRowColumn>{route.is_active ? "enable": "disable"}</TableRowColumn>
                                 <TableRowColumn style={styles.reorder}>
                                     <IconButton>
-                                        {i == 0 ? null : <SvgIconKeyboardArrowUp color={blue500} />}
+                                        {i == 0
+                                            ? null
+                                            : <SvgIconKeyboardArrowUp color={blue500} />}
                                     </IconButton>
                                     <IconButton>
-                                        {i == this.props.store.routes.length - 1 ? null : <SvgIconKeyboardArrowDown color={blue500} />}
+                                        {i == this.props.store.routes.length - 1
+                                            ? null
+                                            : <SvgIconKeyboardArrowDown color={blue500} />}
                                     </IconButton>
                                 </TableRowColumn>
 
@@ -104,8 +161,13 @@ export default class RouterPage extends Component {
                     </TableBody>
                 </Table>
 
-                <RouteDialog open={this.state.open} handleClose={this.handleCloseRouteDialog} />
-
+                <RouteDialog
+                    isOpen={this.isOpen}
+                    providers={this.props.store.providers}
+                    route={this.route}
+                    closeRouteDialog={this.closeRouteDialog}
+                    test={this.test}
+                />
             </div>
         );
     }
