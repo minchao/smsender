@@ -172,6 +172,11 @@ paths:
                 type: array
                 items:
                   $ref: '#/definitions/Route'
+              providers:
+                title: ArrayOfProvider
+                type: array
+                items:
+                  $ref: '#/definitions/Provider'
     post:
       tags:
         - routes
@@ -215,6 +220,11 @@ paths:
                 type: array
                 items:
                   $ref: '#/definitions/Route'
+              providers:
+                title: ArrayOfProvider
+                type: array
+                items:
+                  $ref: '#/definitions/Provider'
         400:
           description: Bad request
           schema:
@@ -359,6 +369,12 @@ definitions:
         type: integer
         description: |
           The position where the routes should be inserted.
+  Provider:
+    type: object
+    properties:
+      name:
+        type: string
+        description: Provider name
   Error:
     type: object
     properties:
