@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {inject, observer} from 'mobx-react';
-import {observable} from 'mobx';
+import {action, observable} from 'mobx';
 import {Toolbar, ToolbarGroup, ToolbarSeparator, ToolbarTitle} from 'material-ui/Toolbar';
 import {Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn} from 'material-ui/Table';
 import DropDownMenu from 'material-ui/DropDownMenu';
@@ -24,7 +24,7 @@ const status = [
 ];
 
 @observer
-class SMSPage extends Component {
+export default class SMSPage extends Component {
 
     static defaultProps = {
         store: new MessageStore()
@@ -37,31 +37,37 @@ class SMSPage extends Component {
         limit: 20
     };
 
+    constructor(props) {
+        super(props);
+        this.updateProperty = this.updateProperty.bind(this);
+        this.updateFilterStatus = this.updateFilterStatus.bind(this);
+    }
+
     componentDidMount() {
         this.props.store.search(this.form.to, this.form.status, null, null, this.form.limit);
     };
 
-    updateProperty = (event, value) => {
+    @action updateProperty(event, value) {
         this.form[event.target.name] = value;
     };
 
-    handleFind = () => {
-        this.props.store.find(this.form.id);
-    };
-
-    handleFilterStatus = (event, index) => {
+    @action updateFilterStatus(event, index) {
         this.form.status = status[index].value;
     };
 
-    handleFilter = () => {
+    find = () => {
+        this.props.store.find(this.form.id);
+    };
+
+    filter = () => {
         this.props.store.search(this.form.to, this.form.status, null, null, this.form.limit);
     };
 
-    handlePagingPrev = () => {
+    pagingPrev = () => {
         this.props.store.search(this.form.to, this.form.status, this.props.store.since, null, this.form.limit);
     };
 
-    handlePagingNext = () => {
+    pagingNext = () => {
         this.props.store.search(this.form.to, this.form.status, null, this.props.store.until, this.form.limit);
     };
 
@@ -87,7 +93,7 @@ class SMSPage extends Component {
                         <RaisedButton
                             label="Search"
                             primary={true}
-                            onTouchTap={this.handleFind}
+                            onTouchTap={this.find}
                         />
                     </ToolbarGroup>
                 </Toolbar>
@@ -108,7 +114,7 @@ class SMSPage extends Component {
                         <DropDownMenu
                             name="status"
                             value={this.form.status}
-                            onChange={this.handleFilterStatus}
+                            onChange={this.updateFilterStatus}
                         >
                             {status.map((s, i) => (
                                 <MenuItem key={i} value={s.value} primaryText={s.text} />
@@ -117,7 +123,7 @@ class SMSPage extends Component {
                         <RaisedButton
                             label="Filter"
                             primary={true}
-                            onTouchTap={this.handleFilter}
+                            onTouchTap={this.filter}
                         />
                     </ToolbarGroup>
                 </Toolbar>
@@ -156,14 +162,12 @@ class SMSPage extends Component {
                 <div style={{marginTop: 20, textAlign: "center"}}>
                     {this.props.store.since == null
                         ? null
-                        : <RaisedButton label="Prev" onTouchTap={this.handlePagingPrev} />}
+                        : <RaisedButton label="Prev" onTouchTap={this.pagingPrev} />}
                     {this.props.store.until == null
                         ? null
-                        : <RaisedButton label="Next" onTouchTap={this.handlePagingNext} />}
+                        : <RaisedButton label="Next" onTouchTap={this.pagingNext} />}
                 </div>
             </div>
         );
     }
 }
-
-export default SMSPage;

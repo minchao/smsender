@@ -42,7 +42,7 @@ class Home extends Component {
                 <RaisedButton
                     label="Console"
                     labelColor="#00bcd4"
-                    onTouchTap={() => push("console")}
+                    onTouchTap={() => push("console/sms")}
                 />
             </div>
         )
