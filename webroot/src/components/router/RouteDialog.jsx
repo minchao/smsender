@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import {inject, observer} from "mobx-react";
+import {action, observable} from 'mobx';
 import Dialog from 'material-ui/Dialog';
 import TextField from 'material-ui/TextField';
 import SelectField from 'material-ui/SelectField';
@@ -13,16 +14,13 @@ export default class RouteDialog extends Component {
     constructor(props) {
         super(props);
         this.isOpen = props.isOpen;
-        this.providers = props.providers;
+        this.store = props.store;
         this.route = props.route;
-        this.closeRouteDialog = this.closeRouteDialog.bind(this);
         this.updateProperty = this.updateProperty.bind(this);
         this.updateProvider = this.updateProvider.bind(this);
+        this.cancel = this.cancel.bind(this);
+        this.submit = this.submit.bind(this);
     }
-
-    closeRouteDialog() {
-        this.props.closeRouteDialog();
-    };
 
     updateProperty(event, value) {
         this.route[event.target.name] = value;
@@ -32,16 +30,29 @@ export default class RouteDialog extends Component {
         this.route.provider = value;
     }
 
+    cancel() {
+        this.props.closeRouteDialog();
+    }
+
+    submit() {
+        if (this.route.isNew) {
+            this.store.create(this.route);
+        } else {
+            this.store.update(this.route);
+        }
+        this.props.closeRouteDialog();
+    }
+
     render() {
         const actions = [
             <FlatButton
                 label="Cancel"
-                onTouchTap={this.closeRouteDialog}
+                onTouchTap={this.cancel}
             />,
             <FlatButton
                 label="Submit"
                 primary={true}
-                onTouchTap={this.closeRouteDialog}
+                onTouchTap={this.submit}
             />,
         ];
 
@@ -56,6 +67,7 @@ export default class RouteDialog extends Component {
                     name="name"
                     hintText="Name"
                     value={this.route.name}
+                    disabled={!this.route.isNew}
                     onChange={this.updateProperty}
                 />
                 <br />
@@ -71,7 +83,7 @@ export default class RouteDialog extends Component {
                     value={this.route.provider}
                     onChange={this.updateProvider}
                 >
-                    {this.providers.map((provider, i) => (
+                    {this.store.providers.map((provider, i) => (
                         <MenuItem
                             key={i}
                             value={provider}

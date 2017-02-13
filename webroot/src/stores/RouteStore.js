@@ -84,6 +84,7 @@ export default class RouteStore {
 
     @action clear() {
         this.routes = [];
+        this.providers = [];
     }
 
     @action initData(json) {

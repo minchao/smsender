@@ -17,7 +17,7 @@ const styles = {
     reorder: {
         textAlign: "right"
     }
-}
+};
 
 @inject('routing')
 @observer
@@ -25,7 +25,7 @@ export default class RouterPage extends Component {
 
     static defaultProps = {
         store: new RouteStore()
-    }
+    };
 
     @observable isOpen = false;
     @observable route = {
@@ -35,6 +35,7 @@ export default class RouterPage extends Component {
         provider: '',
         is_active: false
     };
+    @observable selected = [];
 
     constructor(props) {
         super(props);
@@ -43,6 +44,9 @@ export default class RouterPage extends Component {
         this.setRoute = this.setRoute.bind(this);
         this.createRoute = this.createRoute.bind(this);
         this.updateRoute = this.updateRoute.bind(this);
+        this.deleteRoute = this.deleteRoute.bind(this);
+        this.reorderUp = this.reorderUp.bind(this);
+        this.reorderDown = this.reorderDown.bind(this);
     }
 
     componentDidMount() {
@@ -51,11 +55,11 @@ export default class RouterPage extends Component {
 
     @action openRouteDialog() {
         this.isOpen = true;
-    };
+    }
 
     @action closeRouteDialog() {
         this.isOpen = false;
-    };
+    }
 
     @action setRoute(route) {
         if (route) {
@@ -84,6 +88,23 @@ export default class RouterPage extends Component {
         this.openRouteDialog();
     }
 
+    deleteRoute() {
+        if (this.selected[0] != undefined) {
+            const route = this.props.store.routes[this.selected[0]];
+            if (route) {
+                this.props.store.del(route.name);
+            }
+        }
+    }
+
+    reorderUp(index) {
+        this.props.store.reorder(index, 1, index-1);
+    }
+
+    reorderDown(index) {
+        this.props.store.reorder(index, 1, index+2);
+    }
+
     render() {
         const hasRoutes = this.props.store.routes.length != 0;
 
@@ -101,6 +122,7 @@ export default class RouterPage extends Component {
                             label="Delete"
                             secondary={true}
                             style={{marginRight: 0}}
+                            onTouchTap={this.deleteRoute}
                         />
                         <RaisedButton
                             label="Create"
@@ -110,8 +132,11 @@ export default class RouterPage extends Component {
                     </ToolbarGroup>
                 </Toolbar>
 
-                <Table multiSelectable={hasRoutes}>
-                    <TableHeader displaySelectAll={hasRoutes}>
+                <Table
+                    multiSelectable={false}
+                    onRowSelection={(rows) => {this.selected = rows}}
+                >
+                    <TableHeader displaySelectAll={false}>
                         <TableRow>
                             <TableHeaderColumn>NAME</TableHeaderColumn>
                             <TableHeaderColumn>PATTERN</TableHeaderColumn>
@@ -120,7 +145,10 @@ export default class RouterPage extends Component {
                             <TableHeaderColumn>REORDER</TableHeaderColumn>
                         </TableRow>
                     </TableHeader>
-                    <TableBody displayRowCheckbox={hasRoutes}>
+                    <TableBody
+                        displayRowCheckbox={hasRoutes}
+                        deselectOnClickaway={true}
+                    >
                         {(!hasRoutes)
                             ?
                             (
@@ -147,12 +175,21 @@ export default class RouterPage extends Component {
                                     <IconButton>
                                         {i == 0
                                             ? null
-                                            : <SvgIconKeyboardArrowUp color={blue500} />}
+                                            :
+                                            <SvgIconKeyboardArrowUp
+                                                color={blue500}
+                                                onClick={() => this.reorderUp(i)}
+                                            />}
                                     </IconButton>
                                     <IconButton>
                                         {i == this.props.store.routes.length - 1
                                             ? null
-                                            : <SvgIconKeyboardArrowDown color={blue500} />}
+                                            :
+                                            <SvgIconKeyboardArrowDown
+                                                color={blue500}
+                                                onClick={() => this.reorderDown(i)}
+                                            />
+                                        }
                                     </IconButton>
                                 </TableRowColumn>
 
@@ -163,10 +200,9 @@ export default class RouterPage extends Component {
 
                 <RouteDialog
                     isOpen={this.isOpen}
-                    providers={this.props.store.providers}
+                    store={this.props.store}
                     route={this.route}
                     closeRouteDialog={this.closeRouteDialog}
-                    test={this.test}
                 />
             </div>
         );
