@@ -11,6 +11,7 @@ import Home from './components/Home';
 import Console from './components/Console';
 import RouterPage from './components/router/RouterPage';
 import SMSPage from './components/sms/SMSPage';
+import SendPage from './components/sms/SendPage';
 
 const routingStore = new RouterStore();
 
@@ -30,6 +31,7 @@ class App extends Component {
                             <Route path="/" component={Home} />
                             <Route path="console" component={Console}>
                                 <Route path="sms" component={SMSPage} />
+                                <Route path="sms/send" component={SendPage} />
                                 <Route path="router" component={RouterPage} />
                             </Route>
                         </Router>

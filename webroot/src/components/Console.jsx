@@ -49,6 +49,11 @@ class Routes extends Component {
                             leftIcon={<SvgMessage />}
                         >SMS</MenuItem>
                         <MenuItem
+                            onTouchTap={() => push("/console/sms/send")}
+                            style={this.menuItemStyle('/console/sms/send')}
+                            insetChildren={true}
+                        >Send an SMS</MenuItem>
+                        <MenuItem
                             onTouchTap={() => push("/console/sms")}
                             style={this.menuItemStyle('/console/sms')}
                             insetChildren={true}

@@ -73,7 +73,7 @@ export default class RouteDialog extends Component {
                 <br />
                 <TextField
                     name="pattern"
-                    hintText="Pattern"
+                    hintText="Pattern (Regular Expression)"
                     value={this.route.pattern}
                     onChange={this.updateProperty}
                 />
@@ -94,7 +94,7 @@ export default class RouteDialog extends Component {
                 <br />
                 <TextField
                     name="from"
-                    hintText="From"
+                    hintText="From (Sender ID)"
                     value={this.route.from}
                     onChange={this.updateProperty}
                 />
