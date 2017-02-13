@@ -24,7 +24,7 @@ const styles = {
         fontSize: "24px",
         lineHeight: "32px",
         color: "#fff",
-        webkitFontSmoothing: "antialiased"
+        WebkitFontSmoothing: "antialiased"
     }
 };
 
