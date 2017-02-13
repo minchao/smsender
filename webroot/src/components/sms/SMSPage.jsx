@@ -74,15 +74,15 @@ export default class SMSPage extends Component {
     render() {
         return (
             <div>
-                <Title title="SMS" />
+                <Title title="SMS Delivery Logs" />
 
-                <p>Messages delivery logs</p>
+                <p>Search by message ID</p>
 
                 <Toolbar>
                     <ToolbarGroup firstChild={true} style={{width: "100%"}}>
                         <TextField
                             name="id"
-                            hintText="Search by Message ID: b29f66182b317var78gg"
+                            hintText="Message ID: b29f66182b317var78gg"
                             value={this.form.id}
                             fullWidth={true}
                             style={{marginLeft: 20, width: "100%"}}
@@ -98,7 +98,7 @@ export default class SMSPage extends Component {
                     </ToolbarGroup>
                 </Toolbar>
 
-                <br />
+                <p>Search by recipient phone number</p>
 
                 <Toolbar>
                     <ToolbarGroup firstChild={true}>

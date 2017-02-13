@@ -6,6 +6,7 @@ import {Router, IndexRoute, Route, browserHistory} from 'react-router';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import lightBaseTheme from 'material-ui/styles/baseThemes/lightBaseTheme';
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
+
 import Home from './components/Home';
 import Console from './components/Console';
 import RouterPage from './components/router/RouterPage';
