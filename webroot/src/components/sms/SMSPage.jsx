@@ -8,7 +8,6 @@ import MenuItem from 'material-ui/MenuItem';
 import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';
 
-import Title from './../Title';
 import MessageStore from '../../stores/MessageStore';
 
 const status = [
