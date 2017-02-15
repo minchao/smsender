@@ -7,7 +7,7 @@ export default class RouteModel {
     @observable from
     @observable is_active
 
-    constructor(name, pattern, provider, from, is_active) {
+    constructor(name = '', pattern = '', provider = '', from = '', is_active = false) {
         this.name = name
         this.pattern = pattern
         this.provider = provider

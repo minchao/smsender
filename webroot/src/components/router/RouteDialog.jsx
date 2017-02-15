@@ -13,7 +13,6 @@ export default class RouteDialog extends Component {
 
     constructor(props) {
         super(props)
-        this.isOpen = props.isOpen
         this.store = props.store
         this.route = props.route
         this.updateProperty = this.updateProperty.bind(this)
@@ -35,7 +34,7 @@ export default class RouteDialog extends Component {
     }
 
     submit() {
-        if (this.route.isNew) {
+        if (this.props.isNew) {
             this.store.create(this.route)
         } else {
             this.store.update(this.route)
@@ -58,7 +57,7 @@ export default class RouteDialog extends Component {
 
         return (
             <Dialog
-                title={(this.route.isNew ? 'Create a new' : 'Update a') + ' Route'}
+                title={(this.props.isNew ? 'Create a new' : 'Update a') + ' Route'}
                 actions={actions}
                 modal={true}
                 open={this.props.isOpen}
@@ -67,7 +66,7 @@ export default class RouteDialog extends Component {
                     name="name"
                     hintText="Name"
                     value={this.route.name}
-                    disabled={!this.route.isNew}
+                    disabled={!this.props.isNew}
                     onChange={this.updateProperty}
                 />
                 <br />

@@ -10,6 +10,7 @@ import SvgIconKeyboardArrowUp from 'material-ui/svg-icons/hardware/keyboard-arro
 import SvgIconKeyboardArrowDown from 'material-ui/svg-icons/hardware/keyboard-arrow-down'
 
 import RouteDialog from './RouteDialog'
+import RouteModel from '../../models/RouteModel'
 import RouteStore from '../../stores/RouteStore'
 
 const styles = {
@@ -26,22 +27,17 @@ export default class RouterPage extends Component {
         store: new RouteStore()
     }
 
-    @observable isOpen = false
-    @observable route = {
-        isNew: true,
-        name: '',
-        pattern: '',
-        provider: '',
-        from: '',
-        is_active: false
-    }
     @observable selected = []
+    @observable isOpen = false
+    @observable isNew = false
+
+    route = new RouteModel()
 
     constructor(props) {
         super(props)
         this.openRouteDialog = this.openRouteDialog.bind(this)
         this.closeRouteDialog = this.closeRouteDialog.bind(this)
-        this.setRoute = this.setRoute.bind(this)
+        this.setIsNew = this.setIsNew.bind(this)
         this.createRoute = this.createRoute.bind(this)
         this.updateRoute = this.updateRoute.bind(this)
         this.deleteRoute = this.deleteRoute.bind(this)
@@ -61,32 +57,20 @@ export default class RouterPage extends Component {
         this.isOpen = false
     }
 
-    @action setRoute(route) {
-        if (route) {
-            this.route.isNew = false
-            this.route.name = route.name
-            this.route.pattern = route.pattern
-            this.route.provider = route.provider
-            this.route.from = route.from
-            this.route.is_active = route.is_active
-        } else {
-            this.route.isNew = true
-            this.route.name = ''
-            this.route.pattern = ''
-            this.route.provider = ''
-            this.route.from = ''
-            this.route.is_active = false
-        }
+    @action setIsNew(isNew) {
+        this.isNew = isNew
     }
 
     createRoute() {
-        this.setRoute(null)
+        this.setIsNew(true)
+        this.route.fromJS({name: '', pattern: '', provider: '', from: '', is_active: false})
         this.openRouteDialog()
     }
 
     updateRoute(e) {
         e.preventDefault()
-        this.setRoute(this.props.store.getByName(e.target.name))
+        this.setIsNew(false)
+        this.route.fromJS(this.props.store.getByName(e.target.name))
         this.openRouteDialog()
     }
 
@@ -202,6 +186,7 @@ export default class RouterPage extends Component {
 
                 <RouteDialog
                     isOpen={this.isOpen}
+                    isNew={this.isNew}
                     store={this.props.store}
                     route={this.route}
                     closeRouteDialog={this.closeRouteDialog}
