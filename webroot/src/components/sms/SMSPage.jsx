@@ -121,8 +121,6 @@ export default class SMSPage extends Component {
     };
 
     render() {
-        console.log('render');
-
         return (
             <div>
                 <h2>SMS Delivery Logs</h2>
