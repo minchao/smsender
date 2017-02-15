@@ -27,26 +27,18 @@ export default class MessageStore {
                 return response.json();
             })
             .then(json => {
-                this.clear();
-                json.data.map(message => this.add(message));
+                const rows = [];
+                json.data.map(message => rows.push(MessageModel.fromJS(this, message)));
+                this.messages = rows;
+                this.since = null;
+                this.until = null;
                 if (json.paging.hasOwnProperty('previous')) {
-                    this.since = getParameterByName(json.paging.previous, 'since');
+                    this.since = json.paging.previous;
                 }
                 if (json.paging.hasOwnProperty('next')) {
-                    this.until = getParameterByName(json.paging.next, 'until');
+                    this.until = json.paging.next;
                 }
             })
-    }
-
-    @action search(to = '', status = '', since = null, until = null, limit = 10) {
-        let query = '';
-        query += andWhere(query, 'to', to.replace('+', '%2B'));
-        query += andWhere(query, 'status', status);
-        query += andWhere(query, 'since', since);
-        query += andWhere(query, 'until', until);
-        query += andWhere(query, 'limit', limit);
-
-        this.sync('?' + query);
     }
 
     @action add(message) {
@@ -58,15 +50,21 @@ export default class MessageStore {
         this.since = null;
         this.until = null;
     }
-}
 
-function getParameterByName(url, name) {
-    name = name.replace(/[\[\]]/g, '\$&');
-    let regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
-        results = regex.exec(url);
-    if (!results) return null;
-    if (!results[2]) return '';
-    return decodeURIComponent(results[2].replace(/\+/g, ' '));
+    search(to, status, since, until, limit) {
+        this.sync(this.buildQueryString(to, status, since, until, limit));
+    }
+
+    buildQueryString(to = '', status = '', since = '', until = '', limit = 20) {
+        let query = '';
+        query += andWhere(query, 'to', to.replace('+', '%2B'));
+        query += andWhere(query, 'status', status);
+        query += andWhere(query, 'since', since);
+        query += andWhere(query, 'until', until);
+        query += andWhere(query, 'limit', limit);
+
+        return '?' + query;
+    }
 }
 
 function andWhere(query, where, value) {
