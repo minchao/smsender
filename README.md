@@ -6,11 +6,12 @@
 A SMS server written in Go (Golang).
 
 * Support various SMS providers.
-* Uses routes to determine which provider to send SMS.
+* Support routing, uses routes to determine which provider to send SMS.
+* Support to receive delivery receipts from provider.
 * SMS delivery worker.
 * SMS delivery records.
-* SMS delivery receipt.
 * RESTful API.
+* Admin Console UI.
 
 ## Requirements
 
@@ -91,14 +92,18 @@ Support providers
 
 Need another provider? Just implement the [Provider](https://github.com/minchao/smsender/blob/master/smsender/model/provider.go) interface.
 
-## Matching Routes
+## Routing
 
-Route can be define a phone number pattern to be matched with provider.
+Route can be define a regexp phone number pattern to be matched with provider.
 
 ## RESTful API
 
 The API document is written in YAML and found in the [smsender-openapi.yaml](https://github.com/minchao/smsender/blob/master/smsender-openapi.yaml).
 You can use the [Swagger Editor](http://editor.swagger.io/) to open the document.
+
+## Admin Console UI
+
+The Console UI allows you to manage routes and monitor messages.
 
 ## License
 
