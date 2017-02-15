@@ -1,23 +1,22 @@
-import React, {Component} from 'react';
-import {inject, observer} from 'mobx-react';
-import {action, observable} from 'mobx';
-import {Toolbar, ToolbarGroup, ToolbarSeparator, ToolbarTitle} from 'material-ui/Toolbar';
-import {Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn} from 'material-ui/Table';
-import RaisedButton from 'material-ui/RaisedButton';
-import IconButton from 'material-ui/IconButton';
-import {blue500} from 'material-ui/styles/colors';
-import SvgIconKeyboardArrowUp from 'material-ui/svg-icons/hardware/keyboard-arrow-up';
-import SvgIconKeyboardArrowDown from 'material-ui/svg-icons/hardware/keyboard-arrow-down';
+import React, {Component} from 'react'
+import {inject, observer} from 'mobx-react'
+import {action, observable} from 'mobx'
+import {Toolbar, ToolbarGroup, ToolbarSeparator, ToolbarTitle} from 'material-ui/Toolbar'
+import {Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn} from 'material-ui/Table'
+import RaisedButton from 'material-ui/RaisedButton'
+import IconButton from 'material-ui/IconButton'
+import {blue500} from 'material-ui/styles/colors'
+import SvgIconKeyboardArrowUp from 'material-ui/svg-icons/hardware/keyboard-arrow-up'
+import SvgIconKeyboardArrowDown from 'material-ui/svg-icons/hardware/keyboard-arrow-down'
 
-import Title from './../Title';
-import RouteDialog from './RouteDialog';
-import RouteStore from '../../stores/RouteStore';
+import RouteDialog from './RouteDialog'
+import RouteStore from '../../stores/RouteStore'
 
 const styles = {
     reorder: {
         textAlign: "right"
     }
-};
+}
 
 @inject('routing')
 @observer
@@ -25,28 +24,28 @@ export default class RouterPage extends Component {
 
     static defaultProps = {
         store: new RouteStore()
-    };
+    }
 
-    @observable isOpen = false;
+    @observable isOpen = false
     @observable route = {
         isNew: true,
         name: '',
         pattern: '',
         provider: '',
         is_active: false
-    };
-    @observable selected = [];
+    }
+    @observable selected = []
 
     constructor(props) {
-        super(props);
-        this.openRouteDialog = this.openRouteDialog.bind(this);
-        this.closeRouteDialog = this.closeRouteDialog.bind(this);
-        this.setRoute = this.setRoute.bind(this);
-        this.createRoute = this.createRoute.bind(this);
-        this.updateRoute = this.updateRoute.bind(this);
-        this.deleteRoute = this.deleteRoute.bind(this);
-        this.reorderUp = this.reorderUp.bind(this);
-        this.reorderDown = this.reorderDown.bind(this);
+        super(props)
+        this.openRouteDialog = this.openRouteDialog.bind(this)
+        this.closeRouteDialog = this.closeRouteDialog.bind(this)
+        this.setRoute = this.setRoute.bind(this)
+        this.createRoute = this.createRoute.bind(this)
+        this.updateRoute = this.updateRoute.bind(this)
+        this.deleteRoute = this.deleteRoute.bind(this)
+        this.reorderUp = this.reorderUp.bind(this)
+        this.reorderDown = this.reorderDown.bind(this)
     }
 
     componentDidMount() {
@@ -54,59 +53,59 @@ export default class RouterPage extends Component {
     }
 
     @action openRouteDialog() {
-        this.isOpen = true;
+        this.isOpen = true
     }
 
     @action closeRouteDialog() {
-        this.isOpen = false;
+        this.isOpen = false
     }
 
     @action setRoute(route) {
         if (route) {
-            this.route.isNew = false;
-            this.route.name = route.name;
-            this.route.pattern = route.pattern;
-            this.route.provider = route.provider;
-            this.route.is_active = route.is_active;
+            this.route.isNew = false
+            this.route.name = route.name
+            this.route.pattern = route.pattern
+            this.route.provider = route.provider
+            this.route.is_active = route.is_active
         } else {
-            this.route.isNew = true;
-            this.route.name = '';
-            this.route.pattern = '';
-            this.route.provider = '';
-            this.route.is_active = false;
+            this.route.isNew = true
+            this.route.name = ''
+            this.route.pattern = ''
+            this.route.provider = ''
+            this.route.is_active = false
         }
     }
 
     createRoute() {
-        this.setRoute(null);
-        this.openRouteDialog();
+        this.setRoute(null)
+        this.openRouteDialog()
     }
 
     updateRoute(e) {
-        e.preventDefault();
-        this.setRoute(this.props.store.getByName(e.target.name));
-        this.openRouteDialog();
+        e.preventDefault()
+        this.setRoute(this.props.store.getByName(e.target.name))
+        this.openRouteDialog()
     }
 
     deleteRoute() {
         if (this.selected[0] != undefined) {
-            const route = this.props.store.routes[this.selected[0]];
+            const route = this.props.store.routes[this.selected[0]]
             if (route) {
-                this.props.store.del(route.name);
+                this.props.store.del(route.name)
             }
         }
     }
 
     reorderUp(index) {
-        this.props.store.reorder(index, 1, index-1);
+        this.props.store.reorder(index, 1, index-1)
     }
 
     reorderDown(index) {
-        this.props.store.reorder(index, 1, index+2);
+        this.props.store.reorder(index, 1, index+2)
     }
 
     render() {
-        const hasRoutes = this.props.store.routes.length != 0;
+        const hasRoutes = this.props.store.routes.length != 0
 
         return (
             <div>
@@ -205,6 +204,6 @@ export default class RouterPage extends Component {
                     closeRouteDialog={this.closeRouteDialog}
                 />
             </div>
-        );
+        )
     }
 }

@@ -1,6 +1,6 @@
-import React, {Component} from 'react';
-import {inject, observer} from 'mobx-react';
-import RaisedButton from 'material-ui/RaisedButton';
+import React, {Component} from 'react'
+import {inject, observer} from 'mobx-react'
+import RaisedButton from 'material-ui/RaisedButton'
 
 const styles = {
     home: {
@@ -26,14 +26,14 @@ const styles = {
         color: "#fff",
         WebkitFontSmoothing: "antialiased"
     }
-};
+}
 
 @inject('routing')
 @observer
-class Home extends Component {
+export default class Home extends Component {
 
     render() {
-        const { location, push, goBack } = this.props.routing;
+        const { location, push, goBack } = this.props.routing
 
         return (
             <div style={styles.home}>
@@ -48,5 +48,3 @@ class Home extends Component {
         )
     }
 }
-
-export default Home;

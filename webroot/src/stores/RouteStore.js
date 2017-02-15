@@ -1,34 +1,34 @@
-import {action, observable, computed, reaction} from 'mobx';
+import {action, observable, computed, reaction} from 'mobx'
 
-import {getAPI} from '../utils';
-import RouteModel from '../models/RouteModel';
+import {getAPI} from '../utils'
+import RouteModel from '../models/RouteModel'
 
 export default class RouteStore {
-    @observable routes = [];
-    @observable providers = [];
+    @observable routes = []
+    @observable providers = []
 
     @action sync() {
         fetch(getAPI('/api/routes'), {method: 'get'})
             .then(response => {
-                if (!response.ok) throw new Error(response.statusText);
-                return response.json();
+                if (!response.ok) throw new Error(response.statusText)
+                return response.json()
             })
             .then(json => {
-                this.initData(json);
+                this.initData(json)
             })
     }
 
     @action add(route) {
-        this.routes.push(RouteModel.fromJS(this, route));
+        this.routes.push(RouteModel.fromJS(this, route))
     }
 
     @action getByName(name) {
         for (let i = 0; i < this.routes.length; i++) {
             if (this.routes[i].name == name) {
-                return this.routes[i];
+                return this.routes[i]
             }
         }
-        return null;
+        return null
     }
 
     @action create(route) {
@@ -38,8 +38,8 @@ export default class RouteStore {
                 headers: new Headers({'Content-Type': 'application/json'})
             })
             .then(response => {
-                if (!response.ok) throw new Error(response.statusText);
-                this.sync();
+                if (!response.ok) throw new Error(response.statusText)
+                this.sync()
             })
     }
 
@@ -50,8 +50,8 @@ export default class RouteStore {
                 headers: new Headers({'Content-Type': 'application/json'})
             })
             .then(response => {
-                if (!response.ok) throw new Error(response.statusText);
-                this.sync();
+                if (!response.ok) throw new Error(response.statusText)
+                this.sync()
             })
     }
 
@@ -66,40 +66,40 @@ export default class RouteStore {
                 headers: new Headers({'Content-Type': 'application/json'})
             })
             .then(response => {
-                if (!response.ok) throw new Error(response.statusText);
-                return response.json();
+                if (!response.ok) throw new Error(response.statusText)
+                return response.json()
             })
             .then(json => {
-                this.initData(json);
+                this.initData(json)
             })
     }
 
     @action del(name) {
         fetch(getAPI('/api/routes/' + name), {method: 'delete'})
             .then(response => {
-                if (!response.ok) throw new Error(response.statusText);
-                this.sync();
+                if (!response.ok) throw new Error(response.statusText)
+                this.sync()
             })
     }
 
     @action clear() {
-        this.routes = [];
-        this.providers = [];
+        this.routes = []
+        this.providers = []
     }
 
     @action initData(json) {
-        this.clear();
-        json.data.map(route => this.add(route));
-        json.providers.map(provider => this.providers.push(provider.name));
+        this.clear()
+        json.data.map(route => this.add(route))
+        json.providers.map(provider => this.providers.push(provider.name))
     }
 
     toJS() {
-        return this.routes.map(route => route.toJS());
+        return this.routes.map(route => route.toJS())
     }
 
     static fromJS(array) {
-        const store = new RouteStore();
-        store.routes = array.map(route => store.add(route));
-        return store;
+        const store = new RouteStore()
+        store.routes = array.map(route => store.add(route))
+        return store
     }
 }

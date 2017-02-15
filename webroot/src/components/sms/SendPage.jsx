@@ -1,55 +1,54 @@
-import React, {Component} from 'react';
-import {inject, observer} from 'mobx-react';
-import {action, observable} from 'mobx';
-import Paper from 'material-ui/Paper';
-import TextField from 'material-ui/TextField';
-import RaisedButton from 'material-ui/RaisedButton';
-import SyntaxHighlighter from 'react-syntax-highlighter';
-import {agate} from 'react-syntax-highlighter/dist/styles';
+import React, {Component} from 'react'
+import {inject, observer} from 'mobx-react'
+import {action, observable} from 'mobx'
+import Paper from 'material-ui/Paper'
+import TextField from 'material-ui/TextField'
+import RaisedButton from 'material-ui/RaisedButton'
+import SyntaxHighlighter from 'react-syntax-highlighter'
+import {agate} from 'react-syntax-highlighter/dist/styles'
 
-import {getAPI} from '../../utils';
-import Title from './../Title';
-import MessageStore from '../../stores/MessageStore';
+import {getAPI} from '../../utils'
+import MessageStore from '../../stores/MessageStore'
 
 @observer
 export default class SendPage extends Component {
 
     static defaultProps = {
         store: new MessageStore()
-    };
+    }
 
     @observable message = {
         to: '',
         from: '',
         body: ''
-    };
-    @observable response = 'null';
+    }
+    @observable response = 'null'
 
     constructor(props) {
-        super(props);
-        this.updateProperty = this.updateProperty.bind(this);
-        this.post = this.post.bind(this);
-        this.setResponse = this.setResponse.bind(this);
-        this.reset = this.reset.bind(this);
+        super(props)
+        this.updateProperty = this.updateProperty.bind(this)
+        this.post = this.post.bind(this)
+        this.setResponse = this.setResponse.bind(this)
+        this.reset = this.reset.bind(this)
     }
 
     componentDidMount() {
-        this.reset();
+        this.reset()
     }
 
     @action updateProperty(event, value) {
-        this.message[event.target.name] = value;
+        this.message[event.target.name] = value
     }
 
     @action setResponse(text) {
-        this.response = text;
+        this.response = text
     }
 
     @action reset() {
-        this.message.to = '';
-        this.message.from = '';
-        this.message.body = '';
-        this.response = 'null';
+        this.message.to = ''
+        this.message.from = ''
+        this.message.body = ''
+        this.response = 'null'
     }
 
     post() {
@@ -63,11 +62,11 @@ export default class SendPage extends Component {
                 headers: new Headers({'Content-Type': 'application/json'})
             })
             .then(response => {
-                return response.json();
+                return response.json()
             })
             .then(json => {
-                this.setResponse(JSON.stringify(json, null, 4));
-            });
+                this.setResponse(JSON.stringify(json, null, 4))
+            })
     }
 
     render() {
@@ -124,6 +123,6 @@ export default class SendPage extends Component {
                     >{this.response}</SyntaxHighlighter>
                 </div>
             </div>
-        );
+        )
     }
 }

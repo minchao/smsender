@@ -1,20 +1,20 @@
-import {observable} from 'mobx';
+import {observable} from 'mobx'
 
 export default class MessageModel {
-    store;
-    id;
-    to;
-    route;
-    status;
-    created_time;
+    store
+    id
+    to
+    route
+    status
+    created_time
 
     constructor(store, id, to, route, status, created_time) {
-        this.store = store;
-        this.id = id;
-        this.to = to;
-        this.route = route;
-        this.status = status;
-        this.created_time = created_time;
+        this.store = store
+        this.id = id
+        this.to = to
+        this.route = route
+        this.status = status
+        this.created_time = created_time
     }
 
     toJS() {
@@ -28,6 +28,6 @@ export default class MessageModel {
     }
 
     static fromJS(store, object) {
-        return new MessageModel(store, object.id, object.to, object.route, object.status, object.created_time);
+        return new MessageModel(store, object.id, object.to, object.route, object.status, object.created_time)
     }
 }

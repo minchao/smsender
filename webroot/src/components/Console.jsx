@@ -1,32 +1,32 @@
-import React, {Component} from 'react';
-import {inject, observer} from 'mobx-react';
-import AppBar from 'material-ui/AppBar';
-import Drawer from 'material-ui/Drawer';
-import FlatButton from 'material-ui/FlatButton';
-import Menu from 'material-ui/Menu';
-import MenuItem from 'material-ui/MenuItem';
-import {minBlack} from 'material-ui/styles/colors';
-import SvgMessage from 'material-ui/svg-icons/communication/message';
-import SvgList from 'material-ui/svg-icons/action/list';
+import React, {Component} from 'react'
+import {inject, observer} from 'mobx-react'
+import AppBar from 'material-ui/AppBar'
+import Drawer from 'material-ui/Drawer'
+import FlatButton from 'material-ui/FlatButton'
+import Menu from 'material-ui/Menu'
+import MenuItem from 'material-ui/MenuItem'
+import {minBlack} from 'material-ui/styles/colors'
+import SvgMessage from 'material-ui/svg-icons/communication/message'
+import SvgList from 'material-ui/svg-icons/action/list'
 
 @inject('routing')
 @observer
-class Routes extends Component {
+export default class Routes extends Component {
 
     constructor(props) {
-        super(props);
+        super(props)
         this.menuItemStyle = this.menuItemStyle.bind(this)
     }
 
     menuItemStyle(targetPath) {
         if (this.props.routing.location.pathname == targetPath) {
-            return {backgroundColor: minBlack};
+            return {backgroundColor: minBlack}
         }
-        return null;
+        return null
     }
 
     render() {
-        const {push} = this.props.routing;
+        const {push} = this.props.routing
 
         return (
             <div>
@@ -66,8 +66,6 @@ class Routes extends Component {
                     </Menu>
                 </Drawer>
             </div>
-        );
+        )
     }
 }
-
-export default Routes;

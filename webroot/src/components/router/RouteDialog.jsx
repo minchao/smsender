@@ -1,46 +1,46 @@
-import React, {Component} from 'react';
-import {inject, observer} from "mobx-react";
-import {action, observable} from 'mobx';
-import Dialog from 'material-ui/Dialog';
-import TextField from 'material-ui/TextField';
-import SelectField from 'material-ui/SelectField';
-import MenuItem from 'material-ui/MenuItem';
-import Toggle from 'material-ui/Toggle';
-import FlatButton from 'material-ui/FlatButton';
+import React, {Component} from 'react'
+import {inject, observer} from "mobx-react"
+import {action, observable} from 'mobx'
+import Dialog from 'material-ui/Dialog'
+import TextField from 'material-ui/TextField'
+import SelectField from 'material-ui/SelectField'
+import MenuItem from 'material-ui/MenuItem'
+import Toggle from 'material-ui/Toggle'
+import FlatButton from 'material-ui/FlatButton'
 
 @observer
 export default class RouteDialog extends Component {
 
     constructor(props) {
-        super(props);
-        this.isOpen = props.isOpen;
-        this.store = props.store;
-        this.route = props.route;
-        this.updateProperty = this.updateProperty.bind(this);
-        this.updateProvider = this.updateProvider.bind(this);
-        this.cancel = this.cancel.bind(this);
-        this.submit = this.submit.bind(this);
+        super(props)
+        this.isOpen = props.isOpen
+        this.store = props.store
+        this.route = props.route
+        this.updateProperty = this.updateProperty.bind(this)
+        this.updateProvider = this.updateProvider.bind(this)
+        this.cancel = this.cancel.bind(this)
+        this.submit = this.submit.bind(this)
     }
 
     updateProperty(event, value) {
-        this.route[event.target.name] = value;
+        this.route[event.target.name] = value
     }
 
     updateProvider(event, index, value) {
-        this.route.provider = value;
+        this.route.provider = value
     }
 
     cancel() {
-        this.props.closeRouteDialog();
+        this.props.closeRouteDialog()
     }
 
     submit() {
         if (this.route.isNew) {
-            this.store.create(this.route);
+            this.store.create(this.route)
         } else {
-            this.store.update(this.route);
+            this.store.update(this.route)
         }
-        this.props.closeRouteDialog();
+        this.props.closeRouteDialog()
     }
 
     render() {
@@ -54,7 +54,7 @@ export default class RouteDialog extends Component {
                 primary={true}
                 onTouchTap={this.submit}
             />,
-        ];
+        ]
 
         return (
             <Dialog
@@ -107,6 +107,6 @@ export default class RouteDialog extends Component {
                     onToggle={this.updateProperty}
                 />
             </Dialog>
-        );
+        )
     }
 }

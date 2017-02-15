@@ -1,12 +1,12 @@
-var path = require('path');
-var webpack = require('webpack');
+var path = require('path')
+var webpack = require('webpack')
 
-const NPM_TARGET = process.env.npm_lifecycle_event;
+const NPM_TARGET = process.env.npm_lifecycle_event
 
-var DEV = false;
+var DEV = false
 
 if (NPM_TARGET === 'dev') {
-    DEV = true;
+    DEV = true
 }
 
 var config = {
@@ -30,7 +30,7 @@ var config = {
             include: path.join(__dirname, 'src')
         }]
     }
-};
+}
 
 // Development mode configuration
 if (DEV) {
@@ -43,4 +43,4 @@ if (DEV) {
     config.plugins.push(new webpack.HotModuleReplacementPlugin())
 }
 
-module.exports = config;
+module.exports = config
