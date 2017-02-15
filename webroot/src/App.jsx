@@ -33,6 +33,7 @@ export default class App extends Component {
                             <Route path="console" component={Console}>
                                 <Route path="sms" component={SMSPage} />
                                 <Route path="sms/send" component={SendPage} />
+                                <Route path="sms/:messageId/details" component={DetailsPage} />
                                 <Route path="router" component={RouterPage} />
                             </Route>
                         </Router>

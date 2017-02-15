@@ -198,7 +198,15 @@ export default class SMSPage extends Component {
                             :
                             this.props.store.messages.map((message, i) => (
                                 <TableRow key={i}>
-                                    <TableRowColumn>{message.id}</TableRowColumn>
+                                    <TableRowColumn>
+                                        <a
+                                            href="#"
+                                            onClick={(e) => {
+                                                e.preventDefault()
+                                                this.push(`/console/sms/${message.id}/details`)
+                                            }}
+                                        >{message.id}</a>
+                                    </TableRowColumn>
                                     <TableRowColumn>{message.to}</TableRowColumn>
                                     <TableRowColumn>{message.route}</TableRowColumn>
                                     <TableRowColumn>{message.status}</TableRowColumn>
