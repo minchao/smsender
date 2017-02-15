@@ -126,7 +126,7 @@ export default class SMSPage extends Component {
 
         return (
             <div>
-                <Title title="SMS Delivery Logs" />
+                <h2>SMS Delivery Logs</h2>
 
                 <p>Search by message ID</p>
 

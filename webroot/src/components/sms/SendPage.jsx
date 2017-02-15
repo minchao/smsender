@@ -73,9 +73,9 @@ export default class SendPage extends Component {
     render() {
         return (
             <div>
-                <Title title="Send an SMS" />
+                <h2>Send an SMS</h2>
 
-                <p style={{fontSize: 15}}>Request:</p>
+                <p>Request</p>
 
                 <Paper style={{padding: 30}}>
                     <TextField
@@ -114,7 +114,7 @@ export default class SendPage extends Component {
                     </div>
                 </Paper>
 
-                <p style={{fontSize: 15}}>Response:</p>
+                <p>Response</p>
 
                 <div>
                     <SyntaxHighlighter

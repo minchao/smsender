@@ -110,7 +110,7 @@ export default class RouterPage extends Component {
 
         return (
             <div>
-                <Title title="Router" />
+                <h2>Router</h2>
 
                 <p>Manage routes</p>
 
