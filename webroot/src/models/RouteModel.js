@@ -4,12 +4,14 @@ export default class RouteModel {
     @observable name
     @observable pattern
     @observable provider
+    @observable from
     @observable is_active
 
-    constructor(name, pattern, provider, is_active) {
+    constructor(name, pattern, provider, from, is_active) {
         this.name = name
         this.pattern = pattern
         this.provider = provider
+        this.from = from
         this.is_active = is_active
     }
 
@@ -18,6 +20,7 @@ export default class RouteModel {
             name: this.name,
             pattern: this.pattern,
             provider: this.provider,
+            from: this.from,
             is_active: this.is_active
         }
     }
@@ -26,6 +29,7 @@ export default class RouteModel {
         this.name = object.name
         this.pattern = object.pattern
         this.provider = object.provider
+        this.from = object.from
         this.is_active = object.is_active
 
         return this

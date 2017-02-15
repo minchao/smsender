@@ -32,6 +32,7 @@ export default class RouterPage extends Component {
         name: '',
         pattern: '',
         provider: '',
+        from: '',
         is_active: false
     }
     @observable selected = []
@@ -66,12 +67,14 @@ export default class RouterPage extends Component {
             this.route.name = route.name
             this.route.pattern = route.pattern
             this.route.provider = route.provider
+            this.route.from = route.from
             this.route.is_active = route.is_active
         } else {
             this.route.isNew = true
             this.route.name = ''
             this.route.pattern = ''
             this.route.provider = ''
+            this.route.from = ''
             this.route.is_active = false
         }
     }
