@@ -34,9 +34,9 @@ class Routes extends Component {
                         iconElementRight={<FlatButton label="Home" onTouchTap={() => push("/")} />}
                 />
 
-                <div style={{paddingLeft: 240, paddingRight: 40}}>
+                <main style={{paddingLeft: 240, paddingRight: 40}}>
                     {this.props.children}
-                </div>
+                </main>
 
                 <Drawer
                     docked={true}
