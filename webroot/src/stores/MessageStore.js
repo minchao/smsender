@@ -28,7 +28,7 @@ export default class MessageStore {
             })
             .then(json => {
                 const rows = []
-                json.data.map(message => rows.push(MessageModel.fromJS(this, message)))
+                json.data.map(message => rows.push(MessageModel.new(message)))
                 this.messages = rows
                 this.since = null
                 this.until = null
@@ -42,7 +42,7 @@ export default class MessageStore {
     }
 
     @action add(message) {
-        this.messages.push(MessageModel.fromJS(this, message))
+        this.messages.push(MessageModel.new(message))
     }
 
     @action clear() {

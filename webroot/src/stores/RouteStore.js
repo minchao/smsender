@@ -19,7 +19,7 @@ export default class RouteStore {
     }
 
     @action add(route) {
-        this.routes.push(RouteModel.fromJS(this, route))
+        this.routes.push(RouteModel.new(route))
     }
 
     @action getByName(name) {
@@ -95,11 +95,5 @@ export default class RouteStore {
 
     toJS() {
         return this.routes.map(route => route.toJS())
-    }
-
-    static fromJS(array) {
-        const store = new RouteStore()
-        store.routes = array.map(route => store.add(route))
-        return store
     }
 }

@@ -1,19 +1,26 @@
 import {observable} from 'mobx'
 
 export default class MessageModel {
-    store
-    id
-    to
-    route
-    status
-    created_time
+    json
+    @observable id
+    @observable to
+    @observable from
+    @observable body
+    @observable route
+    @observable provider
+    @observable status
+    @observable created_time
 
-    constructor(store, id, to, route, status, created_time) {
-        this.store = store
+    constructor(id, to, from, body, route, provider, status, original_message_id, created_time, json) {
+        this.json = json
         this.id = id
         this.to = to
+        this.from = from
+        this.body = body
         this.route = route
+        this.provider = provider
         this.status = status
+        this.original_message_id = original_message_id
         this.created_time = created_time
     }
 
@@ -21,13 +28,33 @@ export default class MessageModel {
         return {
             id: this.id,
             to: this.to,
+            from: this.from,
+            body: this.body,
             route: this.route,
+            provider: this.provider,
             status: this.status,
-            created_time: this.created_time
+            original_message_id: this.original_message_id,
+            created_time: this.created_time,
+            json: this.json
         }
     }
 
-    static fromJS(store, object) {
-        return new MessageModel(store, object.id, object.to, object.route, object.status, object.created_time)
+    fromJS(object) {
+        this.json = object
+        this.id = object.id
+        this.to = object.to
+        this.from = object.from
+        this.body = object.body
+        this.route = object.route
+        this.provider = object.provider
+        this.status = object.status
+        this.original_message_id = object.original_message_id
+        this.created_time = object.created_time
+
+        return this
+    }
+
+    static new(object) {
+        return (new MessageModel()).fromJS(object)
     }
 }

@@ -1,14 +1,12 @@
 import {observable} from 'mobx'
 
 export default class RouteModel {
-    store
     @observable name
     @observable pattern
     @observable provider
     @observable is_active
 
-    constructor(store, name, pattern, provider, is_active) {
-        this.store = store
+    constructor(name, pattern, provider, is_active) {
         this.name = name
         this.pattern = pattern
         this.provider = provider
@@ -24,7 +22,16 @@ export default class RouteModel {
         }
     }
 
-    static fromJS(store, object) {
-        return new RouteModel(store, object.name, object.pattern, object.provider, object.is_active)
+    fromJS(object) {
+        this.name = object.name
+        this.pattern = object.pattern
+        this.provider = object.provider
+        this.is_active = object.is_active
+
+        return this
+    }
+
+    static new(object) {
+        return (new RouteModel().fromJS(object))
     }
 }
