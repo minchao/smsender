@@ -30,7 +30,7 @@ func (s *Server) Routes(w http.ResponseWriter, r *http.Request) {
 
 type Route struct {
 	Name     string `json:"name" validate:"required"`
-	Pattern  string `json:"pattern" validate:"required"`
+	Pattern  string `json:"pattern" validate:"required,regexp"`
 	Provider string `json:"provider" validate:"required"`
 	From     string `json:"from"`
 	IsActive bool   `json:"is_active"`
@@ -38,7 +38,9 @@ type Route struct {
 
 func (s *Server) RoutePost(w http.ResponseWriter, r *http.Request) {
 	var route Route
-	err := utils.GetInput(r.Body, &route, utils.NewValidate())
+	validate := utils.NewValidate()
+	validate.RegisterValidation("regexp", utils.IsRegexp)
+	err := utils.GetInput(r.Body, &route, validate)
 	if err != nil {
 		render(w, http.StatusBadRequest, formErrorMessage(err))
 		return
@@ -77,7 +79,9 @@ func (s *Server) RouteReorder(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) RoutePut(w http.ResponseWriter, r *http.Request) {
 	var route Route
-	err := utils.GetInput(r.Body, &route, utils.NewValidate())
+	validate := utils.NewValidate()
+	validate.RegisterValidation("regexp", utils.IsRegexp)
+	err := utils.GetInput(r.Body, &route, validate)
 	if err != nil {
 		render(w, http.StatusBadRequest, formErrorMessage(err))
 		return

@@ -58,3 +58,11 @@ func IsTimeUnixMicro(fl validator.FieldLevel) bool {
 	}
 	return false
 }
+
+func IsRegexp(fl validator.FieldLevel) bool {
+	_, err := regexp.Compile(fl.Field().String())
+	if err != nil {
+		return false
+	}
+	return true
+}
