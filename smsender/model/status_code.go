@@ -41,11 +41,16 @@ func (c *StatusCode) UnmarshalJSON(data []byte) error {
 	if c == nil {
 		return errors.New("StatusCode: UnmarshalJSON on nil pointer")
 	}
-	code, err := statusStringToCode(string(data))
+	var code string
+	err := json.Unmarshal(data, &code)
 	if err != nil {
 		return err
 	}
-	*c = code
+	statusCode, err := statusStringToCode(code)
+	if err != nil {
+		return err
+	}
+	*c = statusCode
 	return nil
 }
 
