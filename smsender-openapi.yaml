@@ -72,10 +72,10 @@ paths:
             type: object
             properties:
               data:
-                title: ArrayOfMessageRecord
+                title: ArrayOfMessage
                 type: array
                 items:
-                  $ref: '#/definitions/MessageRecord'
+                  $ref: '#/definitions/Message'
         400:
           description: Bad request
           schema:
@@ -117,10 +117,10 @@ paths:
             type: object
             properties:
               data:
-                title: ArrayOfMessageResult
+                title: ArrayOfMessage
                 type: array
                 items:
-                  $ref: '#/definitions/MessageResult'
+                  $ref: '#/definitions/Message'
         400:
           description: Bad request
           schema:
@@ -147,10 +147,10 @@ paths:
             type: object
             properties:
               data:
-                title: ArrayOfMessageRecord
+                title: ArrayOfMessage
                 type: array
                 items:
-                  $ref: '#/definitions/MessageRecord'
+                  $ref: '#/definitions/Message'
         400:
           description: Bad request
           schema:
@@ -284,16 +284,13 @@ paths:
             $ref: '#/definitions/Error'
 definitions:
   Message:
-    type: object
     properties:
       id:
         type: string
         description: Message Id
       to:
-        type: array
-        items:
-          type: string
-          description: The destination phone number (E.164 format)
+        type: string
+        description: The destination phone number (E.164 format)
       from:
         type: string
         description: Sender Id (phone number or alphanumeric)
@@ -303,37 +300,24 @@ definitions:
       async:
         type: boolean
         description: Enable a background sending mode that is optimized for bulk sending
-  MessageResult:
-    allOf:
-      - $ref: '#/definitions/Message'
-      - type: object
-    properties:
-      created_time:
-        type: string
-        description: Message created time
-      sent_time:
-        type: string
-        description: Message sent time
       route:
         type: string
       provider:
         type: string
+      provider_message_id:
+        description: The upstream carrier's message id
+        type: string
+      steps:
+        type: object
       status:
         type: string
         description: The status of the message
-      original_message_id:
+      created_time:
         type: string
-      original_response:
-        type: object
-  MessageRecord:
-    allOf:
-      - $ref: '#/definitions/MessageResult'
-      - type: object
-    properties:
-      original_receipt:
-        type: object
-      receipt_time:
+        description: Message created time
+      updated_time:
         type: string
+        description: Message updated time
   Route:
     type: object
     properties:

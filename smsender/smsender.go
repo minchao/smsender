@@ -19,8 +19,8 @@ var senderSingleton Sender
 
 type Sender struct {
 	store     store.Store
-	in        chan *model.Message
-	out       chan *model.Message
+	in        chan *model.MessageJob
+	out       chan *model.MessageJob
 	receipts  chan model.MessageReceipt
 	workerNum int
 	init      sync.Once
@@ -34,8 +34,8 @@ type Sender struct {
 func SMSender() *Sender {
 	senderSingleton.init.Do(func() {
 		senderSingleton.store = store.NewSqlStore()
-		senderSingleton.in = make(chan *model.Message, 1000)
-		senderSingleton.out = make(chan *model.Message, 1000)
+		senderSingleton.in = make(chan *model.MessageJob, 1000)
+		senderSingleton.out = make(chan *model.MessageJob, 1000)
 		senderSingleton.receipts = make(chan model.MessageReceipt, 1000)
 		senderSingleton.workerNum = config.GetInt("worker.num")
 		senderSingleton.Router = NewRouter(senderSingleton.store, not_found.NewProvider(model.NotFoundProvider))
@@ -49,23 +49,23 @@ func SMSender() *Sender {
 	return &senderSingleton
 }
 
-func (s *Sender) SearchMessages(params map[string]interface{}) ([]*model.MessageRecord, error) {
+func (s *Sender) SearchMessages(params map[string]interface{}) ([]*model.Message, error) {
 	result := <-s.store.Message().Search(params)
 	if result.Err != nil {
 		return nil, result.Err
 	}
-	return result.Data.([]*model.MessageRecord), nil
+	return result.Data.([]*model.Message), nil
 }
 
-func (s *Sender) GetMessagesByIds(ids []string) ([]*model.MessageRecord, error) {
+func (s *Sender) GetMessagesByIds(ids []string) ([]*model.Message, error) {
 	result := <-s.store.Message().GetByIds(ids)
 	if result.Err != nil {
 		return nil, result.Err
 	}
-	return result.Data.([]*model.MessageRecord), nil
+	return result.Data.([]*model.Message), nil
 }
 
-func (s *Sender) GetIncomingQueue() chan *model.Message {
+func (s *Sender) GetIncomingQueue() chan *model.MessageJob {
 	return s.in
 }
 

@@ -12,18 +12,15 @@ CREATE TABLE IF NOT EXISTS message (
   fromName          varchar(20) COLLATE utf8_unicode_ci NOT NULL,
   body              text COLLATE utf8_unicode_ci NOT NULL,
   async             tinyint(1) NOT NULL DEFAULT '0',
-  route             varchar(32) COLLATE utf8_unicode_ci NOT NULL,
-  provider          varchar(32) COLLATE utf8_unicode_ci NOT NULL,
+  route             varchar(32) COLLATE utf8_unicode_ci DEFAULT NULL,
+  provider          varchar(32) COLLATE utf8_unicode_ci DEFAULT NULL,
+  providerMessageId varchar(64) COLLATE utf8_unicode_ci DEFAULT NULL,
+  steps             json DEFAULT NULL,
   status            varchar(20) COLLATE utf8_unicode_ci NOT NULL,
-  originalMessageId varchar(64) COLLATE utf8_unicode_ci DEFAULT NULL,
-  originalResponse  json DEFAULT NULL,
-  originalReceipts  json DEFAULT NULL,
   createdTime       datetime(6) NOT NULL,
   updatedTime       datetime(6) DEFAULT NULL,
-  sentTime          datetime(6) DEFAULT NULL,
-  latency           int(11) DEFAULT NULL,
   PRIMARY KEY (id),
-  KEY providerOriginalMessageId (provider, originalMessageId)
+  KEY providerMessageId (provider, providerMessageId)
 ) DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci`
 
 type SqlMessageStore struct {
@@ -44,7 +41,7 @@ func (ms *SqlMessageStore) Get(id string) StoreChannel {
 	go func() {
 		result := StoreResult{}
 
-		var message model.MessageRecord
+		var message model.Message
 		if err := ms.db.Get(&message, `SELECT * FROM message WHERE id = ?`, id); err != nil {
 			result.Err = err
 		} else {
@@ -73,7 +70,7 @@ func (ms *SqlMessageStore) GetByIds(ids []string) StoreChannel {
 		}
 		query = ms.db.Rebind(query)
 
-		var messages []*model.MessageRecord
+		var messages []*model.Message
 		if err := ms.db.Select(&messages, query, args...); err != nil {
 			result.Err = err
 		} else {
@@ -87,15 +84,15 @@ func (ms *SqlMessageStore) GetByIds(ids []string) StoreChannel {
 	return storeChannel
 }
 
-func (ms *SqlMessageStore) GetByProviderAndMessageId(provider, originalMessageId string) StoreChannel {
+func (ms *SqlMessageStore) GetByProviderAndMessageId(provider, providerMessageId string) StoreChannel {
 	storeChannel := make(StoreChannel, 1)
 
 	go func() {
 		result := StoreResult{}
 
-		var message model.MessageRecord
+		var message model.Message
 		if err := ms.db.Get(&message, `SELECT * FROM message
-			WHERE provider = ? AND originalMessageId = ?`, provider, originalMessageId); err != nil {
+			WHERE provider = ? AND providerMessageId = ?`, provider, providerMessageId); err != nil {
 			result.Err = err
 		} else {
 			result.Data = &message
@@ -150,7 +147,7 @@ func (ms *SqlMessageStore) Search(params map[string]interface{}) StoreChannel {
 			args = append(args, limit)
 		}
 
-		var messages []*model.MessageRecord
+		var messages []*model.Message
 		if err := ms.db.Select(&messages, query, args...); err != nil {
 			result.Err = err
 		} else {
@@ -172,7 +169,7 @@ func (ms *SqlMessageStore) Search(params map[string]interface{}) StoreChannel {
 	return storeChannel
 }
 
-func (ms *SqlMessageStore) Save(message *model.MessageRecord) StoreChannel {
+func (ms *SqlMessageStore) Save(message *model.Message) StoreChannel {
 	storeChannel := make(StoreChannel, 1)
 
 	go func() {
@@ -187,17 +184,14 @@ func (ms *SqlMessageStore) Save(message *model.MessageRecord) StoreChannel {
 				async,
 				route,
 				provider,
+				providerMessageId,
+				steps,
 				status,
-				originalMessageId,
-				originalResponse,
-				originalReceipts,
 				createdTime,
-				updatedTime,
-				sentTime,
-				latency
+				updatedTime
 			)
 			VALUES
-			(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+			(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 			message.Id,
 			message.To,
 			message.From,
@@ -205,14 +199,11 @@ func (ms *SqlMessageStore) Save(message *model.MessageRecord) StoreChannel {
 			message.Async,
 			message.Route,
 			message.Provider,
+			message.ProviderMessageId,
+			message.Steps,
 			message.Status,
-			message.OriginalMessageId,
-			message.OriginalResponse,
-			message.OriginalReceipts,
 			message.CreatedTime,
 			message.UpdatedTime,
-			message.SentTime,
-			message.Latency,
 		)
 		if err != nil {
 			result.Err = err
@@ -227,7 +218,7 @@ func (ms *SqlMessageStore) Save(message *model.MessageRecord) StoreChannel {
 	return storeChannel
 }
 
-func (ms *SqlMessageStore) Update(message *model.MessageRecord) StoreChannel {
+func (ms *SqlMessageStore) Update(message *model.Message) StoreChannel {
 	storeChannel := make(StoreChannel, 1)
 
 	go func() {
@@ -241,14 +232,11 @@ func (ms *SqlMessageStore) Update(message *model.MessageRecord) StoreChannel {
 				async = ?,
 				route = ?,
 				provider = ?,
+				providerMessageId = ?,
+				steps = ?,
 				status = ?,
-				originalMessageId = ?,
-				originalResponse = ?,
-				originalReceipts = ?,
 				createdTime = ?,
-				updatedTime = ?,
-				sentTime = ?,
-				latency = ?
+				updatedTime = ?
 			WHERE id = ?`,
 			message.To,
 			message.From,
@@ -256,14 +244,11 @@ func (ms *SqlMessageStore) Update(message *model.MessageRecord) StoreChannel {
 			message.Async,
 			message.Route,
 			message.Provider,
+			message.ProviderMessageId,
+			message.Steps,
 			message.Status,
-			message.OriginalMessageId,
-			message.OriginalResponse,
-			message.OriginalReceipts,
 			message.CreatedTime,
 			message.UpdatedTime,
-			message.SentTime,
-			message.Latency,
 			message.Id,
 		)
 		if err != nil {

@@ -18,9 +18,8 @@ func (b Provider) Name() string {
 	return b.name
 }
 
-func (b Provider) Send(message *model.Message, result *model.MessageResult) {
-	result.Status = model.StatusDelivered
-	result.OriginalMessageId = &result.Id
+func (b Provider) Send(message model.Message) *model.MessageResponse {
+	return model.NewMessageResponse(model.StatusDelivered, nil, &message.Id)
 }
 
 func (b Provider) Callback(register func(webhook *model.Webhook), receiptsCh chan<- model.MessageReceipt) {

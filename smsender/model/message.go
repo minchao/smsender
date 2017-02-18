@@ -6,128 +6,153 @@ import (
 	"github.com/rs/xid"
 )
 
-type MessageData struct {
-	Id          string    `json:"id"`                 // Message Id
-	To          string    `json:"to" db:"toNumber"`   // The destination phone number (E.164 format)
-	From        string    `json:"from" db:"fromName"` // Sender Id (phone number or alphanumeric)
-	Body        string    `json:"body"`               // The text of the message
-	Async       bool      `json:"async,omitempty"`    // Enable a background sending mode that is optimized for bulk sending
-	CreatedTime time.Time `json:"created_time" db:"createdTime"`
-}
-
-type MessageResult struct {
-	MessageData
-	UpdatedTime       *time.Time `json:"updated_time" db:"updatedTime"`
-	SentTime          *time.Time `json:"sent_time" db:"sentTime"`
-	Latency           *int64     `json:"-"` // Millisecond
-	Route             string     `json:"route"`
-	Provider          string     `json:"provider"`
-	Status            StatusCode `json:"status"`
-	OriginalMessageId *string    `json:"original_message_id" db:"originalMessageId"`
-	OriginalResponse  JSON       `json:"original_response" db:"originalResponse"`
-}
-
-func NewMessageResult(message Message, provider string) *MessageResult {
-	return &MessageResult{
-		MessageData: message.MessageData,
-		Route:       message.Route,
-		Provider:    provider,
-		Status:      StatusSending,
-	}
-}
-
-func NewAsyncMessageResult(message Message) *MessageResult {
-	result := MessageResult{
-		MessageData: message.MessageData,
-		Route:       "unknown",
-		Provider:    "unknown",
-		Status:      StatusAccepted,
-	}
-	if message.From == "" {
-		result.From = "unknown"
-	}
-	return &result
-}
-
-type MessageReceipt struct {
-	OriginalMessageId string      `json:"-"`
-	Provider          string      `json:"-"`
-	Status            StatusCode  `json:"status"`
-	OriginalReceipt   interface{} `json:"original_receipt"`
-	CreatedTime       time.Time   `json:"created_time"`
-}
-
-func NewMessageReceipt(originalMessageId, provider string, status StatusCode, receipt interface{}, created time.Time) *MessageReceipt {
-	return &MessageReceipt{
-		OriginalMessageId: originalMessageId,
-		Provider:          provider,
-		Status:            status,
-		OriginalReceipt:   receipt,
-		CreatedTime:       created,
-	}
-}
-
-type MessageRecord struct {
-	MessageResult
-	OriginalReceipts JSON `json:"original_receipts" db:"originalReceipts"`
-}
-
-func NewMessageRecord(result MessageResult, receipts JSON) *MessageRecord {
-	return &MessageRecord{
-		MessageResult:    result,
-		OriginalReceipts: receipts,
-	}
-}
-
-func (m *MessageRecord) GetReceipts() []MessageReceipt {
-	var receipts []MessageReceipt
-	m.OriginalReceipts.Unmarshal(&receipts)
-	return receipts
-}
-
-func (m *MessageRecord) SetReceipts(receipts []MessageReceipt) {
-	m.OriginalReceipts = MarshalJSON(receipts)
-}
-
-func (m *MessageRecord) AddReceipt(receipt MessageReceipt) {
-	receipts := m.GetReceipts()
-	receipts = append(receipts, receipt)
-	m.SetReceipts(receipts)
-}
-
-func (m *MessageRecord) HandleReceipt(receipt MessageReceipt) {
-	m.AddReceipt(receipt)
-
-	if receipt.Status > StatusSent && receipt.Status > m.Status {
-		m.Status = receipt.Status
-	}
-
-	now := time.Now()
-	m.UpdatedTime = &now
-}
+const (
+	StagePlatform       = "platform"
+	StageQueue          = "queue"
+	StageQueueResponse  = "queue.response"
+	StageCarrier        = "carrier"
+	StageCarrierReceipt = "carrier.receipt"
+)
 
 type Message struct {
-	MessageData
-	Route  string             `json:"route"`
-	Result chan MessageResult `json:"-"`
+	Id                string     `json:"id"`                 // Message Id
+	To                string     `json:"to" db:"toNumber"`   // The destination phone number (E.164 format)
+	From              string     `json:"from" db:"fromName"` // Sender Id (phone number or alphanumeric)
+	Body              string     `json:"body"`               // The text of the message
+	Async             bool       `json:"async"`              // Enable a background sending mode that is optimized for bulk sending
+	Route             *string    `json:"route"`
+	Provider          *string    `json:"provider"`
+	ProviderMessageId *string    `json:"provider_message_id" db:"providerMessageId"`
+	Steps             JSON       `json:"steps"`
+	Status            StatusCode `json:"status"`
+	CreatedTime       time.Time  `json:"created_time" db:"createdTime"`
+	UpdatedTime       *time.Time `json:"updated_time" db:"updatedTime"`
 }
 
 func NewMessage(to, from, body string, async bool) *Message {
+	now := time.Now()
 	message := Message{
-		MessageData: MessageData{
-			Id:          xid.New().String(),
-			To:          to,
-			From:        from,
-			Body:        body,
+		Id:          xid.New().String(),
+		To:          to,
+		From:        from,
+		Body:        body,
+		Async:       async,
+		Status:      StatusAccepted,
+		CreatedTime: now,
+		UpdatedTime: &now,
+	}
+	message.AddStep(MessageStep{
+		Stage:       StagePlatform,
+		Status:      StatusAccepted,
+		Data:        JSON{},
+		CreatedTime: now,
+	})
+	return &message
+}
+
+func (m *Message) GetSteps() []MessageStep {
+	var steps []MessageStep
+	m.Steps.Unmarshal(&steps)
+	return steps
+}
+
+func (m *Message) SetSteps(steps []MessageStep) {
+	m.Steps = MarshalJSON(steps)
+}
+
+func (m *Message) AddStep(step MessageStep) {
+	steps := m.GetSteps()
+	steps = append(steps, step)
+	m.SetSteps(steps)
+}
+
+func (m *Message) HandleStep(wrap MessageStepWrap) {
+	step := wrap.GetStep()
+	m.AddStep(step)
+	m.UpdatedTime = &step.CreatedTime
+
+	switch step.Stage {
+	case StageQueueResponse:
+		m.ProviderMessageId = wrap.(*MessageResponse).ProviderMessageId
+		m.Status = step.Status
+	case StageCarrierReceipt:
+		if step.Status > StatusSent && step.Status > m.Status {
+			m.Status = step.Status
+		}
+	}
+}
+
+type MessageJob struct {
+	Message
+	Result chan Message
+}
+
+func NewMessageJob(to, from, body string, async bool) *MessageJob {
+	job := MessageJob{
+		Message: *NewMessage(to, from, body, async),
+	}
+	if !async {
+		job.Result = make(chan Message, 1)
+	}
+	return &job
+}
+
+type MessageStep struct {
+	Stage       string      `json:"stage"`
+	Data        interface{} `json:"data"`
+	Status      StatusCode  `json:"status"`
+	CreatedTime time.Time   `json:"created_time" db:"createdTime"`
+}
+
+func (ms MessageStep) GetStep() MessageStep {
+	return ms
+}
+
+func NewMessageStepSending() *MessageStep {
+	return &MessageStep{
+		Stage:       StageQueue,
+		Data:        nil,
+		Status:      StatusSending,
+		CreatedTime: time.Now(),
+	}
+}
+
+type MessageStepWrap interface {
+	GetStep() MessageStep
+}
+
+type MessageResponse struct {
+	MessageStep
+	ProviderMessageId *string
+}
+
+func NewMessageResponse(status StatusCode, response interface{}, providerMessageId *string) *MessageResponse {
+	return &MessageResponse{
+		MessageStep: MessageStep{
+			Stage:       StageQueueResponse,
+			Data:        response,
+			Status:      status,
 			CreatedTime: time.Now(),
 		},
-		Route:  "unknown",
-		Result: nil,
+		ProviderMessageId: providerMessageId,
 	}
-	if async {
-		message.Async = true
-	} else {
-		message.Result = make(chan MessageResult, 1)
+}
+
+type MessageReceipt struct {
+	MessageStep
+	ProviderMessageId string
+	Provider          string
+}
+
+func NewMessageReceipt(providerMessageId, provider string, status StatusCode, receipt interface{}) *MessageReceipt {
+	return &MessageReceipt{
+		MessageStep: MessageStep{
+			Stage:       StageCarrierReceipt,
+			Data:        receipt,
+			Status:      status,
+			CreatedTime: time.Now(),
+		},
+		ProviderMessageId: providerMessageId,
+		Provider:          provider,
 	}
-	return &message
 }

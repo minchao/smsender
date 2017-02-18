@@ -2,7 +2,6 @@ package nexmo
 
 import (
 	"net/http"
-	"time"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/minchao/smsender/smsender/model"
@@ -40,28 +39,29 @@ func (b Provider) Name() string {
 	return b.name
 }
 
-func (b Provider) Send(msg *model.Message, result *model.MessageResult) {
-	message := &nexmo.SMSMessage{
-		From: msg.From,
-		To:   msg.To,
+func (b Provider) Send(message model.Message) *model.MessageResponse {
+	sms := &nexmo.SMSMessage{
+		From: message.From,
+		To:   message.To,
 		Type: nexmo.Unicode,
-		Text: msg.Body,
+		Text: message.Body,
 	}
 
-	resp, err := b.client.SMS.Send(message)
+	resp, err := b.client.SMS.Send(sms)
 	if err != nil {
-		result.Status = model.StatusFailed
-		result.OriginalResponse = model.MarshalJSON(model.ProviderError{Error: err.Error()})
+		return model.NewMessageResponse(model.StatusFailed, model.ProviderError{Error: err.Error()}, nil)
 	} else {
+		var status model.StatusCode
+		var providerMessageId *string
 		if resp.MessageCount > 0 {
 			respMsg := resp.Messages[0]
 
-			result.Status = convertStatus(respMsg.Status.String())
-			result.OriginalMessageId = &respMsg.MessageID
+			status = convertStatus(respMsg.Status.String())
+			providerMessageId = &respMsg.MessageID
 		} else {
-			result.Status = model.StatusFailed
+			status = model.StatusFailed
 		}
-		result.OriginalResponse = model.MarshalJSON(resp)
+		return model.NewMessageResponse(status, resp, providerMessageId)
 	}
 }
 
@@ -107,8 +107,7 @@ func (b Provider) Callback(register func(webhook *model.Webhook), receiptsCh cha
 				receipt.MessageId,
 				b.Name(),
 				convertDeliveryReceiptStatus(receipt.Status),
-				receipt,
-				time.Now())
+				receipt)
 
 			w.WriteHeader(http.StatusOK)
 		},

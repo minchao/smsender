@@ -75,7 +75,7 @@ export default class DetailsPage extends Component {
                             <td>{this.message.created_time}</td>
                         </tr>
                         <tr>
-                            <th>Original Message ID</th>
+                            <th>Provider Message ID</th>
                             <td>{this.message.original_message_id}</td>
                         </tr>
                     </tbody>

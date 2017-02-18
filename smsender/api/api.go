@@ -12,7 +12,7 @@ import (
 
 type Server struct {
 	sender *smsender.Sender
-	out    chan<- *model.Message
+	out    chan<- *model.MessageJob
 }
 
 func InitAPI(sender *smsender.Sender) *Server {

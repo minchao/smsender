@@ -2,7 +2,6 @@ package twilio
 
 import (
 	"net/http"
-	"time"
 
 	log "github.com/Sirupsen/logrus"
 	twilio "github.com/carlosdp/twiliogo"
@@ -44,7 +43,7 @@ func (b Provider) Name() string {
 	return b.name
 }
 
-func (b Provider) Send(message *model.Message, result *model.MessageResult) {
+func (b Provider) Send(message model.Message) *model.MessageResponse {
 	optionals := []twilio.Optional{twilio.Body(message.Body)}
 	if b.enableWebhook {
 		optionals = append(optionals, twilio.StatusCallback(b.siteURL+b.webhookPath))
@@ -57,12 +56,9 @@ func (b Provider) Send(message *model.Message, result *model.MessageResult) {
 		optionals...,
 	)
 	if err != nil {
-		result.Status = model.StatusFailed
-		result.OriginalResponse = model.MarshalJSON(err)
+		return model.NewMessageResponse(model.StatusFailed, err, nil)
 	} else {
-		result.Status = convertStatus(resp.Status)
-		result.OriginalMessageId = &resp.Sid
-		result.OriginalResponse = model.MarshalJSON(resp)
+		return model.NewMessageResponse(convertStatus(resp.Status), resp, &resp.Sid)
 	}
 }
 
@@ -109,8 +105,7 @@ func (b Provider) Callback(register func(webhook *model.Webhook), receiptsCh cha
 				receipt.MessageSid,
 				b.Name(),
 				convertStatus(receipt.SmsStatus),
-				receipt,
-				time.Now())
+				receipt)
 
 			w.WriteHeader(http.StatusOK)
 		},

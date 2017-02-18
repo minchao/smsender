@@ -28,7 +28,7 @@ func (s *Server) Routes(w http.ResponseWriter, r *http.Request) {
 	render(w, http.StatusOK, routeResults{Data: s.sender.Router.GetAll(), Providers: s.getProviders()})
 }
 
-type Route struct {
+type route struct {
 	Name     string `json:"name" validate:"required"`
 	Pattern  string `json:"pattern" validate:"required,regexp"`
 	Provider string `json:"provider" validate:"required"`
@@ -37,30 +37,30 @@ type Route struct {
 }
 
 func (s *Server) RoutePost(w http.ResponseWriter, r *http.Request) {
-	var route Route
+	var post route
 	validate := utils.NewValidate()
 	validate.RegisterValidation("regexp", utils.IsRegexp)
-	err := utils.GetInput(r.Body, &route, validate)
+	err := utils.GetInput(r.Body, &post, validate)
 	if err != nil {
 		render(w, http.StatusBadRequest, formErrorMessage(err))
 		return
 	}
-	if err := s.sender.Router.AddWith(route.Name, route.Pattern, route.Provider, route.From, route.IsActive); err != nil {
+	if err := s.sender.Router.AddWith(post.Name, post.Pattern, post.Provider, post.From, post.IsActive); err != nil {
 		render(w, http.StatusBadRequest, formErrorMessage(err))
 		return
 	}
 
-	render(w, http.StatusOK, route)
+	render(w, http.StatusOK, post)
 }
 
-type Reorder struct {
+type reorder struct {
 	RangeStart   int `json:"range_start" validate:"gte=0"`
 	RangeLength  int `json:"range_length" validate:"gte=0"`
 	InsertBefore int `json:"insert_before" validate:"gte=0"`
 }
 
 func (s *Server) RouteReorder(w http.ResponseWriter, r *http.Request) {
-	var reorder Reorder
+	var reorder reorder
 	err := utils.GetInput(r.Body, &reorder, utils.NewValidate())
 	if err != nil {
 		render(w, http.StatusBadRequest, formErrorMessage(err))
@@ -78,20 +78,20 @@ func (s *Server) RouteReorder(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) RoutePut(w http.ResponseWriter, r *http.Request) {
-	var route Route
+	var put route
 	validate := utils.NewValidate()
 	validate.RegisterValidation("regexp", utils.IsRegexp)
-	err := utils.GetInput(r.Body, &route, validate)
+	err := utils.GetInput(r.Body, &put, validate)
 	if err != nil {
 		render(w, http.StatusBadRequest, formErrorMessage(err))
 		return
 	}
-	if err := s.sender.Router.SetWith(route.Name, route.Pattern, route.Provider, route.From, route.IsActive); err != nil {
+	if err := s.sender.Router.SetWith(put.Name, put.Pattern, put.Provider, put.From, put.IsActive); err != nil {
 		render(w, http.StatusBadRequest, formErrorMessage(err))
 		return
 	}
 
-	render(w, http.StatusOK, route)
+	render(w, http.StatusOK, put)
 }
 
 func (s *Server) RouteDelete(w http.ResponseWriter, r *http.Request) {
@@ -102,7 +102,7 @@ func (s *Server) RouteDelete(w http.ResponseWriter, r *http.Request) {
 	render(w, http.StatusNoContent, nil)
 }
 
-type RouteTestResult struct {
+type routeTestResult struct {
 	Phone string       `json:"phone"`
 	Route *model.Route `json:"route"`
 }
@@ -122,7 +122,7 @@ func (s *Server) RouteTest(w http.ResponseWriter, r *http.Request) {
 
 	route, _ := s.sender.Router.Match(phone)
 
-	render(w, http.StatusOK, RouteTestResult{Phone: phone, Route: route})
+	render(w, http.StatusOK, routeTestResult{Phone: phone, Route: route})
 }
 
 type messagesRequest struct {
@@ -138,9 +138,9 @@ type paging struct {
 	Next     string `json:"next,omitempty"`
 }
 
-type ressagesResults struct {
-	Data   []*model.MessageRecord `json:"data"`
-	Paging paging                 `json:"paging"`
+type messagesResults struct {
+	Data   []*model.Message `json:"data"`
+	Paging paging           `json:"paging"`
 }
 
 func (s *Server) Messages(w http.ResponseWriter, r *http.Request) {
@@ -182,17 +182,17 @@ func (s *Server) Messages(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	results := ressagesResults{
+	results := messagesResults{
 		Data:   messages,
 		Paging: paging{},
 	}
 
 	if len(messages) == 0 {
-		results.Data = []*model.MessageRecord{}
+		results.Data = []*model.Message{}
 	} else {
 		// Generate the paging data
-		since := messages[0].MessageData.CreatedTime
-		until := messages[len(messages)-1].MessageData.CreatedTime
+		since := messages[0].CreatedTime
+		until := messages[len(messages)-1].CreatedTime
 
 		url, _ := url.Parse("api/messages")
 		url = s.sender.GetSiteURL().ResolveReference(url)
@@ -228,8 +228,8 @@ func (s *Server) Messages(w http.ResponseWriter, r *http.Request) {
 	render(w, http.StatusOK, results)
 }
 
-type MessagesGetByIdsResults struct {
-	Data []*model.MessageRecord `json:"data"`
+type messagess struct {
+	Data []*model.Message `json:"data"`
 }
 
 func (s *Server) MessagesGetByIds(w http.ResponseWriter, r *http.Request) {
@@ -247,7 +247,7 @@ func (s *Server) MessagesGetByIds(w http.ResponseWriter, r *http.Request) {
 		render(w, http.StatusNotFound, errorMessage{Error: "not_found", ErrorDescription: err.Error()})
 		return
 	}
-	results := MessagesGetByIdsResults{Data: []*model.MessageRecord{}}
+	results := messagess{Data: []*model.Message{}}
 	if len(messages) > 0 {
 		results.Data = messages
 	}
@@ -255,57 +255,54 @@ func (s *Server) MessagesGetByIds(w http.ResponseWriter, r *http.Request) {
 	render(w, http.StatusOK, results)
 }
 
-type MessagesPost struct {
+type messagesPost struct {
 	To    []string `json:"to" validate:"required,gt=0,dive,phone"`
 	From  string   `json:"from"`
 	Body  string   `json:"body" validate:"required"`
 	Async bool     `json:"async,omitempty"`
 }
 
-type MessagesPostResults struct {
-	Data []model.MessageResult `json:"data"`
-}
-
 func (s *Server) MessagesPost(w http.ResponseWriter, r *http.Request) {
-	var msg MessagesPost
+	var post messagesPost
 	var validate = utils.NewValidate()
 	validate.RegisterValidation("phone", utils.IsPhoneNumber)
-	err := utils.GetInput(r.Body, &msg, validate)
+	err := utils.GetInput(r.Body, &post, validate)
 	if err != nil {
 		render(w, http.StatusBadRequest, formErrorMessage(err))
 		return
 	}
 
 	var (
-		count         = len(msg.To)
-		messageClones = make([]model.Message, count)
-		resultChans   = make([]<-chan model.MessageResult, count)
-		results       = make([]model.MessageResult, count)
+		count       = len(post.To)
+		jobClones   = make([]*model.MessageJob, count)
+		resultChans = make([]<-chan model.Message, count)
+		results     = make([]*model.Message, count)
 	)
 
 	if count > 100 {
-		msg.Async = true
+		post.Async = true
 	}
 
 	for i := 0; i < count; i++ {
-		message := model.NewMessage(msg.To[i], msg.From, msg.Body, msg.Async)
-		messageClones[i] = *message
-		resultChans[i] = message.Result
+		job := model.NewMessageJob(post.To[i], post.From, post.Body, post.Async)
+		jobClones[i] = job
+		resultChans[i] = job.Result
 
-		s.out <- message
+		s.out <- job
 	}
 
-	if msg.Async {
-		for i, message := range messageClones {
-			results[i] = *model.NewAsyncMessageResult(message)
+	if post.Async {
+		for i, job := range jobClones {
+			results[i] = &job.Message
 		}
 	} else {
-		for i, c := range resultChans {
-			results[i] = <-c
+		for i, result := range resultChans {
+			message := <-result
+			results[i] = &message
 		}
 	}
 
-	render(w, http.StatusOK, MessagesPostResults{Data: results})
+	render(w, http.StatusOK, messagess{Data: results})
 }
 
 func (s *Server) getProviders() []*provider {

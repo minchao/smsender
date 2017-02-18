@@ -43,7 +43,7 @@ func (b Provider) Name() string {
 	return b.name
 }
 
-func (b Provider) Send(msg *model.Message, result *model.MessageResult) {
+func (b Provider) Send(msg model.Message) *model.MessageResponse {
 	req, resp := b.svc.PublishRequest(&sns.PublishInput{
 		Message: aws.String(msg.Body),
 		MessageAttributes: map[string]*sns.MessageAttributeValue{
@@ -58,12 +58,9 @@ func (b Provider) Send(msg *model.Message, result *model.MessageResult) {
 	err := req.Send()
 
 	if err != nil {
-		result.Status = model.StatusFailed
-		result.OriginalResponse = model.MarshalJSON(model.ProviderError{Error: err.Error()})
+		return model.NewMessageResponse(model.StatusFailed, model.ProviderError{Error: err.Error()}, nil)
 	} else {
-		result.Status = model.StatusSent
-		result.OriginalMessageId = resp.MessageId
-		result.OriginalResponse = model.MarshalJSON(resp)
+		return model.NewMessageResponse(model.StatusSent, resp, resp.MessageId)
 	}
 }
 

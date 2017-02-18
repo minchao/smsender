@@ -22,8 +22,8 @@ type RouteStore interface {
 type MessageStore interface {
 	Get(id string) StoreChannel
 	GetByIds(ids []string) StoreChannel
-	GetByProviderAndMessageId(provider, originalMessageId string) StoreChannel
-	Save(message *model.MessageRecord) StoreChannel
+	GetByProviderAndMessageId(provider, providerMessageId string) StoreChannel
+	Save(message *model.Message) StoreChannel
 	Search(params map[string]interface{}) StoreChannel
-	Update(message *model.MessageRecord) StoreChannel
+	Update(message *model.Message) StoreChannel
 }
