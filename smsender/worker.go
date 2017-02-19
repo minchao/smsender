@@ -12,16 +12,16 @@ type worker struct {
 
 func (w worker) process(job *model.MessageJob) {
 	var (
-		route    string
-		provider model.Provider
 		message  = job.Message
+		provider model.Provider
 	)
 
 	if match, ok := w.sender.Router.Match(message.To); ok {
 		if message.From == "" && match.From != "" {
 			message.From = match.From
 		}
-		route = match.Name
+		route := match.Name
+		message.Route = &route
 		provider = match.GetProvider()
 	}
 
@@ -31,7 +31,6 @@ func (w worker) process(job *model.MessageJob) {
 	}
 
 	p := provider.Name()
-	message.Route = &route
 	message.Provider = &p
 
 	log1 := log.WithFields(log.Fields{
