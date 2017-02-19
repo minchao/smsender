@@ -82,6 +82,15 @@ Run:
 ./bin/smsender
 ```
 
+## Run in Docker
+
+You can use the [docker-compose](https://docs.docker.com/compose/) to launch the preview version of SMSender, It will start the app and db in separate containers:
+
+```bash
+make deps-install docker-build
+docker-compose up
+```
+
 ## Providers
 
 Support providers
