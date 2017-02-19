@@ -15,8 +15,7 @@ services:
   app:
     depends_on:
       - db
-    build: .
-    image: smsender/smsender-preview
+    image: minchao/smsender-preview
     container_name: smsender_app
     ports:
       - "8080:8080"
