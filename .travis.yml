@@ -10,14 +10,9 @@ cache:
   directories:
     - vendor
 
-before_install:
-  - mkdir -p $GOPATH/bin
-  - go get github.com/Masterminds/glide
-  - go install github.com/Masterminds/glide
-
 install:
-  - glide install
+  - make deps-install
 
 script:
-  - go test -v $(go list ./... | grep -v /vendor/)
-  - go build -o ./bin/smsender
+  - make test
+  - make build
