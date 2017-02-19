@@ -1,11 +1,11 @@
 db:
-  dsn: "user:password@tcp(localhost:3306)/dbname?parseTime=true&loc=Local"
+  dsn: "MYSQL_USER:MYSQL_PASSWORD@tcp(MYSQL_HOST:MYSQL_PORT)/MYSQL_DATABASE?parseTime=true&loc=Local"
   connection:
     maxOpenConns: 100
     maxIdleConns: 50
 http:
   enable: true
-  siteURL: ""
+  siteURL: "http://127.0.0.1:8080"
   addr: ":8080"
   tls: false
   tlsCertFile: ""

@@ -1,4 +1,5 @@
 bin/*
 /vendor/
 /webroot/node_modules/
+/volumes/
 .idea
