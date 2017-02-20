@@ -109,9 +109,19 @@ Route can be define a regexp phone number pattern to be matched with provider.
 The API document is written in YAML and found in the [smsender-openapi.yaml](https://github.com/minchao/smsender/blob/master/smsender-openapi.yaml).
 You can use the [Swagger Editor](http://editor.swagger.io/) to open the document.
 
+Example:
+
+Send an SMS
+
+```bash
+curl -X POST http://localhost:8080/api/messages \
+    -H "Content-Type: application/json" \
+    -d '{"to": ["+886987654321"],"from": "Gopher","body": "Hello, 世界"}'
+```
+
 ## Admin Console UI
 
-The Console UI allows you to manage routes and monitor messages.
+The Console Web UI allows you to manage routes and monitor messages (at http://localhost:8080/console/).
 
 ## License
 
