@@ -104,6 +104,16 @@ Need another provider? Just implement the [Provider](https://github.com/minchao/
 
 Route can be define a regexp phone number pattern to be matched with provider.
 
+Example:
+
+| Name    | Regular expression | Provider | Description       |
+|---------|--------------------|----------|-------------------|
+| Dummy   | \+12345678900      | dummy    | For testing       |
+| User1   | \+886987654321     | aws      | For specific user |
+| Taiwan  | \+886              | nexmo    |                   |
+| USA     | \+1                | twilio   |                   |
+| Default | .*                 | nexmo    | Default           |
+
 ## RESTful API
 
 The API document is written in YAML and found in the [smsender-openapi.yaml](https://github.com/minchao/smsender/blob/master/smsender-openapi.yaml).
