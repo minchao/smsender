@@ -48,7 +48,7 @@ func renderInternalServerError(w http.ResponseWriter, err error) error {
 }
 
 func cleanEmptyURLValues(values *url.Values) {
-	for k, _ := range *values {
+	for k := range *values {
 		if values.Get(k) == "" {
 			delete(*values, k)
 		}
