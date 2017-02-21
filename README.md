@@ -106,13 +106,13 @@ Route can be define a regexp phone number pattern to be matched with provider.
 
 Example:
 
-| Name    | Regular expression | Provider | Description       |
-|---------|--------------------|----------|-------------------|
-| Dummy   | \+12345678900      | dummy    | For testing       |
-| User1   | \+886987654321     | aws      | For specific user |
-| Taiwan  | \+886              | nexmo    |                   |
-| USA     | \+1                | twilio   |                   |
-| Default | .*                 | nexmo    | Default           |
+| Name    | Regular expression  | Provider | Description       |
+|---------|---------------------|----------|-------------------|
+| Dummy   | \\+12345678900      | dummy    | For testing       |
+| User1   | \\+886987654321     | aws      | For specific user |
+| Taiwan  | \\+886              | nexmo    |                   |
+| USA     | \\+1                | twilio   |                   |
+| Default | .*                  | nexmo    | Default           |
 
 ## RESTful API
 
