@@ -1,6 +1,6 @@
 import React, {Component} from 'react'
 import {inject, observer} from "mobx-react"
-import {action, observable} from 'mobx'
+import {observable} from 'mobx'
 import Dialog from 'material-ui/Dialog'
 import TextField from 'material-ui/TextField'
 import SelectField from 'material-ui/SelectField'
@@ -22,11 +22,11 @@ export default class RouteDialog extends Component {
     }
 
     updateProperty(event, value) {
-        this.route[event.target.name] = value
+        this.route.set(event.target.name, value)
     }
 
     updateProvider(event, index, value) {
-        this.route.provider = value
+        this.route.set('provider', value)
     }
 
     cancel() {

@@ -1,4 +1,4 @@
-import {observable} from 'mobx'
+import {action, observable} from 'mobx'
 
 export default class RouteModel {
     @observable name
@@ -15,6 +15,20 @@ export default class RouteModel {
         this.is_active = is_active
     }
 
+    @action set(key, value) {
+        this[key] = value
+    }
+
+    @action fromJS(object) {
+        this.name = object.name
+        this.pattern = object.pattern
+        this.provider = object.provider
+        this.from = object.from
+        this.is_active = object.is_active
+
+        return this
+    }
+
     toJS() {
         return {
             name: this.name,
@@ -23,16 +37,6 @@ export default class RouteModel {
             from: this.from,
             is_active: this.is_active
         }
-    }
-
-    fromJS(object) {
-        this.name = object.name
-        this.pattern = object.pattern
-        this.provider = object.provider
-        this.from = object.from
-        this.is_active = object.is_active
-
-        return this
     }
 
     static new(object) {

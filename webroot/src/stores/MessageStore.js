@@ -8,47 +8,48 @@ export default class MessageStore {
     @observable since = null
     @observable until = null
 
-    @action find(messageId = '') {
+    @action clear() {
+        this.messages = []
+        this.since = null
+        this.until = null
+    }
+
+    @action initData(json) {
+        this.clear()
+
+        const rows = []
+        json.data.map(message => rows.push(MessageModel.new(message)))
+        this.messages = rows
+        if (json.hasOwnProperty('paging')) {
+            if (json.paging.hasOwnProperty('previous')) {
+                this.since = json.paging.previous
+            }
+            if (json.paging.hasOwnProperty('next')) {
+                this.until = json.paging.next
+            }
+        }
+    }
+
+    find(messageId = '') {
         fetch(getAPI('/api/messages/byIds?ids=' + messageId), {method: 'get'})
             .then(response => {
                 if (!response.ok) throw new Error(response.statusText)
                 return response.json()
             })
             .then(json => {
-                this.clear()
-                json.data.map(message => this.add(message))
+                this.initData(json)
             })
     }
 
-    @action sync(query = '') {
+    sync(query = '') {
         fetch(getAPI('/api/messages' + query), {method: 'get'})
             .then(response => {
                 if (!response.ok) throw new Error(response.statusText)
                 return response.json()
             })
             .then(json => {
-                const rows = []
-                json.data.map(message => rows.push(MessageModel.new(message)))
-                this.messages = rows
-                this.since = null
-                this.until = null
-                if (json.paging.hasOwnProperty('previous')) {
-                    this.since = json.paging.previous
-                }
-                if (json.paging.hasOwnProperty('next')) {
-                    this.until = json.paging.next
-                }
+                this.initData(json)
             })
-    }
-
-    @action add(message) {
-        this.messages.push(MessageModel.new(message))
-    }
-
-    @action clear() {
-        this.messages = []
-        this.since = null
-        this.until = null
     }
 
     search(to, status, since, until, limit) {

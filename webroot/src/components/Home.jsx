@@ -33,7 +33,7 @@ const styles = {
 export default class Home extends Component {
 
     render() {
-        const { location, push, goBack } = this.props.routing
+        const {push} = this.props.routing
 
         return (
             <div style={styles.home}>

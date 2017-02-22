@@ -1,4 +1,4 @@
-import {observable} from 'mobx'
+import {action, observable} from 'mobx'
 
 export default class MessageModel {
     json
@@ -24,6 +24,21 @@ export default class MessageModel {
         this.created_time = created_time
     }
 
+    @action fromJS(object) {
+        this.json = object
+        this.id = object.id
+        this.to = object.to
+        this.from = object.from
+        this.body = object.body
+        this.route = object.route
+        this.provider = object.provider
+        this.status = object.status
+        this.original_message_id = object.original_message_id
+        this.created_time = object.created_time
+
+        return this
+    }
+
     toJS() {
         return {
             id: this.id,
@@ -37,21 +52,6 @@ export default class MessageModel {
             created_time: this.created_time,
             json: this.json
         }
-    }
-
-    fromJS(object) {
-        this.json = object
-        this.id = object.id
-        this.to = object.to
-        this.from = object.from
-        this.body = object.body
-        this.route = object.route
-        this.provider = object.provider
-        this.status = object.status
-        this.original_message_id = object.original_message_id
-        this.created_time = object.created_time
-
-        return this
     }
 
     static new(object) {

@@ -1,5 +1,6 @@
 import React, {Component} from 'react'
 import {Provider, observer} from 'mobx-react'
+import {useStrict} from 'mobx'
 import DevTools from 'mobx-react-devtools'
 import {RouterStore, syncHistoryWithStore} from 'mobx-react-router'
 import {Router, IndexRoute, Route, browserHistory} from 'react-router'
@@ -13,6 +14,8 @@ import RouterPage from './components/router/RouterPage'
 import SMSPage from './components/sms/SMSPage'
 import SendPage from './components/sms/SendPage'
 import DetailsPage from './components/sms/DetailsPage'
+
+useStrict(true)
 
 const routingStore = new RouterStore()
 
