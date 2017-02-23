@@ -144,7 +144,7 @@ export default class RouterPage extends Component {
                             )
                             :
                             this.props.store.routes.map((route, i) => (
-                            <TableRow key={i}>
+                            <TableRow key={route.name}>
                                 <TableRowColumn>
                                     <a
                                         href="#"

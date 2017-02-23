@@ -196,8 +196,8 @@ export default class SMSPage extends Component {
                                 </TableRow>
                             )
                             :
-                            this.props.store.messages.map((message, i) => (
-                                <TableRow key={i}>
+                            this.props.store.messages.map((message) => (
+                                <TableRow key={message.id}>
                                     <TableRowColumn>
                                         <a
                                             href="#"
