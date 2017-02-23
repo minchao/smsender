@@ -2,13 +2,13 @@ import React, {Component} from 'react'
 import {inject, observer} from 'mobx-react'
 import {action, observable} from 'mobx'
 import {Toolbar, ToolbarGroup, ToolbarSeparator, ToolbarTitle} from 'material-ui/Toolbar'
-import {Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn} from 'material-ui/Table'
 import DropDownMenu from 'material-ui/DropDownMenu'
 import MenuItem from 'material-ui/MenuItem'
 import TextField from 'material-ui/TextField'
 import RaisedButton from 'material-ui/RaisedButton'
 
 import MessageStore from '../../stores/MessageStore'
+import SMSList from './SMSList'
 
 const status = [
     {text: 'All Status', value: ''},
@@ -110,16 +110,6 @@ export default class SMSPage extends Component {
         this.push('/console/sms' + query)
     }
 
-    pagingPrev = () => {
-        const since = this.props.store.since
-        this.push('/console/sms' + since.substr(since.indexOf('?')))
-    }
-
-    pagingNext = () => {
-        const until = this.props.store.until
-        this.push('/console/sms' + until.substr(until.indexOf('?')))
-    }
-
     render() {
         return (
             <div>
@@ -177,53 +167,7 @@ export default class SMSPage extends Component {
                     </ToolbarGroup>
                 </Toolbar>
 
-                <Table>
-                    <TableHeader adjustForCheckbox={false} displaySelectAll={false}>
-                        <TableRow>
-                            <TableHeaderColumn>MESSAGE ID</TableHeaderColumn>
-                            <TableHeaderColumn>TO</TableHeaderColumn>
-                            <TableHeaderColumn>ROUTE</TableHeaderColumn>
-                            <TableHeaderColumn>STATUS</TableHeaderColumn>
-                            <TableHeaderColumn>DATE</TableHeaderColumn>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody displayRowCheckbox={false}>
-                        {(this.props.store.messages.length == 0)
-                            ?
-                            (
-                                <TableRow>
-                                    <TableRowColumn>No data</TableRowColumn>
-                                </TableRow>
-                            )
-                            :
-                            this.props.store.messages.map((message) => (
-                                <TableRow key={message.id}>
-                                    <TableRowColumn>
-                                        <a
-                                            href="#"
-                                            onClick={(e) => {
-                                                e.preventDefault()
-                                                this.push(`/console/sms/${message.id}/details`)
-                                            }}
-                                        >{message.id}</a>
-                                    </TableRowColumn>
-                                    <TableRowColumn>{message.to}</TableRowColumn>
-                                    <TableRowColumn>{message.route}</TableRowColumn>
-                                    <TableRowColumn>{message.status}</TableRowColumn>
-                                    <TableRowColumn>{message.created_time}</TableRowColumn>
-                                </TableRow>
-                            ))}
-                    </TableBody>
-                </Table>
-
-                <div style={{marginTop: 20, textAlign: "center"}}>
-                    {this.props.store.since == null
-                        ? null
-                        : <RaisedButton label="Prev" onTouchTap={this.pagingPrev} />}
-                    {this.props.store.until == null
-                        ? null
-                        : <RaisedButton label="Next" onTouchTap={this.pagingNext} />}
-                </div>
+                <SMSList store={this.props.store} />
             </div>
         )
     }
