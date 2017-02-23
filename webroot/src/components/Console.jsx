@@ -30,9 +30,11 @@ export default class Routes extends Component {
 
         return (
             <div>
-                <AppBar title="SMSender"
-                        iconElementRight={<FlatButton label="Home" onTouchTap={() => push("/")} />}
-                />
+                <header>
+                    <AppBar title="SMSender"
+                            iconElementRight={<FlatButton label="Home" onTouchTap={() => push("/")} />}
+                    />
+                </header>
 
                 <main style={{paddingLeft: 240, paddingRight: 40}}>
                     {this.props.children}
