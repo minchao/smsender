@@ -8,14 +8,9 @@ import SyntaxHighlighter from 'react-syntax-highlighter'
 import {agate} from 'react-syntax-highlighter/dist/styles'
 
 import {getAPI} from '../../utils'
-import MessageStore from '../../stores/MessageStore'
 
 @observer
 export default class SendPage extends Component {
-
-    static defaultProps = {
-        store: new MessageStore()
-    }
 
     @observable message = {
         to: '',

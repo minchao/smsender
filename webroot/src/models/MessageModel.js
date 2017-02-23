@@ -11,19 +11,6 @@ export default class MessageModel {
     @observable status
     @observable created_time
 
-    constructor(id, to, from, body, route, provider, status, original_message_id, created_time, json) {
-        this.json = json
-        this.id = id
-        this.to = to
-        this.from = from
-        this.body = body
-        this.route = route
-        this.provider = provider
-        this.status = status
-        this.original_message_id = original_message_id
-        this.created_time = created_time
-    }
-
     @action fromJS(object) {
         this.json = object
         this.id = object.id
