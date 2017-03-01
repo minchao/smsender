@@ -1,6 +1,6 @@
 import {action, observable, computed, reaction} from 'mobx'
 
-import {getAPI} from '../utils'
+import api from './API'
 import MessageModel from '../models/MessageModel'
 
 export default class MessageStore {
@@ -31,25 +31,15 @@ export default class MessageStore {
     }
 
     find(messageId = '') {
-        fetch(getAPI('/api/messages/byIds?ids=' + messageId), {method: 'get'})
-            .then(response => {
-                if (!response.ok) throw new Error(response.statusText)
-                return response.json()
-            })
-            .then(json => {
-                this.initData(json)
-            })
+        api.getMessagesByIds(messageId, (json) => {
+            this.initData(json)
+        })
     }
 
     sync(query = '') {
-        fetch(getAPI('/api/messages' + query), {method: 'get'})
-            .then(response => {
-                if (!response.ok) throw new Error(response.statusText)
-                return response.json()
-            })
-            .then(json => {
-                this.initData(json)
-            })
+        api.getMessages(query, (json) => {
+            this.initData(json)
+        })
     }
 
     search(to, status, since, until, limit) {

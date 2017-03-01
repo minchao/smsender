@@ -7,7 +7,7 @@ import RaisedButton from 'material-ui/RaisedButton'
 import SyntaxHighlighter from 'react-syntax-highlighter'
 import {agate} from 'react-syntax-highlighter/dist/styles'
 
-import {getAPI} from '../../utils'
+import api from '../../stores/API'
 
 @observer
 export default class SendPage extends Component {
@@ -47,21 +47,11 @@ export default class SendPage extends Component {
     }
 
     post() {
-        fetch(getAPI('/api/messages'), {
-                method: 'post',
-                body: JSON.stringify({
-                    'to': [this.message.to],
-                    'from': this.message.from,
-                    'body': this.message.body
-                }),
-                headers: new Headers({'Content-Type': 'application/json'})
-            })
-            .then(response => {
-                return response.json()
-            })
-            .then(json => {
+        api.postMessage(this.message.to, this.message.from, this.message.body, (json) => {
+            if (json) {
                 this.setResponse(JSON.stringify(json, null, 4))
-            })
+            }
+        })
     }
 
     render() {

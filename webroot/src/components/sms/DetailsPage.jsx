@@ -4,8 +4,8 @@ import {action, observable} from 'mobx'
 import SyntaxHighlighter from 'react-syntax-highlighter'
 import {agate} from 'react-syntax-highlighter/dist/styles'
 
-import {getAPI} from '../../utils'
 import MessageModel from '../../models/MessageModel'
+import api from '../../stores/API'
 
 @observer
 export default class DetailsPage extends Component {
@@ -21,16 +21,11 @@ export default class DetailsPage extends Component {
     }
 
     fetch() {
-        fetch(getAPI('/api/messages/byIds?ids=' + this.props.params.messageId), {method: 'get'})
-            .then(response => {
-                if (!response.ok) throw new Error(response.statusText)
-                return response.json()
-            })
-            .then(json => {
-                if (json.data.length) {
-                    this.message.fromJS(json.data[0])
-                }
-            })
+        api.getMessagesByIds(this.props.params.messageId, (json) => {
+            if (json.data.length) {
+                this.message.fromJS(json.data[0])
+            }
+        })
     }
 
     render() {

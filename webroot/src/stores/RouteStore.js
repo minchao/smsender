@@ -1,6 +1,6 @@
 import {action, observable, computed, reaction} from 'mobx'
 
-import {getAPI} from '../utils'
+import api from './API'
 import RouteModel from '../models/RouteModel'
 
 export default class RouteStore {
@@ -23,14 +23,9 @@ export default class RouteStore {
     }
 
     sync() {
-        fetch(getAPI('/api/routes'), {method: 'get'})
-            .then(response => {
-                if (!response.ok) throw new Error(response.statusText)
-                return response.json()
-            })
-            .then(json => {
-                this.initData(json)
-            })
+        api.getRoutes((json) => {
+            this.initData(json)
+        })
     }
 
     getByName(name) {
@@ -43,53 +38,26 @@ export default class RouteStore {
     }
 
     create(route) {
-        fetch(getAPI('/api/routes'), {
-            method: 'post',
-            body: JSON.stringify(route),
-            headers: new Headers({'Content-Type': 'application/json'})
+        api.postRoute(route, (json) => {
+            this.sync()
         })
-            .then(response => {
-                if (!response.ok) throw new Error(response.statusText)
-                this.sync()
-            })
     }
 
     update(route) {
-        fetch(getAPI('/api/routes/' + route.name), {
-            method: 'put',
-            body: JSON.stringify(route),
-            headers: new Headers({'Content-Type': 'application/json'})
+        api.putRoute(route, (json) => {
+            this.sync()
         })
-            .then(response => {
-                if (!response.ok) throw new Error(response.statusText)
-                this.sync()
-            })
     }
 
     reorder(rangeStart, rangeLength, insertBefore) {
-        fetch(getAPI('/api/routes'), {
-            method: 'put',
-            body: JSON.stringify({
-                'range_start': rangeStart,
-                'range_length': rangeLength,
-                'insert_before': insertBefore
-            }),
-            headers: new Headers({'Content-Type': 'application/json'})
+        api.reorderRoutes(rangeStart, rangeLength, insertBefore, (json) => {
+            this.initData(json)
         })
-            .then(response => {
-                if (!response.ok) throw new Error(response.statusText)
-                return response.json()
-            })
-            .then(json => {
-                this.initData(json)
-            })
     }
 
     del(name) {
-        fetch(getAPI('/api/routes/' + name), {method: 'delete'})
-            .then(response => {
-                if (!response.ok) throw new Error(response.statusText)
-                this.sync()
-            })
+        api.deleteRoute(name, (json) => {
+            this.sync()
+        })
     }
 }
