@@ -1,24 +1,22 @@
-.PHONY: build docker-build dev clean
+.PHONY: yarninstall dev build docker-build clean
 
-.npminstall: package.json
-	@echo Getting dependencies using npm
-	npm install
-	touch $@
+yarninstall:
+	@echo Getting dependencies using yarn
+	yarn install
 
-dev: .npminstall
+dev: yarninstall
 	@echo Running webapp for development
-	npm run dev
+	yarn run dev
 
-build: .npminstall
+build: yarninstall
 	@echo Building webapp
-	npm run build
+	yarn run build
 
 docker-build:
 	@echo Building webapp with Docker
-	docker run --rm -v $(PWD):/smsender -w /smsender node:6.9.5 sh -c "make build"
+	docker run --rm -v $(PWD):/smsender -w /smsender node:6.10.0 sh -c "make build"
 
 clean:
 	@echo Cleaning webapp
 	rm -f public/bundle.js
-	rm -f .npminstall
 	rm -rf node_modules
