@@ -1,11 +1,9 @@
 var path = require('path')
 var webpack = require('webpack')
 
-const NPM_TARGET = process.env.npm_lifecycle_event
-
 var DEV = false
 
-if (NPM_TARGET === 'dev') {
+if (process.env.NODE_ENV === 'development') {
     DEV = true
 }
 
