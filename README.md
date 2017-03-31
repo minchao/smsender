@@ -133,9 +133,9 @@ curl -X POST http://localhost:8080/api/messages \
 
 The Console Web UI allows you to manage routes and monitor messages (at http://localhost:8080/console/).
 
-![logs screenshot](https://dl.dropboxusercontent.com/u/12513239/smsender-screenshot-logs.jpg)
+![logs screenshot](docs/screenshot/logs.jpg)
 
-![router screenshot](https://dl.dropboxusercontent.com/u/12513239/smsender-screenshot-router.jpg)
+![router screenshot](docs/screenshot/router.jpg)
 
 ## License
 
