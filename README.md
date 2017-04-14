@@ -119,14 +119,54 @@ Example:
 The API document is written in YAML and found in the [smsender-openapi.yaml](https://github.com/minchao/smsender/blob/master/smsender-openapi.yaml).
 You can use the [Swagger Editor](http://editor.swagger.io/) to open the document.
 
-Example:
-
-Send an SMS
+Example of sending a single SMS to one destination:
 
 ```bash
 curl -X POST http://localhost:8080/api/messages \
     -H "Content-Type: application/json" \
-    -d '{"to": ["+886987654321"],"from": "Gopher","body": "Hello, 世界"}'
+    -d '{"to": ["+12345678900"],"from": "Gopher","body": "Hello, 世界"}'
+```
+
+Result format:
+
+```json
+{
+    "data": [
+        {
+            "id": "b3oe98ent9k002f6ajp0",
+            "to": "+12345678900",
+            "from": "Gopher",
+            "body": "Hello, 世界",
+            "async": false,
+            "route": "Dummy",
+            "provider": "dummy",
+            "provider_message_id": "b3oe98ent9k002f6ajp0",
+            "steps": [
+                {
+                    "stage": "platform",
+                    "data": null,
+                    "status": "accepted",
+                    "created_time": "2017-04-14T15:02:57.123202398Z"
+                },
+                {
+                    "stage": "queue",
+                    "data": null,
+                    "status": "sending",
+                    "created_time": "2017-04-14T15:02:57.123556292Z"
+                },
+                {
+                    "stage": "queue.response",
+                    "data": null,
+                    "status": "delivered",
+                    "created_time": "2017-04-14T15:02:57.123726361Z"
+                }
+            ],
+            "status": "delivered",
+            "created_time": "2017-04-14T15:02:57.123202398Z",
+            "updated_time": "2017-04-14T15:02:57.123726361Z"
+        }
+    ]
+}
 ```
 
 ## Admin Console UI
