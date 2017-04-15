@@ -106,7 +106,6 @@ func (r *Router) Set(name, pattern string, provider model.Provider, from string,
 		return errors.New("route not found")
 	}
 	route.SetPattern(pattern)
-	route.Provider = provider.Name()
 	route.SetProvider(provider)
 	route.From = from
 	route.IsActive = isActive

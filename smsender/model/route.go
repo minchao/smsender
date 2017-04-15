@@ -31,6 +31,7 @@ func (r *Route) SetPattern(pattern string) *Route {
 }
 
 func (r *Route) SetProvider(provider Provider) *Route {
+	r.Provider = provider.Name()
 	r.provider = provider
 	return r
 }
