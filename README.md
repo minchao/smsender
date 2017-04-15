@@ -119,7 +119,31 @@ Example:
 The API document is written in YAML and found in the [smsender-openapi.yaml](https://github.com/minchao/smsender/blob/master/smsender-openapi.yaml).
 You can use the [Swagger Editor](http://editor.swagger.io/) to open the document.
 
-Example of sending a single SMS to one destination:
+### Example of creating a Dummy route
+
+Request:
+
+```bash
+curl -X POST http://localhost:8080/api/routes \
+    -H "Content-Type: application/json" \
+    -d '{"name": "Dummy", "pattern": "\\+12345678900", "provider": "dummy", "is_active", true}'
+```
+
+Response format:
+
+```json
+{
+  "name": "Dummy",
+  "pattern": "\\+12345678900",
+  "provider": "dummy",
+  "from": "",
+  "is_active": true
+}
+```
+
+### Example of sending a single SMS to one destination
+
+Request:
 
 ```bash
 curl -X POST http://localhost:8080/api/messages \
@@ -127,7 +151,7 @@ curl -X POST http://localhost:8080/api/messages \
     -d '{"to": ["+12345678900"],"from": "Gopher","body": "Hello, 世界"}'
 ```
 
-Result format:
+Response format:
 
 ```json
 {
