@@ -105,7 +105,7 @@ func (r *Router) Set(name, pattern string, provider model.Provider, from string,
 	if route == nil {
 		return errors.New("route not found")
 	}
-	route.Pattern = pattern
+	route.SetPattern(pattern)
 	route.Provider = provider.Name()
 	route.SetProvider(provider)
 	route.From = from

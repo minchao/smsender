@@ -24,6 +24,12 @@ func NewRoute(name, pattern string, provider Provider, isActive bool) *Route {
 	}
 }
 
+func (r *Route) SetPattern(pattern string) *Route {
+	r.Pattern = pattern
+	r.regex = regexp.MustCompile(pattern)
+	return r
+}
+
 func (r *Route) SetProvider(provider Provider) *Route {
 	r.provider = provider
 	return r
