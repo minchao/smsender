@@ -78,10 +78,10 @@ func TestRouter_Set(t *testing.T) {
 	router := createRouter()
 	provider := dummy.NewProvider("dummy")
 
-	route := model.NewRoute("taiwan", `^\+8869`, provider, true).SetFrom("sender")
+	route := model.NewRoute("user", `^\+886999999999`, provider, true).SetFrom("sender")
 
 	if err := router.Set(route.Name, route.Pattern, route.GetProvider(), route.From, true); err == nil {
-		newRoute := router.Get("taiwan")
+		newRoute := router.Get("user")
 		if newRoute == nil {
 			t.Fatal("route is not equal")
 		}
@@ -98,6 +98,13 @@ func TestRouter_Set(t *testing.T) {
 			t.Fatal("route.From is not equal")
 		}
 	}
+	if ok := router.Get("user").Match("+886987654321"); ok {
+		t.Fatal("route should not matched")
+	}
+	if ok := router.Get("user").Match("+886999999999"); !ok {
+		t.Fatal("route should be matched")
+	}
+
 	if err := router.Set("france", "", provider, "", true); err == nil {
 		t.Fatal("set route should be failed")
 	}
