@@ -38,6 +38,7 @@ func (s *Server) init() {
 	router.HandleFunc("/messages", s.Messages).Methods("GET")
 	router.HandleFunc("/messages/byIds", s.MessagesGetByIds).Methods("GET")
 	router.HandleFunc("/messages", s.MessagesPost).Methods("POST")
+	router.HandleFunc("/stats", s.Stats).Methods("GET")
 
 	n := negroni.New()
 

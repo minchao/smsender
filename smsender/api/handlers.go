@@ -312,3 +312,7 @@ func (s *Server) getProviders() []*provider {
 	}
 	return providers
 }
+
+func (s *Server) Stats(w http.ResponseWriter, r *http.Request) {
+	render(w, http.StatusOK, model.NewStats())
+}
