@@ -3,7 +3,6 @@ package smsender
 import (
 	"net/http"
 	"net/url"
-	"sync"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/gorilla/mux"
@@ -15,15 +14,12 @@ import (
 	"github.com/urfave/negroni"
 )
 
-var senderSingleton Sender
-
 type Sender struct {
 	store     store.Store
 	in        chan *model.MessageJob
 	out       chan *model.MessageJob
 	receipts  chan model.MessageReceipt
 	workerNum int
-	init      sync.Once
 
 	Router *Router
 	// HTTP server router
@@ -31,22 +27,26 @@ type Sender struct {
 	siteURL    *url.URL
 }
 
-func SMSender() *Sender {
-	senderSingleton.init.Do(func() {
-		senderSingleton.store = store.NewSqlStore()
-		senderSingleton.in = make(chan *model.MessageJob, 1000)
-		senderSingleton.out = make(chan *model.MessageJob, 1000)
-		senderSingleton.receipts = make(chan model.MessageReceipt, 1000)
-		senderSingleton.workerNum = config.GetInt("worker.num")
-		senderSingleton.Router = NewRouter(senderSingleton.store, not_found.NewProvider(model.NotFoundProvider))
-		senderSingleton.HTTPRouter = mux.NewRouter().StrictSlash(true)
-		var err error
-		senderSingleton.siteURL, err = url.Parse(config.GetString("http.siteURL"))
-		if err != nil {
-			log.Fatalln("siteURL err:", err)
-		}
-	})
-	return &senderSingleton
+func NewSender() *Sender {
+	siteURL, err := url.Parse(config.GetString("http.siteURL"))
+	if err != nil {
+		log.Fatalln("siteURL err:", err)
+	}
+
+	s := store.NewSqlStore()
+
+	return &Sender{
+		store:      s,
+		in:         make(chan *model.MessageJob, 1000),
+		out:        make(chan *model.MessageJob, 1000),
+		receipts:   make(chan model.MessageReceipt, 1000),
+		workerNum:  config.GetInt("worker.num"),
+		Router:     NewRouter(s, not_found.NewProvider(model.NotFoundProvider)),
+		HTTPRouter: mux.NewRouter().StrictSlash(true),
+		siteURL:    siteURL,
+	}
+
+	return nil
 }
 
 func (s *Sender) SearchMessages(params map[string]interface{}) ([]*model.Message, error) {

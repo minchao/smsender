@@ -52,7 +52,7 @@ func main() {
 		log.Fatalf("Fatal error config file: %s", err)
 	}
 
-	sender := smsender.SMSender()
+	sender := smsender.NewSender()
 
 	dummyProvider := dummy.NewProvider("dummy")
 	sender.Router.AddProvider(dummyProvider)
