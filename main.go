@@ -52,6 +52,8 @@ func main() {
 		log.Fatalf("Fatal error config file: %s", err)
 	}
 
+	log.Infof("Config path: %s", config.ConfigFileUsed())
+
 	sender := smsender.NewSender()
 
 	dummyProvider := dummy.NewProvider("dummy")
