@@ -13,7 +13,7 @@ type worker struct {
 func (w worker) process(job *model.MessageJob) {
 	var (
 		message  = job.Message
-		provider model.Provider
+		provider = w.sender.Router.NotFoundProvider
 	)
 
 	if match, ok := w.sender.Router.Match(message.To); ok {
@@ -25,20 +25,14 @@ func (w worker) process(job *model.MessageJob) {
 		provider = match.GetProvider()
 	}
 
-	// No route matched
-	if provider == nil {
-		provider = w.sender.Router.NotFoundProvider
-	}
-
 	p := provider.Name()
 	message.Provider = &p
 
 	log1 := log.WithFields(log.Fields{
 		"message_id": message.Id,
 		"worker_id":  w.id,
-		"message":    message,
 	})
-	log1.Debug("worker process")
+	log1.WithField("message", message).Debug("worker process")
 
 	// Save the send record to db
 	rch := w.sender.store.Message().Save(&message)
@@ -50,7 +44,7 @@ func (w worker) process(job *model.MessageJob) {
 	case model.StatusSent, model.StatusDelivered:
 		log1.Debug("successfully sent the message to the carrier")
 	default:
-		log1.Error("unable to send the message to the carrier")
+		log1.WithField("message", message).Error("unable to send the message to the carrier")
 	}
 
 	if job.Result != nil {
