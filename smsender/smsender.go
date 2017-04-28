@@ -15,11 +15,10 @@ import (
 )
 
 type Sender struct {
-	store     store.Store
-	in        chan *model.MessageJob
-	out       chan *model.MessageJob
-	receipts  chan model.MessageReceipt
-	workerNum int
+	store      store.Store
+	messagesCh chan *model.MessageJob
+	receiptsCh chan model.MessageReceipt
+	workerNum  int
 
 	Router *Router
 	// HTTP server router
@@ -37,9 +36,8 @@ func NewSender() *Sender {
 
 	return &Sender{
 		store:      s,
-		in:         make(chan *model.MessageJob, 1000),
-		out:        make(chan *model.MessageJob, 1000),
-		receipts:   make(chan model.MessageReceipt, 1000),
+		messagesCh: make(chan *model.MessageJob, 1000),
+		receiptsCh: make(chan model.MessageReceipt, 1000),
 		workerNum:  config.GetInt("worker.num"),
 		Router:     NewRouter(s, not_found.NewProvider(model.NotFoundProvider)),
 		HTTPRouter: mux.NewRouter().StrictSlash(true),
@@ -65,8 +63,8 @@ func (s *Sender) GetMessagesByIds(ids []string) ([]*model.Message, error) {
 	return result.Data.([]*model.Message), nil
 }
 
-func (s *Sender) GetIncomingQueue() chan *model.MessageJob {
-	return s.in
+func (s *Sender) GetMessagesChannel() chan *model.MessageJob {
+	return s.messagesCh
 }
 
 func (s *Sender) GetSiteURL() *url.URL {
@@ -78,9 +76,7 @@ func (s *Sender) Run() {
 	s.runWorkers()
 	s.runHTTPServer()
 
-	for message := range s.in {
-		s.out <- message
-	}
+	select {}
 }
 
 func (s *Sender) initWebhooks() {
@@ -89,7 +85,7 @@ func (s *Sender) initWebhooks() {
 			func(webhook *model.Webhook) {
 				s.HTTPRouter.HandleFunc(webhook.Path, webhook.Func).Methods(webhook.Method)
 			},
-			s.receipts)
+			s.receiptsCh)
 	}
 }
 
@@ -99,9 +95,9 @@ func (s *Sender) runWorkers() {
 		go func(w worker) {
 			for {
 				select {
-				case message := <-s.out:
+				case message := <-s.messagesCh:
 					w.process(message)
-				case receipt := <-s.receipts:
+				case receipt := <-s.receiptsCh:
 					w.receipt(receipt)
 				}
 			}

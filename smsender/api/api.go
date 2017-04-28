@@ -20,7 +20,7 @@ func InitAPI(sender *smsender.Sender) *Server {
 
 	server := Server{
 		sender: sender,
-		out:    sender.GetIncomingQueue(),
+		out:    sender.GetMessagesChannel(),
 	}
 	server.init()
 	return &server
