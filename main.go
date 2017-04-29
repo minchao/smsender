@@ -4,6 +4,9 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/minchao/smsender/smsender"
@@ -21,6 +24,20 @@ func usage() {
 Options are:
     -c, --config FILE  Configuration file path
     -h, --help         This help text`)
+	os.Exit(0)
+}
+
+func handleSignals(s *smsender.Sender) {
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+
+	<-c
+
+	log.Infoln("Shutting down")
+	go time.AfterFunc(60*time.Second, func() {
+		os.Exit(1)
+	})
+	s.Shutdown()
 	os.Exit(0)
 }
 
@@ -89,6 +106,8 @@ func main() {
 
 	api.InitAPI(sender)
 	web.InitWeb(sender)
+
+	go handleSignals(sender)
 
 	sender.Run()
 }

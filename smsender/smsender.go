@@ -3,6 +3,7 @@ package smsender
 import (
 	"net/http"
 	"net/url"
+	"sync"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/gorilla/mux"
@@ -24,6 +25,11 @@ type Sender struct {
 	// HTTP server router
 	HTTPRouter *mux.Router
 	siteURL    *url.URL
+
+	shutdown   bool
+	shutdownCh chan struct{}
+	mutex      sync.RWMutex
+	wg         sync.WaitGroup
 }
 
 func NewSender() *Sender {
@@ -42,6 +48,7 @@ func NewSender() *Sender {
 		Router:     NewRouter(s, not_found.NewProvider(model.NotFoundProvider)),
 		HTTPRouter: mux.NewRouter().StrictSlash(true),
 		siteURL:    siteURL,
+		shutdownCh: make(chan struct{}, 1),
 	}
 
 	return nil
@@ -71,12 +78,28 @@ func (s *Sender) GetSiteURL() *url.URL {
 	return s.siteURL
 }
 
+// Run performs all startup actions.
 func (s *Sender) Run() {
 	s.initWebhooks()
 	s.initWorkers()
 	go s.runHTTPServer()
 
 	select {}
+}
+
+// Shutdown sets shutdown flag and stops all workers.
+func (s *Sender) Shutdown() {
+	s.mutex.Lock()
+	if s.shutdown {
+		s.mutex.Unlock()
+		return
+	}
+	s.shutdown = true
+	s.mutex.Unlock()
+
+	s.wg.Add(s.workerNum)
+	close(s.shutdownCh)
+	s.wg.Wait()
 }
 
 func (s *Sender) initWebhooks() {
@@ -99,6 +122,9 @@ func (s *Sender) initWorkers() {
 					w.process(message)
 				case receipt := <-s.receiptsCh:
 					w.receipt(receipt)
+				case <-s.shutdownCh:
+					s.wg.Done()
+					return
 				}
 			}
 		}(w)
