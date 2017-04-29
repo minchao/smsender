@@ -73,8 +73,8 @@ func (s *Sender) GetSiteURL() *url.URL {
 
 func (s *Sender) Run() {
 	s.initWebhooks()
-	s.runWorkers()
-	s.runHTTPServer()
+	s.initWorkers()
+	go s.runHTTPServer()
 
 	select {}
 }
@@ -89,7 +89,7 @@ func (s *Sender) initWebhooks() {
 	}
 }
 
-func (s *Sender) runWorkers() {
+func (s *Sender) initWorkers() {
 	for i := 0; i < s.workerNum; i++ {
 		w := worker{i, s}
 		go func(w worker) {
@@ -114,17 +114,15 @@ func (s *Sender) runHTTPServer() {
 	n.UseFunc(utils.Logger)
 	n.UseHandler(s.HTTPRouter)
 
-	go func() {
-		addr := config.GetString("http.addr")
-		if config.GetBool("http.tls") {
-			log.Infof("Listening for HTTPS on %s", addr)
-			log.Fatal(http.ListenAndServeTLS(addr,
-				config.GetString("http.tlsCertFile"),
-				config.GetString("http.tlsKeyFile"),
-				n))
-		} else {
-			log.Infof("Listening for HTTP on %s", addr)
-			log.Fatal(http.ListenAndServe(addr, n))
-		}
-	}()
+	addr := config.GetString("http.addr")
+	if config.GetBool("http.tls") {
+		log.Infof("Listening for HTTPS on %s", addr)
+		log.Fatal(http.ListenAndServeTLS(addr,
+			config.GetString("http.tlsCertFile"),
+			config.GetString("http.tlsKeyFile"),
+			n))
+	} else {
+		log.Infof("Listening for HTTP on %s", addr)
+		log.Fatal(http.ListenAndServe(addr, n))
+	}
 }
