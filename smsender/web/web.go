@@ -10,6 +10,7 @@ import (
 	"github.com/urfave/negroni"
 )
 
+// InitWeb initializes the web server.
 func InitWeb(sender *smsender.Sender) {
 	log.Debug("web.InitWeb")
 

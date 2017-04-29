@@ -10,11 +10,13 @@ import (
 	"github.com/urfave/negroni"
 )
 
+// Server represents a web API server.
 type Server struct {
 	sender *smsender.Sender
 	out    chan<- *model.MessageJob
 }
 
+// InitAPI initializes the web API server.
 func InitAPI(sender *smsender.Sender) *Server {
 	log.Debug("api.InitAPI")
 

@@ -5,6 +5,7 @@ import (
 	"time"
 )
 
+// UnixMicroStringToTime returns the time.Time corresponding to the given Unix micro time string.
 func UnixMicroStringToTime(s string) (time.Time, error) {
 	validate := NewValidate()
 	validate.RegisterValidation("unixmicro", IsTimeUnixMicro)

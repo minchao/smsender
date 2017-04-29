@@ -78,6 +78,7 @@ func (j JSON) String() string {
 	return string(j)
 }
 
+// MarshalJSON returns the JSON encoding of v.
 func MarshalJSON(v interface{}) JSON {
 	b, err := json.Marshal(v)
 	if err != nil {
