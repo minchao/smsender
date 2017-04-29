@@ -50,8 +50,6 @@ func NewSender() *Sender {
 		siteURL:    siteURL,
 		shutdownCh: make(chan struct{}, 1),
 	}
-
-	return nil
 }
 
 func (s *Sender) SearchMessages(params map[string]interface{}) ([]*model.Message, error) {
