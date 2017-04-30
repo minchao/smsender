@@ -43,6 +43,7 @@ func (s *Server) init() {
 	router.HandleFunc("/stats", s.Stats).Methods("GET")
 
 	n := negroni.New()
+	n.UseFunc(s.ShutdownMiddleware)
 
 	if config.GetBool("http.api.cors.enable") {
 		n.Use(cors.New(cors.Options{

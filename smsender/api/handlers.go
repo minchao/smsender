@@ -316,3 +316,17 @@ func (s *Server) getProviders() []*provider {
 func (s *Server) Stats(w http.ResponseWriter, r *http.Request) {
 	render(w, http.StatusOK, model.NewStats())
 }
+
+// ShutdownMiddleware will return http.StatusServiceUnavailable if server is already in shutdown progress.
+func (s *Server) ShutdownMiddleware(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
+	if s.sender.IsShutdown() {
+		render(w,
+			http.StatusServiceUnavailable,
+			errorMessage{
+				Error:            "service_unavailable",
+				ErrorDescription: http.StatusText(http.StatusServiceUnavailable),
+			})
+		return
+	}
+	next(w, r)
+}
