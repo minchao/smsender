@@ -100,6 +100,13 @@ func (s *Sender) Shutdown() {
 	s.wg.Wait()
 }
 
+// IsShutdown returns true if the server is currently shutting down.
+func (s *Sender) IsShutdown() bool {
+	s.mutex.RLock()
+	defer s.mutex.RUnlock()
+	return s.shutdown
+}
+
 func (s *Sender) initWebhooks() {
 	for _, provider := range s.Router.providers {
 		provider.Callback(
