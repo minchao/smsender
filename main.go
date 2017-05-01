@@ -23,6 +23,7 @@ func usage() {
 	fmt.Println(`Usage: smsender [options]
 Options are:
     -c, --config FILE  Configuration file path
+    -d, --debug        Enable debug mode
     -h, --help         This help text`)
 	os.Exit(0)
 }
@@ -43,14 +44,17 @@ func handleSignals(s *smsender.Sender) {
 
 func main() {
 	var (
-		help       bool
 		configFile string
+		debug      bool
+		help       bool
 	)
 
-	flag.BoolVar(&help, "h", false, "This help text")
-	flag.BoolVar(&help, "help", false, "This help text")
 	flag.StringVar(&configFile, "c", "", "Configuration file path")
 	flag.StringVar(&configFile, "config", "", "Configuration file path")
+	flag.BoolVar(&debug, "d", false, "Enable debug mode")
+	flag.BoolVar(&debug, "debug", false, "Enable debug mode")
+	flag.BoolVar(&help, "h", false, "This help text")
+	flag.BoolVar(&help, "help", false, "This help text")
 
 	flag.Usage = usage
 	flag.Parse()
@@ -70,6 +74,11 @@ func main() {
 	}
 
 	log.Infof("Config path: %s", config.ConfigFileUsed())
+
+	if debug {
+		log.SetLevel(log.DebugLevel)
+		log.Debugln("Running in debug mode")
+	}
 
 	sender := smsender.NewSender()
 
