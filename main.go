@@ -35,10 +35,9 @@ func handleSignals(s *smsender.Sender) {
 func main() {
 	var configFile string
 	var debug bool
-	var help bool
 
 	var rootCmd = &cobra.Command{
-		Use:   "",
+		Use:   "smsender",
 		Short: "smsender",
 		Long:  "A SMS server written in Go (Golang)",
 		Run: func(cmd *cobra.Command, args []string) {
@@ -104,7 +103,6 @@ func main() {
 
 	rootCmd.Flags().StringVarP(&configFile, "config", "c", "", "Configuration file path")
 	rootCmd.Flags().BoolVarP(&debug, "debug", "d", false, "Enable debug mode")
-	rootCmd.Flags().BoolVarP(&help, "help", "h", false, "This help text")
 
 	rootCmd.Execute()
 }
