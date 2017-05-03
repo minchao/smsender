@@ -1,8 +1,8 @@
-hash: 30e2c7a452e311ecedc65b70b881ddc2a08de48a576e5bf5bd124b7dfd7bd633
-updated: 2017-02-05T21:31:05.708385431+08:00
+hash: 18cd1c8aa048208512b18c8d34185bd30c52a26c22fb3c6b631267e27ddb2e5b
+updated: 2017-05-03T19:15:15.51885212+08:00
 imports:
 - name: github.com/aws/aws-sdk-go
-  version: 3f8f870ec9939e32b3372abf74d24e468bcd285d
+  version: 0dbc446aca87aebb6e0a24509b59bafc0e3ec0ae
   subpackages:
   - aws
   - aws/awserr
@@ -93,7 +93,7 @@ imports:
 - name: github.com/rs/xid
   version: 057f3c928c207d1e7e318929eeac93bb46e319e3
 - name: github.com/Sirupsen/logrus
-  version: d26492970760ca5d33129d2d799e34be5c4782eb
+  version: ba1b36c82c5e05c4f912a88eab0dcd91a171688f
 - name: github.com/spf13/afero
   version: 72b31426848c6ef12a7a8e216708cb0d1530f074
   subpackages:
@@ -135,7 +135,7 @@ imports:
   - transform
   - unicode/norm
 - name: gopkg.in/go-playground/validator.v9
-  version: 691ea5506371685479307baaf0e623e850de4dbf
+  version: 6d8c18553ea1ac493d049edd6f102f52e618f085
 - name: gopkg.in/njern/gonexmo.v1
   version: c83191e580d14eb435e39f0317a89c6912b094a4
 - name: gopkg.in/yaml.v2

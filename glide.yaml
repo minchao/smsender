@@ -1,9 +1,9 @@
 package: github.com/minchao/smsender
 import:
 - package: github.com/Sirupsen/logrus
-  version: ^0.11.0
+  version: ^0.11.5
 - package: github.com/aws/aws-sdk-go
-  version: ^1.6.18
+  version: ^1.8.19
   subpackages:
   - aws
   - aws/credentials
@@ -21,7 +21,7 @@ import:
 - package: github.com/ttacon/libphonenumber
 - package: github.com/urfave/negroni
 - package: gopkg.in/go-playground/validator.v9
-  version: ^9.3.3
+  version: ^9.3.6
 - package: github.com/go-playground/form
 - package: gopkg.in/njern/gonexmo.v1
   version: ^1.0.1
