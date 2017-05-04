@@ -78,9 +78,9 @@ func (s *Sender) GetSiteURL() *url.URL {
 
 // Run performs all startup actions.
 func (s *Sender) Run() {
-	s.initWebhooks()
-	s.initWorkers()
-	go s.runHTTPServer()
+	s.InitWebhooks()
+	s.InitWorkers()
+	go s.RunHTTPServer()
 
 	select {}
 }
@@ -107,7 +107,7 @@ func (s *Sender) IsShutdown() bool {
 	return s.shutdown
 }
 
-func (s *Sender) initWebhooks() {
+func (s *Sender) InitWebhooks() {
 	for _, provider := range s.Router.providers {
 		provider.Callback(
 			func(webhook *model.Webhook) {
@@ -117,7 +117,7 @@ func (s *Sender) initWebhooks() {
 	}
 }
 
-func (s *Sender) initWorkers() {
+func (s *Sender) InitWorkers() {
 	for i := 0; i < s.workerNum; i++ {
 		w := worker{i, s}
 		go func(w worker) {
@@ -136,7 +136,7 @@ func (s *Sender) initWorkers() {
 	}
 }
 
-func (s *Sender) runHTTPServer() {
+func (s *Sender) RunHTTPServer() {
 	if !config.GetBool("http.enable") {
 		return
 	}
