@@ -114,6 +114,34 @@ Example:
 | USA     | \\+1                | twilio   |                   |
 | Default | .*                  | nexmo    | Default           |
 
+## Commands
+
+```bash
+./bin/smsender -h
+A SMS server written in Go (Golang)
+
+Usage:
+  smsender [flags]
+  smsender [command]
+
+Available Commands:
+  help        Help about any command
+  send        Send message
+
+Flags:
+  -c, --config string   Configuration file path
+  -d, --debug           Enable debug mode
+  -h, --help            help for smsender
+
+Use "smsender [command] --help" for more information about a command.
+```
+
+### Example of sending a single SMS to one destination
+
+```bash
+./bin/smsender send --to +12345678900 --from Gopher --body "Hello, 世界" --provider dummy
+```
+
 ## RESTful API
 
 The API document is written in YAML and found in the [smsender-openapi.yaml](https://github.com/minchao/smsender/blob/master/smsender-openapi.yaml).
