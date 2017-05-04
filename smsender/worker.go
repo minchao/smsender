@@ -16,13 +16,20 @@ func (w worker) process(job *model.MessageJob) {
 		provider = w.sender.Router.NotFoundProvider
 	)
 
-	if match, ok := w.sender.Router.Match(message.To); ok {
-		if message.From == "" && match.From != "" {
-			message.From = match.From
+	if message.Provider != nil {
+		// Send message with specific provider
+		if p := w.sender.Router.GetProvider(*message.Provider); p != nil {
+			provider = p
 		}
-		route := match.Name
-		message.Route = &route
-		provider = match.GetProvider()
+	} else {
+		if match, ok := w.sender.Router.Match(message.To); ok {
+			if message.From == "" && match.From != "" {
+				message.From = match.From
+			}
+			route := match.Name
+			message.Route = &route
+			provider = match.GetProvider()
+		}
 	}
 
 	p := provider.Name()
