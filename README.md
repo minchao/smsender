@@ -56,20 +56,6 @@ providers:
     secret: "NEXMO_SECRET"
 ```
 
-Add the following code to main.go:
-
-```go
-    sender := smsender.SMSender()
-    
-	nexmoProvider := nexmo.Config{
-		Key:    config.GetString("providers.nexmo.key"),
-		Secret: config.GetString("providers.nexmo.secret"),
-	}.NewProvider("nexmo")
-	
-	sender.AddProvider(nexmoProvider)
-	sender.Run()
-```
-
 Build:
 
 ```bash
@@ -82,7 +68,7 @@ Run:
 ./bin/smsender
 ```
 
-## Run in Docker
+## Running smsender server in docker container
 
 You can use the [docker-compose](https://docs.docker.com/compose/) to launch the preview version of SMSender, It will start the app and db in separate containers:
 
