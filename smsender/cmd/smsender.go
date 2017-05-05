@@ -13,7 +13,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// Main starts smsender server.
+// Execute executes the smsender command.
 func Execute() {
 	var configFile string
 	var debug bool
