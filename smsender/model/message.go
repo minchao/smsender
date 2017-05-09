@@ -30,7 +30,7 @@ type Message struct {
 }
 
 func NewMessage(to, from, body string, async bool) *Message {
-	now := time.Now()
+	now := Now()
 	message := Message{
 		Id:          xid.New().String(),
 		To:          to,
@@ -113,7 +113,7 @@ func NewMessageStepSending() *MessageStep {
 		Stage:       StageQueue,
 		Data:        nil,
 		Status:      StatusSending,
-		CreatedTime: time.Now(),
+		CreatedTime: Now(),
 	}
 }
 
@@ -132,7 +132,7 @@ func NewMessageResponse(status StatusCode, response interface{}, providerMessage
 			Stage:       StageQueueResponse,
 			Data:        response,
 			Status:      status,
-			CreatedTime: time.Now(),
+			CreatedTime: Now(),
 		},
 		ProviderMessageId: providerMessageId,
 	}
@@ -150,7 +150,7 @@ func NewMessageReceipt(providerMessageId, provider string, status StatusCode, re
 			Stage:       StageCarrierReceipt,
 			Data:        receipt,
 			Status:      status,
-			CreatedTime: time.Now(),
+			CreatedTime: Now(),
 		},
 		ProviderMessageId: providerMessageId,
 		Provider:          provider,
