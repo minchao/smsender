@@ -7,6 +7,7 @@ A SMS server written in Go (Golang).
 
 * Support various SMS providers.
 * Support routing, uses routes to determine which provider to send SMS.
+* Support command line to send a single SMS.
 * Support to receive delivery receipts from provider.
 * SMS delivery worker.
 * SMS delivery records.
