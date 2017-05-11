@@ -25,8 +25,8 @@ func (rs *testRouteStore) SaveAll(routes []*model.Route) store.StoreChannel {
 }
 
 func createRouter() *Router {
-	dummyProvider1 := dummy.NewProvider("dummy1")
-	dummyProvider2 := dummy.NewProvider("dummy2")
+	dummyProvider1 := dummy.New("dummy1")
+	dummyProvider2 := dummy.New("dummy2")
 	router := Router{store: &store.DummyStore{DummyRoute: &testRouteStore{}}}
 
 	router.Add(model.NewRoute("default", `^\+.*`, dummyProvider1, true))
@@ -76,7 +76,7 @@ func TestRouter_Get(t *testing.T) {
 
 func TestRouter_Set(t *testing.T) {
 	router := createRouter()
-	provider := dummy.NewProvider("dummy")
+	provider := dummy.New("dummy")
 
 	route := model.NewRoute("user", `^\+886999999999`, provider, true).SetFrom("sender")
 
@@ -126,7 +126,7 @@ func TestRouter_Remove(t *testing.T) {
 func TestRouter_Reorder(t *testing.T) {
 	newRouter := func() *Router {
 		router := Router{store: &store.DummyStore{DummyRoute: &testRouteStore{}}}
-		provider := dummy.NewProvider("dummy")
+		provider := dummy.New("dummy")
 		for _, r := range []string{"D", "C", "B", "A"} {
 			router.Add(model.NewRoute(r, "", provider, true))
 		}

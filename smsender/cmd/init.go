@@ -5,10 +5,11 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/minchao/smsender/smsender"
-	"github.com/minchao/smsender/smsender/providers/aws"
-	"github.com/minchao/smsender/smsender/providers/dummy"
-	"github.com/minchao/smsender/smsender/providers/nexmo"
-	"github.com/minchao/smsender/smsender/providers/twilio"
+	"github.com/minchao/smsender/smsender/plugin"
+	_ "github.com/minchao/smsender/smsender/providers/aws"
+	_ "github.com/minchao/smsender/smsender/providers/dummy"
+	_ "github.com/minchao/smsender/smsender/providers/nexmo"
+	_ "github.com/minchao/smsender/smsender/providers/twilio"
 	"github.com/spf13/cobra"
 	config "github.com/spf13/viper"
 )
@@ -40,35 +41,15 @@ func initEnv(cmd *cobra.Command) error {
 }
 
 func initRouter(sender *smsender.Sender) error {
-	dummyProvider := dummy.NewProvider("dummy")
-	sender.Router.AddProvider(dummyProvider)
-
-	if ok := config.IsSet("providers.aws"); ok {
-		provider := aws.Config{
-			Region: config.GetString("providers.aws.region"),
-			ID:     config.GetString("providers.aws.id"),
-			Secret: config.GetString("providers.aws.secret"),
-		}.NewProvider("aws")
-		sender.Router.AddProvider(provider)
-	}
-
-	if ok := config.IsSet("providers.nexmo"); ok {
-		provider := nexmo.Config{
-			Key:           config.GetString("providers.nexmo.key"),
-			Secret:        config.GetString("providers.nexmo.secret"),
-			EnableWebhook: config.GetBool("providers.nexmo.webhook.enable"),
-		}.NewProvider("nexmo")
-		sender.Router.AddProvider(provider)
-	}
-
-	if ok := config.IsSet("providers.twilio"); ok {
-		provider := twilio.Config{
-			Sid:           config.GetString("providers.twilio.sid"),
-			Token:         config.GetString("providers.twilio.token"),
-			EnableWebhook: config.GetBool("providers.twilio.webhook.enable"),
-			SiteURL:       config.GetString("http.siteURL"),
-		}.NewProvider("twilio")
-		sender.Router.AddProvider(provider)
+	for name := range config.GetStringMap("providers") {
+		fn, ok := plugin.ProviderFactories[name]
+		if ok {
+			provider, err := fn(config.Sub(fmt.Sprintf("providers.%s", name)))
+			if err != nil {
+				log.Fatalf("Provider %s not registered", name)
+			}
+			sender.Router.AddProvider(provider)
+		}
 	}
 
 	return sender.Router.LoadFromDB()

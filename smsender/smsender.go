@@ -45,7 +45,7 @@ func NewSender() *Sender {
 		messagesCh: make(chan *model.MessageJob, 1000),
 		receiptsCh: make(chan model.MessageReceipt, 1000),
 		workerNum:  config.GetInt("worker.num"),
-		Router:     NewRouter(s, not_found.NewProvider(model.NotFoundProvider)),
+		Router:     NewRouter(s, not_found.New(model.NotFoundProvider)),
 		HTTPRouter: mux.NewRouter().StrictSlash(true),
 		siteURL:    siteURL,
 		shutdownCh: make(chan struct{}, 1),

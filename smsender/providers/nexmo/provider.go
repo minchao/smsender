@@ -5,9 +5,25 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/minchao/smsender/smsender/model"
+	"github.com/minchao/smsender/smsender/plugin"
 	"github.com/minchao/smsender/smsender/utils"
+	"github.com/spf13/viper"
 	"gopkg.in/njern/gonexmo.v1"
 )
+
+const name = "nexmo"
+
+func init() {
+	plugin.RegisterProvider(name, Plugin)
+}
+
+func Plugin(config *viper.Viper) (model.Provider, error) {
+	return Config{
+		Key:           config.GetString("key"),
+		Secret:        config.GetString("secret"),
+		EnableWebhook: config.GetBool("webhook.enable"),
+	}.New(name)
+}
 
 type Provider struct {
 	name          string
@@ -22,17 +38,19 @@ type Config struct {
 	EnableWebhook bool
 }
 
-func (c Config) NewProvider(name string) *Provider {
+// New creates Nexmo Provider.
+func (c Config) New(name string) (*Provider, error) {
 	client, err := nexmo.NewClientFromAPI(c.Key, c.Secret)
 	if err != nil {
-		log.Fatalf("Could not create the nexmo client: %s", err)
+		return nil, err
 	}
 	return &Provider{
+
 		name:          name,
 		client:        client,
 		enableWebhook: c.EnableWebhook,
 		webhookPath:   "/webhooks/" + name,
-	}
+	}, nil
 }
 
 func (b Provider) Name() string {

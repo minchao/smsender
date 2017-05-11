@@ -1,12 +1,30 @@
 package twilio
 
 import (
+	"errors"
 	"net/http"
 
 	log "github.com/Sirupsen/logrus"
 	twilio "github.com/carlosdp/twiliogo"
 	"github.com/minchao/smsender/smsender/model"
+	"github.com/minchao/smsender/smsender/plugin"
+	config "github.com/spf13/viper"
 )
+
+const name = "twilio"
+
+func init() {
+	plugin.RegisterProvider(name, Plugin)
+}
+
+func Plugin(c *config.Viper) (model.Provider, error) {
+	return Config{
+		Sid:           c.GetString("sid"),
+		Token:         c.GetString("token"),
+		EnableWebhook: c.GetBool("webhook.enable"),
+		SiteURL:       config.GetString("http.siteURL"),
+	}.New(name)
+}
 
 type Provider struct {
 	name          string
@@ -23,20 +41,21 @@ type Config struct {
 	SiteURL       string
 }
 
-func (c Config) NewProvider(name string) *Provider {
+// New creates Twilio Provider.
+func (c Config) New(name string) (*Provider, error) {
 	provider := &Provider{
 		name:   name,
 		client: twilio.NewClient(c.Sid, c.Token),
 	}
 	if c.EnableWebhook {
 		if c.SiteURL == "" {
-			log.Fatal("Could not create the twilio provider: SiteURL cannot be empty")
+			return nil, errors.New("Could not create the twilio provider: SiteURL cannot be empty")
 		}
 		provider.enableWebhook = true
 		provider.siteURL = c.SiteURL
 		provider.webhookPath = "/webhooks/" + name
 	}
-	return provider
+	return provider, nil
 }
 
 func (b Provider) Name() string {

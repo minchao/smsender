@@ -6,7 +6,7 @@ type Provider struct {
 	name string
 }
 
-func NewProvider(name string) *Provider {
+func New(name string) *Provider {
 	return &Provider{
 		name: name,
 	}

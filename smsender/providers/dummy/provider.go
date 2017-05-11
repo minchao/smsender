@@ -2,13 +2,26 @@ package dummy
 
 import (
 	"github.com/minchao/smsender/smsender/model"
+	"github.com/minchao/smsender/smsender/plugin"
+	"github.com/spf13/viper"
 )
+
+const name = "dummy"
+
+func init() {
+	plugin.RegisterProvider(name, Plugin)
+}
+
+func Plugin(config *viper.Viper) (model.Provider, error) {
+	return New(name), nil
+}
 
 type Provider struct {
 	name string
 }
 
-func NewProvider(name string) *Provider {
+// New creates Dummy Provider.
+func New(name string) *Provider {
 	return &Provider{
 		name: name,
 	}

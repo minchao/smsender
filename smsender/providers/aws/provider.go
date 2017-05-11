@@ -1,13 +1,28 @@
 package aws
 
 import (
-	log "github.com/Sirupsen/logrus"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/sns"
 	"github.com/minchao/smsender/smsender/model"
+	"github.com/minchao/smsender/smsender/plugin"
+	"github.com/spf13/viper"
 )
+
+const name = "aws"
+
+func init() {
+	plugin.RegisterProvider(name, Plugin)
+}
+
+func Plugin(config *viper.Viper) (model.Provider, error) {
+	return Config{
+		Region: config.GetString("region"),
+		ID:     config.GetString("id"),
+		Secret: config.GetString("secret"),
+	}.New(name)
+}
 
 type Provider struct {
 	name string
@@ -20,7 +35,8 @@ type Config struct {
 	Secret string
 }
 
-func (c Config) NewProvider(name string) *Provider {
+// New creates AWS Provider.
+func (c Config) New(name string) (*Provider, error) {
 	sess, err := session.NewSession(&aws.Config{
 		Region: aws.String(c.Region),
 		Credentials: credentials.NewStaticCredentials(
@@ -30,13 +46,13 @@ func (c Config) NewProvider(name string) *Provider {
 		),
 	})
 	if err != nil {
-		log.Fatalf("Could not create the aws session: %s", err)
+		return nil, err
 	}
 
 	return &Provider{
 		name: name,
 		svc:  sns.New(sess),
-	}
+	}, nil
 }
 
 func (b Provider) Name() string {
