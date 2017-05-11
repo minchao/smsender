@@ -7,6 +7,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 )
 
+// Logger middleware handles the HTTP log.
 func Logger(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
 	start := time.Now()
 	path := r.URL.Path
