@@ -6,10 +6,6 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/minchao/smsender/smsender"
 	"github.com/minchao/smsender/smsender/plugin"
-	_ "github.com/minchao/smsender/smsender/providers/aws"
-	_ "github.com/minchao/smsender/smsender/providers/dummy"
-	_ "github.com/minchao/smsender/smsender/providers/nexmo"
-	_ "github.com/minchao/smsender/smsender/providers/twilio"
 	"github.com/spf13/cobra"
 	config "github.com/spf13/viper"
 )
