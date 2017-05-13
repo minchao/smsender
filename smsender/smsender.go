@@ -107,6 +107,7 @@ func (s *Sender) IsShutdown() bool {
 	return s.shutdown
 }
 
+// InitWebhooks initializes the webhooks.
 func (s *Sender) InitWebhooks() {
 	for _, provider := range s.Router.providers {
 		provider.Callback(
@@ -117,6 +118,7 @@ func (s *Sender) InitWebhooks() {
 	}
 }
 
+// InitWorkers initializes the message workers.
 func (s *Sender) InitWorkers() {
 	for i := 0; i < s.workerNum; i++ {
 		w := worker{i, s}
@@ -136,6 +138,7 @@ func (s *Sender) InitWorkers() {
 	}
 }
 
+// RunHTTPServer starts the HTTP server.
 func (s *Sender) RunHTTPServer() {
 	if !config.GetBool("http.enable") {
 		return
