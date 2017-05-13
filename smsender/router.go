@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"sync"
 
-	log "github.com/Sirupsen/logrus"
 	"github.com/minchao/smsender/smsender/model"
 	"github.com/minchao/smsender/smsender/store"
 )
@@ -22,6 +21,7 @@ type Router struct {
 	NotFoundProvider model.Provider
 }
 
+// NewRouter creates a new instance of the Router.
 func NewRouter(store store.Store, notFoundProvider model.Provider) *Router {
 	return &Router{
 		store:            store,
@@ -70,6 +70,7 @@ func (r *Router) get(name string) (int, *model.Route) {
 	return 0, nil
 }
 
+// Get returns route by specify name.
 func (r *Router) Get(name string) *model.Route {
 	r.rMutex.RLock()
 	defer r.rMutex.RUnlock()
@@ -77,12 +78,12 @@ func (r *Router) Get(name string) *model.Route {
 	return route
 }
 
-// Add new route to the beginning of routes slice.
-func (r *Router) Add(route *model.Route) {
+// Add adds new route to the beginning of routes slice.
+func (r *Router) Add(route *model.Route) error {
 	r.rMutex.Lock()
 	defer r.rMutex.Unlock()
 	r.routes = append([]*model.Route{route}, r.routes...)
-	r.saveToDB()
+	return r.saveToDB()
 }
 
 func (r *Router) AddWith(name, pattern, providerName, from string, isActive bool) error {
@@ -94,8 +95,7 @@ func (r *Router) AddWith(name, pattern, providerName, from string, isActive bool
 	if provider == nil {
 		return errors.New("provider not found")
 	}
-	r.Add(model.NewRoute(name, pattern, provider, isActive).SetFrom(from))
-	return nil
+	return r.Add(model.NewRoute(name, pattern, provider, isActive).SetFrom(from))
 }
 
 func (r *Router) Set(name, pattern string, provider model.Provider, from string, isActive bool) error {
@@ -109,8 +109,7 @@ func (r *Router) Set(name, pattern string, provider model.Provider, from string,
 	route.SetProvider(provider)
 	route.From = from
 	route.IsActive = isActive
-	r.saveToDB()
-	return nil
+	return r.saveToDB()
 }
 
 func (r *Router) SetWith(name, pattern, providerName, from string, isActive bool) error {
@@ -124,14 +123,14 @@ func (r *Router) SetWith(name, pattern, providerName, from string, isActive bool
 	return nil
 }
 
-func (r *Router) Remove(name string) {
+func (r *Router) Remove(name string) error {
 	r.rMutex.Lock()
 	defer r.rMutex.Unlock()
 	idx, route := r.get(name)
 	if route != nil {
 		r.routes = append(r.routes[:idx], r.routes[idx+1:]...)
 	}
-	r.saveToDB()
+	return r.saveToDB()
 }
 
 func (r *Router) Reorder(rangeStart, rangeLength, insertBefore int) error {
@@ -174,33 +173,29 @@ func (r *Router) Reorder(rangeStart, rangeLength, insertBefore int) error {
 	result = append(result[:idxToRemove], result[idxToRemove+rangeLength:]...)
 
 	r.routes = result
-	r.saveToDB()
-
-	return nil
+	return r.saveToDB()
 }
 
 func (r *Router) saveToDB() error {
 	if result := <-r.store.Route().SaveAll(r.routes); result.Err != nil {
-		log.Errorf("SaveRoutesToDB() error: %v", result.Err)
 		return result.Err
 	}
 	return nil
 }
 
-// Save routes into database.
+// SaveToDB saves the routes into database.
 func (r *Router) SaveToDB() error {
 	r.rMutex.RLock()
 	defer r.rMutex.RUnlock()
 	return r.saveToDB()
 }
 
-// Load routes from database.
+// LoadFromDB returns the routes from database.
 func (r *Router) LoadFromDB() error {
 	r.rMutex.Lock()
 	defer r.rMutex.Unlock()
 	result := <-r.store.Route().GetAll()
 	if result.Err != nil {
-		log.Errorf("LoadRoutesFromDB() error: %v", result.Err)
 		return result.Err
 	}
 
