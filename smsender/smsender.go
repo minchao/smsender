@@ -43,18 +43,15 @@ func NewSender() *Sender {
 	}
 
 	storeName := config.GetString("store.name")
-
-	log.Println(plugin.StoreFactories)
-
 	fn, ok := plugin.StoreFactories[storeName]
 	if !ok {
 		log.Fatalf("store factory '%s' not found", storeName)
 	}
-
 	s, err := fn(config.Sub(fmt.Sprintf("store.%s", storeName)))
 	if err != nil {
 		log.Fatalf("store init failure:", err)
 	}
+	log.Debugf("Store: %s", storeName)
 
 	sender := &Sender{
 		store:      s,
