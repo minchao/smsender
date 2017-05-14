@@ -40,9 +40,6 @@ func rootCmdF(cmd *cobra.Command, args []string) {
 	}
 
 	sender := smsender.NewSender()
-
-	initRouter(sender)
-
 	api.InitAPI(sender)
 	web.InitWeb(sender)
 

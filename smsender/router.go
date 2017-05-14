@@ -6,11 +6,14 @@ import (
 	"sync"
 
 	"github.com/minchao/smsender/smsender/model"
+	"github.com/minchao/smsender/smsender/plugin"
 	"github.com/minchao/smsender/smsender/store"
+	"github.com/spf13/viper"
 )
 
 // Router registers routes to be matched and dispatches a provider.
 type Router struct {
+	config    *viper.Viper
 	store     store.Store
 	providers map[string]model.Provider
 	pMutex    sync.RWMutex
@@ -22,13 +25,29 @@ type Router struct {
 }
 
 // NewRouter creates a new instance of the Router.
-func NewRouter(store store.Store, notFoundProvider model.Provider) *Router {
+func NewRouter(config *viper.Viper, store store.Store, notFoundProvider model.Provider) *Router {
 	return &Router{
+		config:           config,
 		store:            store,
 		routes:           make([]*model.Route, 0),
 		providers:        make(map[string]model.Provider),
 		NotFoundProvider: notFoundProvider,
 	}
+}
+
+// Init initializes the router.
+func (r *Router) Init() error {
+	for name := range r.config.GetStringMap("providers") {
+		fn, ok := plugin.ProviderFactories[name]
+		if ok {
+			provider, err := fn(r.config.Sub(fmt.Sprintf("providers.%s", name)))
+			if err != nil {
+				return fmt.Errorf("Provider %s not registered", name)
+			}
+			r.AddProvider(provider)
+		}
+	}
+	return r.LoadFromDB()
 }
 
 func (r *Router) GetProviders() map[string]model.Provider {
@@ -86,6 +105,7 @@ func (r *Router) Add(route *model.Route) error {
 	return r.saveToDB()
 }
 
+// AddWith adds new route with parameters.
 func (r *Router) AddWith(name, pattern, providerName, from string, isActive bool) error {
 	route := r.Get(name)
 	if route != nil {

@@ -32,24 +32,32 @@ type Sender struct {
 	wg         sync.WaitGroup
 }
 
+// NewSender creates Sender.
 func NewSender() *Sender {
 	siteURL, err := url.Parse(config.GetString("http.siteURL"))
 	if err != nil {
-		log.Fatalln("siteURL err:", err)
+		log.Fatalln("config siteURL err:", err)
 	}
 
 	s := store.NewSqlStore()
 
-	return &Sender{
+	sender := &Sender{
 		store:      s,
 		messagesCh: make(chan *model.MessageJob, 1000),
 		receiptsCh: make(chan model.MessageReceipt, 1000),
 		workerNum:  config.GetInt("worker.num"),
-		Router:     NewRouter(s, not_found.New(model.NotFoundProvider)),
+		Router:     NewRouter(config.GetViper(), s, not_found.New(model.NotFoundProvider)),
 		HTTPRouter: mux.NewRouter().StrictSlash(true),
 		siteURL:    siteURL,
 		shutdownCh: make(chan struct{}, 1),
 	}
+
+	err = sender.Router.Init()
+	if err != nil {
+		log.Fatalln("init router err:", err)
+	}
+
+	return sender
 }
 
 func (s *Sender) SearchMessages(params map[string]interface{}) ([]*model.Message, error) {

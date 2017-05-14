@@ -13,6 +13,7 @@ type Route struct {
 	regex    *regexp.Regexp
 }
 
+// NewRoute creates a new instance of the Route.
 func NewRoute(name, pattern string, provider Provider, isActive bool) *Route {
 	return &Route{
 		Name:     name,
@@ -45,6 +46,7 @@ func (r *Route) SetFrom(from string) *Route {
 	return r
 }
 
+// Match matches the route against the recipient phone number.
 func (r *Route) Match(recipient string) bool {
 	return r.IsActive && r.regex.MatchString(recipient)
 }

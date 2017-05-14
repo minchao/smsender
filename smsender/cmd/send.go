@@ -54,8 +54,6 @@ func sendCmdF(cmd *cobra.Command, args []string) error {
 	sender := smsender.NewSender()
 	sender.InitWorkers()
 
-	initRouter(sender)
-
 	job := model.NewMessageJob(to, from, body, false)
 	if provider != "" {
 		job.Provider = &provider
