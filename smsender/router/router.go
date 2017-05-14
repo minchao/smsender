@@ -1,4 +1,4 @@
-package smsender
+package router
 
 import (
 	"errors"
@@ -24,8 +24,8 @@ type Router struct {
 	NotFoundProvider model.Provider
 }
 
-// NewRouter creates a new instance of the Router.
-func NewRouter(config *viper.Viper, store store.Store, notFoundProvider model.Provider) *Router {
+// New creates a new instance of the Router.
+func New(config *viper.Viper, store store.Store, notFoundProvider model.Provider) *Router {
 	return &Router{
 		config:           config,
 		store:            store,

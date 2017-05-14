@@ -9,6 +9,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/minchao/smsender/smsender/model"
 	"github.com/minchao/smsender/smsender/providers/not_found"
+	"github.com/minchao/smsender/smsender/router"
 	"github.com/minchao/smsender/smsender/store"
 	"github.com/minchao/smsender/smsender/utils"
 	config "github.com/spf13/viper"
@@ -21,7 +22,7 @@ type Sender struct {
 	receiptsCh chan model.MessageReceipt
 	workerNum  int
 
-	Router *Router
+	Router *router.Router
 	// HTTP server router
 	HTTPRouter *mux.Router
 	siteURL    *url.URL
@@ -46,7 +47,7 @@ func NewSender() *Sender {
 		messagesCh: make(chan *model.MessageJob, 1000),
 		receiptsCh: make(chan model.MessageReceipt, 1000),
 		workerNum:  config.GetInt("worker.num"),
-		Router:     NewRouter(config.GetViper(), s, not_found.New(model.NotFoundProvider)),
+		Router:     router.New(config.GetViper(), s, not_found.New(model.NotFoundProvider)),
 		HTTPRouter: mux.NewRouter().StrictSlash(true),
 		siteURL:    siteURL,
 		shutdownCh: make(chan struct{}, 1),
@@ -117,7 +118,7 @@ func (s *Sender) IsShutdown() bool {
 
 // InitWebhooks initializes the webhooks.
 func (s *Sender) InitWebhooks() {
-	for _, provider := range s.Router.providers {
+	for _, provider := range s.Router.GetProviders() {
 		provider.Callback(
 			func(webhook *model.Webhook) {
 				s.HTTPRouter.HandleFunc(webhook.Path, webhook.Func).Methods(webhook.Method)

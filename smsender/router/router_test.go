@@ -1,4 +1,4 @@
-package smsender
+package router
 
 import (
 	"fmt"
