@@ -1,8 +1,9 @@
-package store
+package sql
 
 import (
 	"github.com/jmoiron/sqlx"
 	"github.com/minchao/smsender/smsender/model"
+	"github.com/minchao/smsender/smsender/store"
 )
 
 const SqlMessageTable = `
@@ -23,23 +24,23 @@ CREATE TABLE IF NOT EXISTS message (
   KEY providerMessageId (provider, providerMessageId)
 ) DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci`
 
-type SqlMessageStore struct {
-	*SqlStore
+type MessageStore struct {
+	*Store
 }
 
-func NewSqlMessageStore(sqlStore *SqlStore) MessageStore {
-	ms := &SqlMessageStore{sqlStore}
+func NewSqlMessageStore(sqlStore *Store) store.MessageStore {
+	ms := &MessageStore{sqlStore}
 
 	ms.db.MustExec(SqlMessageTable)
 
 	return ms
 }
 
-func (ms *SqlMessageStore) Get(id string) StoreChannel {
-	storeChannel := make(StoreChannel, 1)
+func (ms *MessageStore) Get(id string) store.Channel {
+	storeChannel := make(store.Channel, 1)
 
 	go func() {
-		result := StoreResult{}
+		result := store.Result{}
 
 		var message model.Message
 		if err := ms.db.Get(&message, `SELECT * FROM message WHERE id = ?`, id); err != nil {
@@ -55,11 +56,11 @@ func (ms *SqlMessageStore) Get(id string) StoreChannel {
 	return storeChannel
 }
 
-func (ms *SqlMessageStore) GetByIds(ids []string) StoreChannel {
-	storeChannel := make(StoreChannel, 1)
+func (ms *MessageStore) GetByIds(ids []string) store.Channel {
+	storeChannel := make(store.Channel, 1)
 
 	go func() {
-		result := StoreResult{}
+		result := store.Result{}
 
 		query, args, err := sqlx.In("SELECT * FROM message WHERE id IN (?)", ids)
 		if err != nil {
@@ -84,11 +85,11 @@ func (ms *SqlMessageStore) GetByIds(ids []string) StoreChannel {
 	return storeChannel
 }
 
-func (ms *SqlMessageStore) GetByProviderAndMessageId(provider, providerMessageId string) StoreChannel {
-	storeChannel := make(StoreChannel, 1)
+func (ms *MessageStore) GetByProviderAndMessageId(provider, providerMessageId string) store.Channel {
+	storeChannel := make(store.Channel, 1)
 
 	go func() {
-		result := StoreResult{}
+		result := store.Result{}
 
 		var message model.Message
 		if err := ms.db.Get(&message, `SELECT * FROM message
@@ -105,11 +106,11 @@ func (ms *SqlMessageStore) GetByProviderAndMessageId(provider, providerMessageId
 	return storeChannel
 }
 
-func (ms *SqlMessageStore) Search(params map[string]interface{}) StoreChannel {
-	storeChannel := make(StoreChannel, 1)
+func (ms *MessageStore) Search(params map[string]interface{}) store.Channel {
+	storeChannel := make(store.Channel, 1)
 
 	go func() {
-		result := StoreResult{}
+		result := store.Result{}
 
 		query := "SELECT * FROM message"
 		where := ""
@@ -169,11 +170,11 @@ func (ms *SqlMessageStore) Search(params map[string]interface{}) StoreChannel {
 	return storeChannel
 }
 
-func (ms *SqlMessageStore) Save(message *model.Message) StoreChannel {
-	storeChannel := make(StoreChannel, 1)
+func (ms *MessageStore) Save(message *model.Message) store.Channel {
+	storeChannel := make(store.Channel, 1)
 
 	go func() {
-		result := StoreResult{}
+		result := store.Result{}
 
 		_, err := ms.db.Exec(`INSERT INTO message
 			(
@@ -218,11 +219,11 @@ func (ms *SqlMessageStore) Save(message *model.Message) StoreChannel {
 	return storeChannel
 }
 
-func (ms *SqlMessageStore) Update(message *model.Message) StoreChannel {
-	storeChannel := make(StoreChannel, 1)
+func (ms *MessageStore) Update(message *model.Message) store.Channel {
+	storeChannel := make(store.Channel, 1)
 
 	go func() {
-		result := StoreResult{}
+		result := store.Result{}
 
 		_, err := ms.db.Exec(`UPDATE message
 			SET

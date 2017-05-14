@@ -7,17 +7,18 @@ import (
 	"github.com/minchao/smsender/smsender/model"
 	"github.com/minchao/smsender/smsender/providers/dummy"
 	"github.com/minchao/smsender/smsender/store"
+	dummystore "github.com/minchao/smsender/smsender/store/dummy"
 )
 
 type testRouteStore struct {
-	*store.DummyRouteStore
+	*dummystore.RouteStore
 }
 
-func (rs *testRouteStore) SaveAll(routes []*model.Route) store.StoreChannel {
-	storeChannel := make(store.StoreChannel, 1)
+func (rs *testRouteStore) SaveAll(routes []*model.Route) store.Channel {
+	storeChannel := make(store.Channel, 1)
 
 	go func() {
-		storeChannel <- store.StoreResult{}
+		storeChannel <- store.Result{}
 		close(storeChannel)
 	}()
 
@@ -27,7 +28,7 @@ func (rs *testRouteStore) SaveAll(routes []*model.Route) store.StoreChannel {
 func createRouter() *Router {
 	dummyProvider1 := dummy.New("dummy1")
 	dummyProvider2 := dummy.New("dummy2")
-	router := Router{store: &store.DummyStore{DummyRoute: &testRouteStore{}}}
+	router := Router{store: &dummystore.Store{DummyRoute: &testRouteStore{}}}
 
 	router.Add(model.NewRoute("default", `^\+.*`, dummyProvider1, true))
 	router.Add(model.NewRoute("japan", `^\+81`, dummyProvider2, true))
@@ -125,7 +126,7 @@ func TestRouter_Remove(t *testing.T) {
 
 func TestRouter_Reorder(t *testing.T) {
 	newRouter := func() *Router {
-		router := Router{store: &store.DummyStore{DummyRoute: &testRouteStore{}}}
+		router := Router{store: &dummystore.Store{DummyRoute: &testRouteStore{}}}
 		provider := dummy.New("dummy")
 		for _, r := range []string{"D", "C", "B", "A"} {
 			router.Add(model.NewRoute(r, "", provider, true))

@@ -2,12 +2,12 @@ package store
 
 import "github.com/minchao/smsender/smsender/model"
 
-type StoreResult struct {
+type Result struct {
 	Data interface{}
 	Err  error
 }
 
-type StoreChannel chan StoreResult
+type Channel chan Result
 
 type Store interface {
 	Route() RouteStore
@@ -15,15 +15,15 @@ type Store interface {
 }
 
 type RouteStore interface {
-	GetAll() StoreChannel
-	SaveAll(routes []*model.Route) StoreChannel
+	GetAll() Channel
+	SaveAll(routes []*model.Route) Channel
 }
 
 type MessageStore interface {
-	Get(id string) StoreChannel
-	GetByIds(ids []string) StoreChannel
-	GetByProviderAndMessageId(provider, providerMessageId string) StoreChannel
-	Save(message *model.Message) StoreChannel
-	Search(params map[string]interface{}) StoreChannel
-	Update(message *model.Message) StoreChannel
+	Get(id string) Channel
+	GetByIds(ids []string) Channel
+	GetByProviderAndMessageId(provider, providerMessageId string) Channel
+	Save(message *model.Message) Channel
+	Search(params map[string]interface{}) Channel
+	Update(message *model.Message) Channel
 }

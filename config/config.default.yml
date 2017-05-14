@@ -1,8 +1,11 @@
-db:
-  dsn: "MYSQL_USER:MYSQL_PASSWORD@tcp(MYSQL_HOST:MYSQL_PORT)/MYSQL_DATABASE?parseTime=true&loc=Local"
-  connection:
-    maxOpenConns: 100
-    maxIdleConns: 50
+store:
+  name: "sql"
+  sql:
+    driver: "mysql"
+    dsn: "MYSQL_USER:MYSQL_PASSWORD@tcp(MYSQL_HOST:MYSQL_PORT)/MYSQL_DATABASE?parseTime=true&loc=Local"
+    connection:
+      maxOpenConns: 100
+      maxIdleConns: 50
 http:
   enable: true
   siteURL: "http://127.0.0.1:8080"

@@ -1,6 +1,7 @@
 package smsender
 
 import (
+	"fmt"
 	"net/http"
 	"net/url"
 	"sync"
@@ -8,6 +9,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/gorilla/mux"
 	"github.com/minchao/smsender/smsender/model"
+	"github.com/minchao/smsender/smsender/plugin"
 	"github.com/minchao/smsender/smsender/providers/not_found"
 	"github.com/minchao/smsender/smsender/router"
 	"github.com/minchao/smsender/smsender/store"
@@ -37,10 +39,22 @@ type Sender struct {
 func NewSender() *Sender {
 	siteURL, err := url.Parse(config.GetString("http.siteURL"))
 	if err != nil {
-		log.Fatalln("config siteURL err:", err)
+		log.Fatalln("config siteURL error:", err)
 	}
 
-	s := store.NewSqlStore()
+	storeName := config.GetString("store.name")
+
+	log.Println(plugin.StoreFactories)
+
+	fn, ok := plugin.StoreFactories[storeName]
+	if !ok {
+		log.Fatalf("store factory '%s' not found", storeName)
+	}
+
+	s, err := fn(config.Sub(fmt.Sprintf("store.%s", storeName)))
+	if err != nil {
+		log.Fatalf("store init failure:", err)
+	}
 
 	sender := &Sender{
 		store:      s,
@@ -55,7 +69,7 @@ func NewSender() *Sender {
 
 	err = sender.Router.Init()
 	if err != nil {
-		log.Fatalln("init router err:", err)
+		log.Fatalln("router init failure:", err)
 	}
 
 	return sender

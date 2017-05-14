@@ -1,6 +1,9 @@
-package store
+package sql
 
-import "github.com/minchao/smsender/smsender/model"
+import (
+	"github.com/minchao/smsender/smsender/model"
+	"github.com/minchao/smsender/smsender/store"
+)
 
 const SqlRouteTable = `
 CREATE TABLE IF NOT EXISTS route (
@@ -14,23 +17,23 @@ CREATE TABLE IF NOT EXISTS route (
   UNIQUE KEY name (name)
 ) DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci`
 
-type SqlRouteStore struct {
-	*SqlStore
+type RouteStore struct {
+	*Store
 }
 
-func NewSqlRouteStore(sqlStore *SqlStore) RouteStore {
-	rs := &SqlRouteStore{sqlStore}
+func NewSqlRouteStore(sqlStore *Store) store.RouteStore {
+	rs := &RouteStore{sqlStore}
 
 	rs.db.MustExec(SqlRouteTable)
 
 	return rs
 }
 
-func (rs *SqlRouteStore) GetAll() StoreChannel {
-	storeChannel := make(StoreChannel, 1)
+func (rs *RouteStore) GetAll() store.Channel {
+	storeChannel := make(store.Channel, 1)
 
 	go func() {
-		result := StoreResult{}
+		result := store.Result{}
 		var routes []*model.Route
 		if err := rs.db.Select(&routes, `SELECT * FROM route ORDER BY id ASC`); err != nil {
 			result.Err = err
@@ -45,11 +48,11 @@ func (rs *SqlRouteStore) GetAll() StoreChannel {
 	return storeChannel
 }
 
-func (rs *SqlRouteStore) SaveAll(routes []*model.Route) StoreChannel {
-	storeChannel := make(StoreChannel, 1)
+func (rs *RouteStore) SaveAll(routes []*model.Route) store.Channel {
+	storeChannel := make(store.Channel, 1)
 
 	go func() {
-		result := StoreResult{}
+		result := store.Result{}
 
 		tx := rs.db.MustBegin()
 		tx.MustExec(`TRUNCATE TABLE route`)

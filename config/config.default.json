@@ -1,9 +1,13 @@
 {
-    "db": {
-        "dsn": "user:password@tcp(localhost:3306)/dbname?parseTime=true&loc=Local",
-        "connection": {
-            "maxOpenConns": 100,
-            "maxIdleConns": 50
+    "store": {
+        "name": "sql",
+        "sql": {
+            "driver": "mysql",
+            "dsn": "user:password@tcp(localhost:3306)/dbname?parseTime=true&loc=Local",
+            "connection": {
+                "maxOpenConns": 100,
+                "maxIdleConns": 50
+            }
         }
     },
     "http": {
