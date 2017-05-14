@@ -42,8 +42,11 @@ cp ./config/config.default.yml ./config.yml
 Setup the MySQL DSN:
 
 ```yaml
-db:
-  dsn: "user:password@tcp(localhost:3306)/dbname?parseTime=true&loc=Local"
+store:
+  name: "sql"
+  sql:
+    driver: "mysql"
+    dsn: "user:password@tcp(localhost:3306)/dbname?parseTime=true&loc=Local"
 ```
 
 Registering providers on the sender server.
