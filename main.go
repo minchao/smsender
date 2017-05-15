@@ -4,6 +4,7 @@ import (
 	"github.com/minchao/smsender/smsender/cmd"
 
 	// Register builtin stores.
+	_ "github.com/minchao/smsender/smsender/store/memory"
 	_ "github.com/minchao/smsender/smsender/store/sql"
 
 	// Register builtin providers.
