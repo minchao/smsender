@@ -188,24 +188,24 @@ Response format:
                     "stage": "platform",
                     "data": null,
                     "status": "accepted",
-                    "created_time": "2017-04-14T15:02:57.123202398Z"
+                    "created_time": "2017-04-14T15:02:57.123202Z"
                 },
                 {
                     "stage": "queue",
                     "data": null,
                     "status": "sending",
-                    "created_time": "2017-04-14T15:02:57.123556292Z"
+                    "created_time": "2017-04-14T15:02:57.123556Z"
                 },
                 {
                     "stage": "queue.response",
                     "data": null,
                     "status": "delivered",
-                    "created_time": "2017-04-14T15:02:57.123726361Z"
+                    "created_time": "2017-04-14T15:02:57.123726Z"
                 }
             ],
             "status": "delivered",
-            "created_time": "2017-04-14T15:02:57.123202398Z",
-            "updated_time": "2017-04-14T15:02:57.123726361Z"
+            "created_time": "2017-04-14T15:02:57.123202Z",
+            "updated_time": "2017-04-14T15:02:57.123726Z"
         }
     ]
 }
