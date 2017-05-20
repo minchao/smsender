@@ -116,6 +116,7 @@ Usage:
 
 Available Commands:
   help        Help about any command
+  routes      List all routes
   send        Send message
 
 Flags:

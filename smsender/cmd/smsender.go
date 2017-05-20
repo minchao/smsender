@@ -28,7 +28,7 @@ func Execute() {
 	rootCmd.PersistentFlags().StringVarP(&configFile, "config", "c", "", "Configuration file path")
 	rootCmd.PersistentFlags().BoolVarP(&debug, "debug", "d", false, "Enable debug mode")
 
-	rootCmd.AddCommand(sendCmd)
+	rootCmd.AddCommand(sendCmd, routesCmd)
 
 	rootCmd.Execute()
 }
