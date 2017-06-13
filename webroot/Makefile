@@ -1,4 +1,4 @@
-.PHONY: yarninstall dev build docker-build clean
+.PHONY: yarninstall dev build build-with-docker clean
 
 yarninstall:
 	@echo Getting dependencies using yarn
@@ -12,7 +12,7 @@ build: yarninstall
 	@echo Building webapp
 	yarn run build
 
-docker-build:
+build-with-docker:
 	@echo Building webapp with Docker
 	docker run --rm -v $(PWD):/smsender -w /smsender node:6.10.0 sh -c "make build"
 

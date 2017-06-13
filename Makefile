@@ -1,4 +1,4 @@
-.PHONY: deps-install test build docker-build
+.PHONY: deps-install test build build-with-docker
 
 BUILD_EXECUTABLE := smsender
 
@@ -12,12 +12,16 @@ deps-install:
 test:
 	@go test -race -v $(shell go list ./... | grep -v vendor)
 
-build:
+build: clean
 	@echo Building app
 	go build -o ./bin/$(BUILD_EXECUTABLE)
 
-docker-build:
+clean:
+	@echo Cleaning up previous build data
+	rm -f ./bin/$(BUILD_EXECUTABLE)
+
+build-with-docker:
 	@echo Building app with Docker
 	docker run --rm -v $(PWD):/go/src/github.com/minchao/smsender -w /go/src/github.com/minchao/smsender golang sh -c "make deps-install build"
 
-	cd webroot && make docker-build
+	cd webroot && make build-with-docker
