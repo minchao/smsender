@@ -1,4 +1,4 @@
-.PHONY: deps-install test build build-with-docker
+.PHONY: deps-install test build build-with-docker docker-build
 
 BUILD_EXECUTABLE := smsender
 
@@ -25,3 +25,7 @@ build-with-docker:
 	docker run --rm -v $(PWD):/go/src/github.com/minchao/smsender -w /go/src/github.com/minchao/smsender golang sh -c "make deps-install build"
 
 	cd webroot && make build-with-docker
+
+docker-build: build-with-docker
+	@echo Building Docker image
+	docker build -t minchao/smsender-preview:latest .
