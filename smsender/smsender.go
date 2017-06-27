@@ -49,7 +49,7 @@ func NewSender() *Sender {
 	}
 	s, err := fn(config.Sub(fmt.Sprintf("store.%s", storeName)))
 	if err != nil {
-		log.Fatalf("store init failure:", err)
+		log.Fatalf("store init failure: %v", err)
 	}
 	log.Debugf("Store: %s", storeName)
 
