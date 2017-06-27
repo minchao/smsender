@@ -1,6 +1,7 @@
-.PHONY: deps-install test build build-with-docker docker-build
+.PHONY: deps-install check-style test build build-with-docker docker-build
 
 BUILD_EXECUTABLE := smsender
+PACKAGES := $(shell go list ./smsender/...)
 
 all: build
 
@@ -9,8 +10,24 @@ deps-install:
 	go get -v -u github.com/Masterminds/glide
 	glide install
 
+vet:
+	@echo Running go vet
+	@go vet $(PACKAGES)
+
+check-style: vet
+	@echo Running go fmt
+	$(eval GO_FMT_OUTPUT := $(shell go fmt $(PACKAGES)))
+	@echo "$(GO_FMT_OUTPUT)"
+	@if [ ! "$(GO_FMT_OUTPUT)" ]; then \
+		echo "go fmt success"; \
+	else \
+		echo "go fmt failure"; \
+		exit 1; \
+	fi
+
 test:
-	@go test -race -v $(shell go list ./... | grep -v vendor)
+	@echo Testing
+	@go test -race -v $(PACKAGES)
 
 build: clean
 	@echo Building app
