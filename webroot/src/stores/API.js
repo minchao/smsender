@@ -15,7 +15,6 @@ class API {
                 return callback(json)
             })
             .catch(error => {
-                console.log("API error", error)
                 return callback(null)
             })
     }
