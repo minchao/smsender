@@ -1,14 +1,14 @@
-.PHONY: yarninstall dev build build-with-docker clean
+.PHONY: yarn-install dev build build-with-docker clean
 
-yarninstall:
+yarn-install:
 	@echo Getting dependencies using yarn
 	yarn install
 
-dev: yarninstall
+dev: yarn-install
 	@echo Running webapp for development
 	yarn run dev
 
-build: yarninstall
+build: yarn-install
 	@echo Building webapp
 	yarn run build
 
