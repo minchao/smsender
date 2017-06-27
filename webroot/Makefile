@@ -1,8 +1,12 @@
-.PHONY: yarn-install dev build build-with-docker clean
+.PHONY: yarn-install lint dev build build-with-docker clean
 
 yarn-install:
 	@echo Getting dependencies using yarn
 	yarn install
+
+lint:
+	@echo Checking lint
+	yarn run lint
 
 dev: yarn-install
 	@echo Running webapp for development

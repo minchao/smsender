@@ -25,4 +25,5 @@ script:
   - make test
   - make build
   - cd webroot
+  - make lint
   - make build
