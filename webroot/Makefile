@@ -16,11 +16,11 @@ build: yarn-install
 	@echo Building webapp
 	yarn run build
 
-build-with-docker:
+build-with-docker: clean
 	@echo Building webapp with Docker
 	docker run --rm -v $(PWD):/smsender -w /smsender node:6.10.0 sh -c "make build"
 
 clean:
 	@echo Cleaning webapp
-	rm -f public/bundle.js
-	rm -rf node_modules
+	rm -f ./public/bundle.js
+	rm -rf ./node_modules

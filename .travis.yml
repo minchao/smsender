@@ -10,6 +10,7 @@ go:
 cache:
   directories:
     - vendor
+    - webroot/node_modules
 
 before_install:
   - nvm install 6.11.0

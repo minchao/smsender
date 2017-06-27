@@ -29,17 +29,18 @@ test:
 	@echo Testing
 	@go test -race -v $(PACKAGES)
 
-build: clean
+build: deps-install
 	@echo Building app
 	go build -o ./bin/$(BUILD_EXECUTABLE)
 
 clean:
 	@echo Cleaning up previous build data
 	rm -f ./bin/$(BUILD_EXECUTABLE)
+	rm -rf ./vendor
 
-build-with-docker:
+build-with-docker: clean
 	@echo Building app with Docker
-	docker run --rm -v $(PWD):/go/src/github.com/minchao/smsender -w /go/src/github.com/minchao/smsender golang sh -c "make deps-install build"
+	docker run --rm -v $(PWD):/go/src/github.com/minchao/smsender -w /go/src/github.com/minchao/smsender golang sh -c "make build"
 
 	cd webroot && make build-with-docker
 
