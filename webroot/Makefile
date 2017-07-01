@@ -18,7 +18,7 @@ build: yarn-install
 
 build-with-docker: clean
 	@echo Building webapp with Docker
-	docker run --rm -v $(PWD):/smsender -w /smsender node:6.10.0 sh -c "make build"
+	docker run --rm -v $(PWD):/smsender -w /smsender node:6.11.0 sh -c "make build"
 
 clean:
 	@echo Cleaning webapp
