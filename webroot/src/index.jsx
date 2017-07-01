@@ -1,6 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import {AppContainer} from 'react-hot-loader'
+import { AppContainer } from 'react-hot-loader'
 import injectTapEventPlugin from 'react-tap-event-plugin'
 
 import App from './App'
@@ -8,18 +8,18 @@ import App from './App'
 injectTapEventPlugin()
 
 const render = Component => {
-    ReactDOM.render(
-        <AppContainer>
-            <Component />
-        </AppContainer>,
-        document.getElementById('root')
-    )
+  ReactDOM.render(
+    <AppContainer>
+      <Component />
+    </AppContainer>,
+    document.getElementById('root')
+  )
 }
 
 render(App)
 
 if (module.hot) {
-    module.hot.accept('./App', () => {
-        render(App)
-    })
+  module.hot.accept('./App', () => {
+    render(App)
+  })
 }

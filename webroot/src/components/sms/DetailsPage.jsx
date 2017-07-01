@@ -1,90 +1,85 @@
-import React, {Component} from 'react'
-import {inject, observer} from 'mobx-react'
-import {action, observable} from 'mobx'
+import React, { Component } from 'react'
+import { observer } from 'mobx-react'
 import SyntaxHighlighter from 'react-syntax-highlighter'
-import {agate} from 'react-syntax-highlighter/dist/styles'
+import { agate } from 'react-syntax-highlighter/dist/styles'
 
 import MessageModel from '../../models/MessageModel'
 import api from '../../stores/API'
 
 @observer
 export default class DetailsPage extends Component {
-    message = new MessageModel()
+  message = new MessageModel()
 
-    constructor(props) {
-        super(props)
-        this.fetch = this.fetch.bind(this)
-    }
+  constructor (props) {
+    super(props)
+    this.fetch = this.fetch.bind(this)
+  }
 
-    componentDidMount() {
-        this.fetch()
-    }
+  componentDidMount () {
+    this.fetch()
+  }
 
-    fetch() {
-        api.getMessagesByIds(this.props.params.messageId, (json) => {
-            if (json.data.length) {
-                this.message.fromJS(json.data[0])
-            }
-        })
-    }
+  fetch () {
+    api.getMessagesByIds(this.props.params.messageId, (json) => {
+      if (json.data.length) {
+        this.message.fromJS(json.data[0])
+      }
+    })
+  }
 
-    render() {
-        return (
-            <div>
-                <h2>Message details</h2>
+  render () {
+    return (
+      <div>
+        <h2>Message details</h2>
 
-                <h3>Properties</h3>
+        <h3>Properties</h3>
 
-                <table className="sms-table">
-                    <tbody>
-                        <tr>
-                            <th>Message ID</th>
-                            <td>{this.message.id}</td>
-                            <th>Route</th>
-                            <td>{this.message.route}</td>
-                        </tr>
-                        <tr>
-                            <th>From</th>
-                            <td>{this.message.form}</td>
-                            <th>Provider</th>
-                            <td>{this.message.provider}</td>
-                        </tr>
-                        <tr>
-                            <th>To</th>
-                            <td>{this.message.to}</td>
-                        </tr>
-                        <tr>
-                            <th>Body</th>
-                            <td colSpan="3">
-                                <pre style={{margin: 0, padding: 10, backgroundColor: '#e8e8e8'}}>
-                                    {this.message.body}
-                                </pre>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th>Status</th>
-                            <td>{this.message.status}</td>
-                        </tr>
-                        <tr>
-                            <th>Created Time</th>
-                            <td>{this.message.created_time}</td>
-                        </tr>
-                        <tr>
-                            <th>Provider Message ID</th>
-                            <td>{this.message.original_message_id}</td>
-                        </tr>
-                    </tbody>
-                </table>
+        <table className="sms-table">
+          <tbody>
+            <tr>
+              <th>Message ID</th>
+              <td>{this.message.id}</td>
+              <th>Route</th>
+              <td>{this.message.route}</td>
+            </tr>
+            <tr>
+              <th>From</th>
+              <td>{this.message.form}</td>
+              <th>Provider</th>
+              <td>{this.message.provider}</td>
+            </tr>
+            <tr>
+              <th>To</th>
+              <td>{this.message.to}</td>
+            </tr>
+            <tr>
+              <th>Body</th>
+              <td colSpan="3">
+                <pre style={{margin: 0, padding: 10, backgroundColor: '#e8e8e8'}}>{this.message.body}</pre>
+              </td>
+            </tr>
+            <tr>
+              <th>Status</th>
+              <td>{this.message.status}</td>
+            </tr>
+            <tr>
+              <th>Created Time</th>
+              <td>{this.message.created_time}</td>
+            </tr>
+            <tr>
+              <th>Provider Message ID</th>
+              <td>{this.message.original_message_id}</td>
+            </tr>
+          </tbody>
+        </table>
 
-                <h3>JSON</h3>
-                <SyntaxHighlighter
-                    language='json'
-                    wrapLines={true}
-                    style={agate}
-                >{
-                    this.message.json ? JSON.stringify(this.message.json, null, 4) : 'null'
-                }</SyntaxHighlighter>
-            </div>
-        )
-    }
+        <h3>JSON</h3>
+        <SyntaxHighlighter
+          language="json"
+          wrapLines
+          style={agate}
+        >{this.message.json && JSON.stringify(this.message.json, null, 4)}</SyntaxHighlighter>
+      </div>
+    )
+  }
 }

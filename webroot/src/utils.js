@@ -1,9 +1,9 @@
 let baseURL = ''
 
 if (module.hot) {
-    baseURL = 'http://localhost:8080'
+  baseURL = 'http://localhost:8080'
 }
 
-export function getBaseURL() {
-    return baseURL
+export function getBaseURL () {
+  return baseURL
 }
