@@ -1,44 +1,40 @@
-var path = require('path')
-var webpack = require('webpack')
+const path = require('path')
+const webpack = require('webpack')
 
-var DEV = false
+module.exports = () => {
+  const env = process.env.NODE_ENV
+  const ifDev = plugin => (env === 'development') ? plugin : undefined
+  const removeEmpty = array => array.filter(p => !!p)
 
-if (process.env.NODE_ENV === 'development') {
-    DEV = true
-}
-
-var config = {
-    devtool: 'eval',
-    entry: [
-        './src/index'
-    ],
-    output: {
-        path: path.join(__dirname, 'public'),
-        filename: 'bundle.js',
-        publicPath: '/static/'
+  return {
+    devtool: ifDev('source-map'),
+    entry: {
+      main: removeEmpty([
+        ifDev('react-hot-loader/patch'),
+        ifDev(`webpack-dev-server/client?http://localhost:3000`),
+        ifDev('webpack/hot/only-dev-server'),
+        path.join(__dirname, './src/index')
+      ])
     },
-    plugins: [],
     resolve: {
-        extensions: ['.js', '.jsx']
+      extensions: ['.js', '.jsx']
+    },
+    output: {
+      filename: 'bundle.js',
+      path: path.resolve(__dirname, 'public'),
+      publicPath: '/static/'
     },
     module: {
-        loaders: [{
-            test: /\.jsx?$/,
-            loaders: ['babel-loader'],
-            include: path.join(__dirname, 'src')
-        }]
-    }
+      rules: [
+        {
+          test: /\.jsx?$/,
+          exclude: /node_modules/,
+          loader: ['babel-loader']
+        }
+      ]
+    },
+    plugins: removeEmpty([
+      ifDev(new webpack.HotModuleReplacementPlugin())
+    ])
+  }
 }
-
-// Development mode configuration
-if (DEV) {
-    config.entry = [
-      'react-hot-loader/patch',
-      'webpack-dev-server/client?http://localhost:3000',
-      'webpack/hot/only-dev-server',
-      './src/index'
-    ]
-    config.plugins.push(new webpack.HotModuleReplacementPlugin())
-}
-
-module.exports = config
