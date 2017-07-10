@@ -38,7 +38,7 @@ module.exports = () => {
         {
           test: /\.css$/,
           use: ExtractTextPlugin.extract({
-            use: 'css-loader',
+            use: 'css-loader'
           })
         }
       ]
@@ -50,7 +50,7 @@ module.exports = () => {
         inject: 'body'
       }),
       new ExtractTextPlugin({
-        filename: '[name].[hash].css',
+        filename: '[name].[hash].css'
       }),
       ifProd(new webpack.optimize.UglifyJsPlugin({
         output: {
