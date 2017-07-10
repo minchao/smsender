@@ -28,6 +28,8 @@ export default class DetailsPage extends Component {
   }
 
   render () {
+    const json = this.message.json ? JSON.stringify(this.message.json, null, 4) : ''
+
     return (
       <div>
         <h2>Message details</h2>
@@ -78,7 +80,7 @@ export default class DetailsPage extends Component {
           language="json"
           wrapLines
           style={agate}
-        >{this.message.json && JSON.stringify(this.message.json, null, 4)}</SyntaxHighlighter>
+        >{json}</SyntaxHighlighter>
       </div>
     )
   }
