@@ -51,7 +51,8 @@ module.exports = () => {
       new ExtractTextPlugin({
         filename: '[name].[hash].css',
       }),
-      ifDev(new webpack.HotModuleReplacementPlugin())
+      ifDev(new webpack.HotModuleReplacementPlugin()),
+      ifDev(new webpack.NamedModulesPlugin())
     ])
   }
 }
