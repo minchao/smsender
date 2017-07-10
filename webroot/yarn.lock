@@ -3586,9 +3586,9 @@ react-router@^3.0.2:
     loose-envify "^1.2.0"
     warning "^3.0.0"
 
-react-syntax-highlighter@^5.0.0:
-  version "5.0.0"
-  resolved "https://registry.yarnpkg.com/react-syntax-highlighter/-/react-syntax-highlighter-5.0.0.tgz#571c3418cc87b6e46839def297df74051b778571"
+react-syntax-highlighter@^5.6.2:
+  version "5.6.2"
+  resolved "https://registry.yarnpkg.com/react-syntax-highlighter/-/react-syntax-highlighter-5.6.2.tgz#01f5ad3cc44c40c26b6fb4e00a4bed90f66304c5"
   dependencies:
     babel-runtime "^6.18.0"
     highlight.js "~9.8.0"
