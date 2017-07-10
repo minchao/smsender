@@ -5,6 +5,7 @@ const ExtractTextPlugin = require('extract-text-webpack-plugin')
 
 module.exports = () => {
   const env = process.env.NODE_ENV
+  const ifProd = plugin => (env === 'production') ? plugin : undefined
   const ifDev = plugin => (env === 'development') ? plugin : undefined
   const removeEmpty = array => array.filter(p => !!p)
 
@@ -51,6 +52,11 @@ module.exports = () => {
       new ExtractTextPlugin({
         filename: '[name].[hash].css',
       }),
+      ifProd(new webpack.optimize.UglifyJsPlugin({
+        output: {
+          comments: false
+        }
+      })),
       ifDev(new webpack.HotModuleReplacementPlugin()),
       ifDev(new webpack.NamedModulesPlugin())
     ])
