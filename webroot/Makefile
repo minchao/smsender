@@ -22,5 +22,4 @@ build-with-docker: clean
 
 clean:
 	@echo Cleaning webapp
-	rm -f ./public/bundle.js
-	rm -rf ./node_modules
+	rm -rf ./dist ./node_modules
