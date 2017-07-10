@@ -17,8 +17,8 @@ func InitWeb(sender *smsender.Sender) {
 	if config.GetBool("http.web.enable") {
 		router := sender.HTTPRouter
 
-		router.PathPrefix("/static/").
-			Handler(staticHandler(http.StripPrefix("/static/", http.FileServer(http.Dir("./webroot/public/")))))
+		router.PathPrefix("/dist/").
+			Handler(staticHandler(http.StripPrefix("/dist/", http.FileServer(http.Dir("./webroot/dist")))))
 
 		n := negroni.New(negroni.Wrap(http.HandlerFunc(root)))
 
@@ -29,7 +29,7 @@ func InitWeb(sender *smsender.Sender) {
 
 func root(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Cache-Control", "no-cache, max-age=31556926, public")
-	http.ServeFile(w, r, "./webroot/index.html")
+	http.ServeFile(w, r, "./webroot/dist/index.html")
 }
 
 func staticHandler(handler http.Handler) http.Handler {

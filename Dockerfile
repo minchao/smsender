@@ -6,7 +6,7 @@ RUN mkdir -p /smsender/config
 COPY bin/smsender /smsender/
 COPY config/config.default.yml /
 COPY webroot/index.html /smsender/webroot/
-COPY webroot/public /smsender/webroot/public/
+COPY webroot/dist /smsender/webroot/dist/
 
 COPY docker-entrypoint.sh /
 RUN chmod +x /docker-entrypoint.sh
