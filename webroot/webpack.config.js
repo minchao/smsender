@@ -44,6 +44,11 @@ module.exports = () => {
       ]
     },
     plugins: removeEmpty([
+      new webpack.DefinePlugin({
+        'process.env.NODE_ENV': JSON.stringify(env),
+        IS_DEV: Boolean(env === 'development'),
+        API_HOST: JSON.stringify(env === 'development' ? 'http://localhost:8080' : '')
+      }),
       new webpack.optimize.CommonsChunkPlugin({
         name: 'vendor',
         minChunks: function (module) {

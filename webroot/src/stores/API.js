@@ -1,8 +1,6 @@
-import { getBaseURL } from '../utils'
-
 class API {
   constructor () {
-    this.baseURL = getBaseURL()
+    this.baseURL = API_HOST
   }
 
   fetch (url, object, callback) {
