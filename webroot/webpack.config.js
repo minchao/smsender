@@ -44,6 +44,15 @@ module.exports = () => {
       ]
     },
     plugins: removeEmpty([
+      new webpack.optimize.CommonsChunkPlugin({
+        name: 'vendor',
+        minChunks: function (module) {
+          if (module.resource && (/^.*\.(css|scss)$/).test(module.resource)) {
+            return false
+          }
+          return module.context && module.context.indexOf('node_modules') !== -1
+        }
+      }),
       new HtmlWebpackPlugin({
         template: path.resolve(__dirname, './src/index.html'),
         filename: 'index.html',
