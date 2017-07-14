@@ -41,7 +41,7 @@ export default class App extends Component {
               </Route>
             </Router>
           </Provider>
-          {IS_DEV.hot && <DevTools />}
+          {IS_DEV && <DevTools />}
         </div>
       </MuiThemeProvider>
     )
