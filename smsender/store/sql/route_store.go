@@ -5,7 +5,7 @@ import (
 	"github.com/minchao/smsender/smsender/store"
 )
 
-const SqlRouteTable = `
+const SQLRouteTable = `
 CREATE TABLE IF NOT EXISTS route (
   id       int(11) NOT NULL AUTO_INCREMENT,
   name     varchar(32) COLLATE utf8_unicode_ci NOT NULL,
@@ -21,10 +21,10 @@ type RouteStore struct {
 	*Store
 }
 
-func NewSqlRouteStore(sqlStore *Store) store.RouteStore {
+func NewSQLRouteStore(sqlStore *Store) store.RouteStore {
 	rs := &RouteStore{sqlStore}
 
-	rs.db.MustExec(SqlRouteTable)
+	rs.db.MustExec(SQLRouteTable)
 
 	return rs
 }

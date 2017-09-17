@@ -75,11 +75,11 @@ func (b Provider) Send(msg model.Message) *model.MessageResponse {
 
 	if err != nil {
 		return model.NewMessageResponse(model.StatusFailed, model.ProviderError{Error: err.Error()}, nil)
-	} else {
-		return model.NewMessageResponse(model.StatusSent, resp, resp.MessageId)
 	}
+
+	return model.NewMessageResponse(model.StatusSent, resp, resp.MessageId)
 }
 
-// TODO: see http://docs.aws.amazon.com/sns/latest/dg/sms_stats_usage.html
+// Callback TODO: see http://docs.aws.amazon.com/sns/latest/dg/sms_stats_usage.html
 func (b Provider) Callback(register func(webhook *model.Webhook), receiptsCh chan<- model.MessageReceipt) {
 }

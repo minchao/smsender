@@ -16,7 +16,7 @@ type errorMessage struct {
 
 func formErrorMessage(err error) errorMessage {
 	var (
-		e           string = "bad_request"
+		e           = "bad_request"
 		description interface{}
 	)
 	switch err.(type) {

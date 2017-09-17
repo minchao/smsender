@@ -21,7 +21,7 @@ func initEnv(cmd *cobra.Command) error {
 		config.AddConfigPath(".")
 	}
 	if err := config.ReadInConfig(); err != nil {
-		return fmt.Errorf("Unable to read config file: %s", err)
+		return fmt.Errorf("Unable to read config file %v", err)
 	}
 
 	log.Infof("Config path: %s", config.ConfigFileUsed())

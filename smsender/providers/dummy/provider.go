@@ -32,7 +32,7 @@ func (b Provider) Name() string {
 }
 
 func (b Provider) Send(message model.Message) *model.MessageResponse {
-	return model.NewMessageResponse(model.StatusDelivered, nil, &message.Id)
+	return model.NewMessageResponse(model.StatusDelivered, nil, &message.ID)
 }
 
 func (b Provider) Callback(register func(webhook *model.Webhook), receiptsCh chan<- model.MessageReceipt) {

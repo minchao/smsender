@@ -67,7 +67,7 @@ func (s *MessageStore) GetByIds(ids []string) store.Channel {
 	return storeChannel
 }
 
-func (s *MessageStore) GetByProviderAndMessageId(provider, providerMessageId string) store.Channel {
+func (s *MessageStore) GetByProviderAndMessageID(provider, providerMessageID string) store.Channel {
 	storeChannel := make(store.Channel, 1)
 
 	go func() {
@@ -78,7 +78,7 @@ func (s *MessageStore) GetByProviderAndMessageId(provider, providerMessageId str
 
 		var message *model.Message
 		for i, m := range s.messages {
-			if provider == *m.Provider && providerMessageId == *m.ProviderMessageId {
+			if provider == *m.Provider && providerMessageID == *m.ProviderMessageID {
 				message = s.messages[i]
 				break
 			}
@@ -192,7 +192,7 @@ func (s *MessageStore) Update(message *model.Message) store.Channel {
 		s.Lock()
 		defer s.Unlock()
 
-		if _, m, err := s.find(message.Id); err != nil {
+		if _, m, err := s.find(message.ID); err != nil {
 			result.Err = err
 		} else {
 			*m = *message
@@ -206,9 +206,9 @@ func (s *MessageStore) Update(message *model.Message) store.Channel {
 	return storeChannel
 }
 
-func (s *MessageStore) find(messageId string) (int64, *model.Message, error) {
+func (s *MessageStore) find(messageID string) (int64, *model.Message, error) {
 	for index, message := range s.messages {
-		if message.Id == messageId {
+		if message.ID == messageID {
 			return int64(index), message, nil
 		}
 	}

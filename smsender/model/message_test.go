@@ -10,7 +10,7 @@ import (
 
 func TestNewMessageRecord(t *testing.T) {
 	dummy := "dummy"
-	providerMessageId := "b288anp82b37873aj510"
+	providerMessageID := "b288anp82b37873aj510"
 	ct, _ := time.Parse(time.RFC3339, "2017-01-01T00:00:03.1415926+08:00")
 
 	j := new(bytes.Buffer)
@@ -56,7 +56,7 @@ func TestNewMessageRecord(t *testing.T) {
     }`))
 
 	message := NewMessage("+886987654321", "+1234567890", "Happy New Year 2017", false)
-	message.Id = "b288anp82b37873aj510"
+	message.ID = "b288anp82b37873aj510"
 	message.Route = &dummy
 	message.Provider = &dummy
 	message.CreatedTime = ct
@@ -73,11 +73,11 @@ func TestNewMessageRecord(t *testing.T) {
 	step1.CreatedTime = ct
 	message.HandleStep(step1)
 
-	step2 := NewMessageResponse(StatusSent, nil, &providerMessageId)
+	step2 := NewMessageResponse(StatusSent, nil, &providerMessageID)
 	step2.CreatedTime = ct
 	message.HandleStep(step2)
 
-	step3 := NewMessageReceipt(providerMessageId, dummy, StatusDelivered, nil)
+	step3 := NewMessageReceipt(providerMessageID, dummy, StatusDelivered, nil)
 	step3.CreatedTime = ct
 	message.HandleStep(step3)
 

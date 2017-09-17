@@ -6,7 +6,7 @@ import (
 	"github.com/minchao/smsender/smsender/store"
 )
 
-const SqlMessageTable = `
+const SQLMessageTable = `
 CREATE TABLE IF NOT EXISTS message (
   id                varchar(40) COLLATE utf8_unicode_ci NOT NULL,
   toNumber          varchar(20) COLLATE utf8_unicode_ci NOT NULL,
@@ -28,10 +28,10 @@ type MessageStore struct {
 	*Store
 }
 
-func NewSqlMessageStore(sqlStore *Store) store.MessageStore {
+func NewSQLMessageStore(sqlStore *Store) store.MessageStore {
 	ms := &MessageStore{sqlStore}
 
-	ms.db.MustExec(SqlMessageTable)
+	ms.db.MustExec(SQLMessageTable)
 
 	return ms
 }
@@ -85,7 +85,7 @@ func (ms *MessageStore) GetByIds(ids []string) store.Channel {
 	return storeChannel
 }
 
-func (ms *MessageStore) GetByProviderAndMessageId(provider, providerMessageId string) store.Channel {
+func (ms *MessageStore) GetByProviderAndMessageID(provider, providerMessageID string) store.Channel {
 	storeChannel := make(store.Channel, 1)
 
 	go func() {
@@ -93,7 +93,7 @@ func (ms *MessageStore) GetByProviderAndMessageId(provider, providerMessageId st
 
 		var message model.Message
 		if err := ms.db.Get(&message, `SELECT * FROM message
-			WHERE provider = ? AND providerMessageId = ?`, provider, providerMessageId); err != nil {
+			WHERE provider = ? AND providerMessageId = ?`, provider, providerMessageID); err != nil {
 			result.Err = err
 		} else {
 			result.Data = &message
@@ -193,14 +193,14 @@ func (ms *MessageStore) Save(message *model.Message) store.Channel {
 			)
 			VALUES
 			(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-			message.Id,
+			message.ID,
 			message.To,
 			message.From,
 			message.Body,
 			message.Async,
 			message.Route,
 			message.Provider,
-			message.ProviderMessageId,
+			message.ProviderMessageID,
 			message.Steps,
 			message.Status,
 			message.CreatedTime,
@@ -245,12 +245,12 @@ func (ms *MessageStore) Update(message *model.Message) store.Channel {
 			message.Async,
 			message.Route,
 			message.Provider,
-			message.ProviderMessageId,
+			message.ProviderMessageID,
 			message.Steps,
 			message.Status,
 			message.CreatedTime,
 			message.UpdatedTime,
-			message.Id,
+			message.ID,
 		)
 		if err != nil {
 			result.Err = err

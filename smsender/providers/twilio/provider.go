@@ -76,14 +76,14 @@ func (b Provider) Send(message model.Message) *model.MessageResponse {
 	)
 	if err != nil {
 		return model.NewMessageResponse(model.StatusFailed, err, nil)
-	} else {
-		return model.NewMessageResponse(convertStatus(resp.Status), resp, &resp.Sid)
 	}
+
+	return model.NewMessageResponse(convertStatus(resp.Status), resp, &resp.Sid)
 }
 
 type DeliveryReceipt struct {
 	MessageSid    string `json:"MessageSid"`
-	ApiVersion    string `json:"ApiVersion"`
+	APIVersion    string `json:"ApiVersion"`
 	From          string `json:"From"`
 	To            string `json:"To"`
 	AccountSid    string `json:"AccountSid"`
@@ -92,7 +92,7 @@ type DeliveryReceipt struct {
 	MessageStatus string `json:"MessageStatus"`
 }
 
-// see https://www.twilio.com/docs/guides/sms/how-to-confirm-delivery
+// Callback see https://www.twilio.com/docs/guides/sms/how-to-confirm-delivery
 func (b Provider) Callback(register func(webhook *model.Webhook), receiptsCh chan<- model.MessageReceipt) {
 	if !b.enableWebhook {
 		return
@@ -105,7 +105,7 @@ func (b Provider) Callback(register func(webhook *model.Webhook), receiptsCh cha
 
 			receipt := DeliveryReceipt{
 				MessageSid:    r.Form.Get("MessageSid"),
-				ApiVersion:    r.Form.Get("ApiVersion"),
+				APIVersion:    r.Form.Get("ApiVersion"),
 				From:          r.Form.Get("From"),
 				To:            r.Form.Get("To"),
 				AccountSid:    r.Form.Get("AccountSid"),

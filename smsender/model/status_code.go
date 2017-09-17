@@ -63,25 +63,17 @@ func statusStringToCode(status string) (StatusCode, error) {
 	return 0, fmt.Errorf("StatusCode %s not exists", status)
 }
 
+// Status
 const (
-	// Default status, This should not be exported to client
-	StatusInit StatusCode = iota
-	// Received your API request to send a message
-	StatusAccepted
-	// The message is queued to be sent out
-	StatusQueued
-	// The message is in the process of dispatching to the upstream carrier
-	StatusSending
-	// The message could not be sent to the upstream carrier
-	StatusFailed
-	// The message was successfully accepted by the upstream carrie
-	StatusSent
-	// Received an undocumented status code from the upstream carrier
-	StatusUnknown
-	// Received that the message was not delivered from the upstream carrier
-	StatusUndelivered
-	// Received confirmation of message delivery from the upstream carrier
-	StatusDelivered
+	StatusInit        StatusCode = iota // Default status, This should not be exported to client
+	StatusAccepted                      // Received your API request to send a message
+	StatusQueued                        // The message is queued to be sent out
+	StatusSending                       // The message is in the process of dispatching to the upstream carrier
+	StatusFailed                        // The message could not be sent to the upstream carrier
+	StatusSent                          // The message was successfully accepted by the upstream carrie
+	StatusUnknown                       // Received an undocumented status code from the upstream carrier
+	StatusUndelivered                   // Received that the message was not delivered from the upstream carrier
+	StatusDelivered                     // Received confirmation of message delivery from the upstream carrier
 )
 
 var statusCodeMap = map[StatusCode]string{

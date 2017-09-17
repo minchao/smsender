@@ -36,7 +36,7 @@ func (w worker) process(job *model.MessageJob) {
 	message.Provider = &p
 
 	log1 := log.WithFields(log.Fields{
-		"message_id": message.Id,
+		"message_id": message.ID,
 		"worker_id":  w.id,
 	})
 	log1.WithField("message", message).Debug("worker process")
@@ -70,11 +70,11 @@ func (w worker) process(job *model.MessageJob) {
 func (w worker) receipt(receipt model.MessageReceipt) {
 	log1 := log.WithFields(log.Fields{
 		"worker_id":           w.id,
-		"original_message_id": receipt.ProviderMessageId,
+		"original_message_id": receipt.ProviderMessageID,
 	})
 	log1.WithField("receipt", receipt).Info("handle the message receipt")
 
-	r := <-w.sender.store.Message().GetByProviderAndMessageId(receipt.Provider, receipt.ProviderMessageId)
+	r := <-w.sender.store.Message().GetByProviderAndMessageID(receipt.Provider, receipt.ProviderMessageID)
 	if r.Err != nil {
 		log1.Errorf("receipt update error: message not found. %v", r.Err)
 		return

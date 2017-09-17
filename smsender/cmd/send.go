@@ -63,9 +63,9 @@ func sendCmdF(cmd *cobra.Command, args []string) error {
 	queue <- job
 
 	result := <-job.Result
-	resultJson, _ := json.MarshalIndent(result, "", "  ")
+	resultJSON, _ := json.MarshalIndent(result, "", "  ")
 
-	log.Infof("Result:\n%s", resultJson)
+	log.Infof("Result:\n%s", resultJSON)
 
 	return nil
 }

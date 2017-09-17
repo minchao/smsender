@@ -1,4 +1,4 @@
-package not_found
+package notfound
 
 import "github.com/minchao/smsender/smsender/model"
 
@@ -23,7 +23,7 @@ func (b Provider) Send(message model.Message) *model.MessageResponse {
 		}{
 			Error: "no_route_matches",
 		},
-		&message.Id)
+		&message.ID)
 }
 
 func (b Provider) Callback(register func(webhook *model.Webhook), receiptsCh chan<- model.MessageReceipt) {

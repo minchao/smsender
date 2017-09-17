@@ -10,7 +10,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/minchao/smsender/smsender/model"
 	"github.com/minchao/smsender/smsender/plugin"
-	"github.com/minchao/smsender/smsender/providers/not_found"
+	"github.com/minchao/smsender/smsender/providers/notfound"
 	"github.com/minchao/smsender/smsender/router"
 	"github.com/minchao/smsender/smsender/store"
 	"github.com/minchao/smsender/smsender/utils"
@@ -58,7 +58,7 @@ func NewSender() *Sender {
 		messagesCh: make(chan *model.MessageJob, 1000),
 		receiptsCh: make(chan model.MessageReceipt, 1000),
 		workerNum:  config.GetInt("worker.num"),
-		Router:     router.New(config.GetViper(), s, not_found.New(model.NotFoundProvider)),
+		Router:     router.New(config.GetViper(), s, notfound.New(model.NotFoundProvider)),
 		HTTPRouter: mux.NewRouter().StrictSlash(true),
 		siteURL:    siteURL,
 		shutdownCh: make(chan struct{}, 1),

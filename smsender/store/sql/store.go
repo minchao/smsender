@@ -34,8 +34,8 @@ func New(config *viper.Viper) (store.Store, error) {
 
 	sqlStore.db = db
 
-	sqlStore.route = NewSqlRouteStore(sqlStore)
-	sqlStore.message = NewSqlMessageStore(sqlStore)
+	sqlStore.route = NewSQLRouteStore(sqlStore)
+	sqlStore.message = NewSQLMessageStore(sqlStore)
 
 	return sqlStore, nil
 }

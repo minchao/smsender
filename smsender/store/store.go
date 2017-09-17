@@ -1,6 +1,8 @@
 package store
 
-import "github.com/minchao/smsender/smsender/model"
+import (
+	"github.com/minchao/smsender/smsender/model"
+)
 
 type Result struct {
 	Data interface{}
@@ -22,7 +24,7 @@ type RouteStore interface {
 type MessageStore interface {
 	Get(id string) Channel
 	GetByIds(ids []string) Channel
-	GetByProviderAndMessageId(provider, providerMessageId string) Channel
+	GetByProviderAndMessageID(provider, providerMessageID string) Channel
 	Save(message *model.Message) Channel
 	Search(params map[string]interface{}) Channel
 	Update(message *model.Message) Channel

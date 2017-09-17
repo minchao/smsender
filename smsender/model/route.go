@@ -3,7 +3,7 @@ package model
 import "regexp"
 
 type Route struct {
-	Id       int64  `json:"-"`
+	ID       int64  `json:"-"`
 	Name     string `json:"name"`
 	Pattern  string `json:"pattern"`
 	Provider string `json:"provider"`

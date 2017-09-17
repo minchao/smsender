@@ -21,9 +21,9 @@ func routesCmdF(cmd *cobra.Command, args []string) error {
 	}
 
 	sender := smsender.NewSender()
-	resultJson, _ := json.MarshalIndent(sender.Router.GetAll(), "", "  ")
+	resultJSON, _ := json.MarshalIndent(sender.Router.GetAll(), "", "  ")
 
-	log.Infof("Routes:\n%s", resultJson)
+	log.Infof("Routes:\n%s", resultJSON)
 
 	return nil
 }

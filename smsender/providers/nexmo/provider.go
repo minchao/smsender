@@ -68,26 +68,26 @@ func (b Provider) Send(message model.Message) *model.MessageResponse {
 	resp, err := b.client.SMS.Send(sms)
 	if err != nil {
 		return model.NewMessageResponse(model.StatusFailed, model.ProviderError{Error: err.Error()}, nil)
-	} else {
-		var status model.StatusCode
-		var providerMessageId *string
-		if resp.MessageCount > 0 {
-			respMsg := resp.Messages[0]
-
-			status = convertStatus(respMsg.Status.String())
-			providerMessageId = &respMsg.MessageID
-		} else {
-			status = model.StatusFailed
-		}
-		return model.NewMessageResponse(status, resp, providerMessageId)
 	}
+
+	var status model.StatusCode
+	var providerMessageID *string
+	if resp.MessageCount > 0 {
+		respMsg := resp.Messages[0]
+
+		status = convertStatus(respMsg.Status.String())
+		providerMessageID = &respMsg.MessageID
+	} else {
+		status = model.StatusFailed
+	}
+	return model.NewMessageResponse(status, resp, providerMessageID)
 }
 
 type DeliveryReceipt struct {
 	Msisdn           string `json:"msisdn"`
 	To               string `json:"to"`
 	NetworkCode      string `json:"network-code"`
-	MessageId        string `json:"messageId"`
+	MessageID        string `json:"messageId"`
 	Price            string `json:"price"`
 	Status           string `json:"status"`
 	Scts             string `json:"scts"`
@@ -95,7 +95,7 @@ type DeliveryReceipt struct {
 	MessageTimestamp string `json:"message-timestamp"`
 }
 
-// see https://docs.nexmo.com/messaging/sms-api/api-reference#delivery_receipt
+// Callback see https://docs.nexmo.com/messaging/sms-api/api-reference#delivery_receipt
 func (b Provider) Callback(register func(webhook *model.Webhook), receiptsCh chan<- model.MessageReceipt) {
 	if !b.enableWebhook {
 		return
@@ -112,7 +112,7 @@ func (b Provider) Callback(register func(webhook *model.Webhook), receiptsCh cha
 				w.WriteHeader(http.StatusBadRequest)
 				return
 			}
-			if receipt.MessageId == "" || receipt.Status == "" {
+			if receipt.MessageID == "" || receipt.Status == "" {
 				log.Infof("webhooks '%s' empty request body", b.name)
 
 				// When you set the callback URL for delivery receipt,
@@ -122,7 +122,7 @@ func (b Provider) Callback(register func(webhook *model.Webhook), receiptsCh cha
 			}
 
 			receiptsCh <- *model.NewMessageReceipt(
-				receipt.MessageId,
+				receipt.MessageID,
 				b.Name(),
 				convertDeliveryReceiptStatus(receipt.Status),
 				receipt)
