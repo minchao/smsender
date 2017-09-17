@@ -21,7 +21,7 @@ services:
       - "8080:8080"
     restart: always
     volumes:
-      - ./volumes/app/config:/smsender/config:rw
+      - ./config:/smsender/config:rw
     environment:
       - MYSQL_DATABASE=smsender
       - MYSQL_USER=smsender_user
