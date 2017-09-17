@@ -32,7 +32,7 @@ script:
   - make lint
   - make build
   - cd ..
-  - if [[ "$TRAVIS_GO_VERSION" =~ ^1\.8\.[0-9]+$ && "$TRAVIS_BRANCH" == "master" ]]; then
+  - if [[ "$TRAVIS_GO_VERSION" =~ ^1\.9(|\.[0-9]+)$ && "$TRAVIS_BRANCH" == "master" ]]; then
       docker build -t minchao/smsender-preview:latest .;
       docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD";
       docker images;
