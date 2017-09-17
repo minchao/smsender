@@ -16,7 +16,7 @@ A SMS server written in Go (Golang).
 
 ## Requirements
 
-* [Go](https://golang.org/)
+* [Go](https://golang.org/) >= 1.8
 * MySQL >= 5.7
 
 ## Installing
@@ -27,10 +27,10 @@ Getting the project:
 go get github.com/minchao/smsender
 ```
 
-Using the [Glide](https://glide.sh/) to install dependency packages:
+Using the [Dep](https://github.com/golang/dep) to install dependency packages:
 
 ```bash
-glide install
+dep ensure
 ```
 
 Creating a Configuration file:

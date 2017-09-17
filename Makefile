@@ -6,9 +6,9 @@ PACKAGES := $(shell go list ./smsender/...)
 all: build
 
 deps-install:
-	@echo Getting dependencies using Glide
-	go get -v -u github.com/Masterminds/glide
-	glide install
+	@echo Getting dependencies using Dep
+	go get -v -u github.com/golang/dep/cmd/dep
+	dep ensure
 
 vet:
 	@echo Running go vet
