@@ -28,3 +28,10 @@ services:
       - MYSQL_PASSWORD=smsender_password
       - MYSQL_HOST=db
       - MYSQL_PORT=3306
+
+  adminer:
+    image: adminer
+    container_name: smsender_adminer
+    restart: always
+    ports:
+      - "8081:8080"
