@@ -3,7 +3,7 @@ version: "2"
 services:
 
   db:
-    image: mysql:5.7.17
+    image: mysql:5.7.19
     container_name: smsender_db
     restart: always
     environment:
