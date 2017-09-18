@@ -32,6 +32,7 @@ http:
 worker:
   num: 100
 providers:
+  dummy:
   # nexmo:
   #   key: "NEXMO_KEY"
   #   secret: "NEXMO_SECRET"
