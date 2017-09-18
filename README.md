@@ -80,6 +80,26 @@ You can use the [docker-compose](https://docs.docker.com/compose/) to launch the
 docker-compose up
 ```
 
+## Vagrant development environment
+
+Start the vagrant machine
+
+```bash
+vagrant up
+```
+
+SSH into the vagrant machine
+
+```bash
+vagrant ssh
+```
+
+Run the smsender server
+
+```bash
+bin/smsender -c config/config.yml
+```
+
 ## Providers
 
 Support providers
