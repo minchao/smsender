@@ -1,0 +1,22 @@
+version: "2"
+
+services:
+
+  db:
+    image: mysql:5.7.19
+    container_name: smsender_db
+    restart: always
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=root_password
+      - MYSQL_DATABASE=smsender
+      - MYSQL_USER=smsender_user
+      - MYSQL_PASSWORD=smsender_password
+
+  adminer:
+    image: adminer
+    container_name: smsender_adminer
+    restart: always
+    ports:
+      - "8081:8080"
