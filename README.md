@@ -97,7 +97,7 @@ vagrant ssh
 Run the smsender server
 
 ```bash
-bin/smsender -c config/config.yml
+go run main.go -c config/config.yml
 ```
 
 ## Providers
