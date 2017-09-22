@@ -155,7 +155,7 @@ Use "smsender [command] --help" for more information about a command.
 
 ## RESTful API
 
-The API document is written in YAML and found in the [smsender-openapi.yaml](https://github.com/minchao/smsender/blob/master/smsender-openapi.yaml).
+The API document is written in YAML and found in the [openapi.yaml](openapi.yaml).
 You can use the [Swagger Editor](http://editor.swagger.io/) to open the document.
 
 ### Example of creating a Dummy route
