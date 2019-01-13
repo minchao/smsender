@@ -41,12 +41,6 @@ func render(w http.ResponseWriter, code int, data interface{}) error {
 	return json.NewEncoder(w).Encode(data)
 }
 
-func renderInternalServerError(w http.ResponseWriter, err error) error {
-	return render(w,
-		http.StatusInternalServerError,
-		errorMessage{Error: "internal_server_error", ErrorDescription: err.Error()})
-}
-
 func cleanEmptyURLValues(values *url.Values) {
 	for k := range *values {
 		if values.Get(k) == "" {
