@@ -1,8 +1,28 @@
-bin/*
-/vendor/
-/webroot/dist/
-/webroot/node_modules/
-go.tar.gz
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
 
-.idea/
-.vagrant/
+# Test binary, build with `go test -c`
+*.test
+
+# Vendor (dependencies) directory
+/vendor/
+
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
+
+# Output binary directory
+/bin/
+
+# IDE
+/.idea/
+
+# Virtual machine
+/.vagrant/
+
+/config.json
+/config.yml
+
