@@ -20,7 +20,7 @@ const render = Component => {
 
 render(App)
 
-if (IS_DEV && module.hot) {
+if (__DEVELOPMENT__ && module.hot) {
   module.hot.accept('./App', () => {
     render(App)
   })

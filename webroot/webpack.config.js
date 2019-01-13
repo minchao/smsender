@@ -1,20 +1,22 @@
 const path = require('path')
 const webpack = require('webpack')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
-const ExtractTextPlugin = require('extract-text-webpack-plugin')
+const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 
 module.exports = () => {
   const env = process.env.NODE_ENV
-  const ifProd = plugin => (env === 'production') ? plugin : undefined
-  const ifDev = plugin => (env === 'development') ? plugin : undefined
+  const mode = (env === 'production') ? 'production' : 'development'
+  const ifProd = plugin => (mode === 'production') ? plugin : undefined
+  const ifDev = plugin => (mode === 'development') ? plugin : undefined
   const removeEmpty = array => array.filter(p => !!p)
 
   return {
     devtool: ifDev('source-map'),
+    mode: mode,
     entry: {
       main: removeEmpty([
         ifDev('react-hot-loader/patch'),
-        ifDev(`webpack-dev-server/client?http://localhost:3000`),
+        ifDev('webpack-dev-server/client?http://localhost:3000'),
         ifDev('webpack/hot/only-dev-server'),
         path.join(__dirname, './src/index.jsx')
       ])
@@ -36,43 +38,36 @@ module.exports = () => {
           loader: ['babel-loader']
         },
         {
-          test: /\.css$/,
-          use: ExtractTextPlugin.extract({
-            use: 'css-loader'
-          })
+          test: /\.(css)$/,
+          use:
+            [
+              (mode === 'development') ? 'style-loader' : MiniCssExtractPlugin.loader,
+              'css-loader?modules=true&minimize&-autoprefixer',
+            ]
         }
       ]
     },
+    optimization: {
+      minimize: mode === 'production',
+      splitChunks: {
+        chunks: 'all'
+      }
+    },
     plugins: removeEmpty([
-      new webpack.DefinePlugin({
-        'process.env.NODE_ENV': JSON.stringify(env),
-        IS_DEV: Boolean(env === 'development'),
-        API_HOST: JSON.stringify(env === 'development' ? 'http://localhost:8080' : '')
-      }),
-      new webpack.optimize.CommonsChunkPlugin({
-        name: 'vendor',
-        minChunks: function (module) {
-          if (module.resource && (/^.*\.(css|scss)$/).test(module.resource)) {
-            return false
-          }
-          return module.context && module.context.indexOf('node_modules') !== -1
-        }
-      }),
       new HtmlWebpackPlugin({
-        template: path.resolve(__dirname, './src/index.html'),
+        template: path.join(__dirname, './src/index.html'),
         filename: 'index.html',
         inject: 'body'
       }),
-      new ExtractTextPlugin({
-        filename: '[name].[hash].css'
+      new webpack.DefinePlugin({
+        __DEVELOPMENT__: mode === 'development',
+        API_HOST: JSON.stringify(mode === 'development' ? 'http://localhost:8080' : '')
       }),
-      ifProd(new webpack.optimize.UglifyJsPlugin({
-        output: {
-          comments: false
-        }
-      })),
       ifDev(new webpack.HotModuleReplacementPlugin()),
-      ifDev(new webpack.NamedModulesPlugin())
+      ifDev(new webpack.NamedModulesPlugin()),
+      ifProd(new MiniCssExtractPlugin({
+        filename: '[name].[hash].css'
+      }))
     ])
   }
 }

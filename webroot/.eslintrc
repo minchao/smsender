@@ -8,7 +8,7 @@
     "jsx-quotes": [2, "prefer-double"]
   },
   "globals": {
-    "IS_DEV": true,
+    "__DEVELOPMENT__": true,
     "API_HOST": true
   }
 }
