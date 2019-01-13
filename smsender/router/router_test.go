@@ -30,11 +30,11 @@ func createRouter() *Router {
 	dummyProvider2 := dummy.New("dummy2")
 	router := Router{store: &dummystore.Store{DummyRoute: &testRouteStore{}}}
 
-	router.Add(model.NewRoute("default", `^\+.*`, dummyProvider1, true))
-	router.Add(model.NewRoute("japan", `^\+81`, dummyProvider2, true))
-	router.Add(model.NewRoute("taiwan", `^\+886`, dummyProvider2, true))
-	router.Add(model.NewRoute("telco", `^\+886987`, dummyProvider2, true))
-	router.Add(model.NewRoute("user", `^\+886987654321`, dummyProvider2, true))
+	_ = router.Add(model.NewRoute("default", `^\+.*`, dummyProvider1, true))
+	_ = router.Add(model.NewRoute("japan", `^\+81`, dummyProvider2, true))
+	_ = router.Add(model.NewRoute("taiwan", `^\+886`, dummyProvider2, true))
+	_ = router.Add(model.NewRoute("telco", `^\+886987`, dummyProvider2, true))
+	_ = router.Add(model.NewRoute("user", `^\+886987654321`, dummyProvider2, true))
 
 	return &router
 }
@@ -114,8 +114,8 @@ func TestRouter_Set(t *testing.T) {
 func TestRouter_Remove(t *testing.T) {
 	router := createRouter()
 
-	router.Remove("telco")
-	router.Remove("japan")
+	_ = router.Remove("telco")
+	_ = router.Remove("japan")
 	if len(router.routes) != 3 {
 		t.Fatal("remove route failed")
 	}
@@ -129,7 +129,7 @@ func TestRouter_Reorder(t *testing.T) {
 		router := Router{store: &dummystore.Store{DummyRoute: &testRouteStore{}}}
 		provider := dummy.New("dummy")
 		for _, r := range []string{"D", "C", "B", "A"} {
-			router.Add(model.NewRoute(r, "", provider, true))
+			_ = router.Add(model.NewRoute(r, "", provider, true))
 		}
 		return &router
 	}

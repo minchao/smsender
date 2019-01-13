@@ -101,7 +101,7 @@ func (b Provider) Callback(register func(webhook *model.Webhook), receiptsCh cha
 	register(&model.Webhook{
 		Path: b.webhookPath,
 		Func: func(w http.ResponseWriter, r *http.Request) {
-			r.ParseForm()
+			_ = r.ParseForm()
 
 			receipt := DeliveryReceipt{
 				MessageSid:    r.Form.Get("MessageSid"),

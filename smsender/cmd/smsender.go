@@ -30,7 +30,7 @@ func Execute() {
 
 	rootCmd.AddCommand(sendCmd, routesCmd)
 
-	rootCmd.Execute()
+	_ = rootCmd.Execute()
 }
 
 func rootCmdF(cmd *cobra.Command, args []string) {

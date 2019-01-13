@@ -12,7 +12,7 @@ import (
 )
 
 func (s *Server) Hello(w http.ResponseWriter, r *http.Request) {
-	render(w, http.StatusOK, "Hello!")
+	_ = render(w, http.StatusOK, "Hello!")
 }
 
 type provider struct {
@@ -25,7 +25,7 @@ type routeResults struct {
 }
 
 func (s *Server) Routes(w http.ResponseWriter, r *http.Request) {
-	render(w, http.StatusOK, routeResults{Data: s.sender.Router.GetAll(), Providers: s.getProviders()})
+	_ = render(w, http.StatusOK, routeResults{Data: s.sender.Router.GetAll(), Providers: s.getProviders()})
 }
 
 type route struct {
@@ -39,18 +39,18 @@ type route struct {
 func (s *Server) RoutePost(w http.ResponseWriter, r *http.Request) {
 	var post route
 	validate := utils.NewValidate()
-	validate.RegisterValidation("regexp", utils.IsRegexp)
+	_ = validate.RegisterValidation("regexp", utils.IsRegexp)
 	err := utils.GetInput(r.Body, &post, validate)
 	if err != nil {
-		render(w, http.StatusBadRequest, formErrorMessage(err))
+		_ = render(w, http.StatusBadRequest, formErrorMessage(err))
 		return
 	}
 	if err := s.sender.Router.AddWith(post.Name, post.Pattern, post.Provider, post.From, post.IsActive); err != nil {
-		render(w, http.StatusBadRequest, formErrorMessage(err))
+		_ = render(w, http.StatusBadRequest, formErrorMessage(err))
 		return
 	}
 
-	render(w, http.StatusOK, post)
+	_ = render(w, http.StatusOK, post)
 }
 
 type reorder struct {
@@ -63,43 +63,43 @@ func (s *Server) RouteReorder(w http.ResponseWriter, r *http.Request) {
 	var reorder reorder
 	err := utils.GetInput(r.Body, &reorder, utils.NewValidate())
 	if err != nil {
-		render(w, http.StatusBadRequest, formErrorMessage(err))
+		_ = render(w, http.StatusBadRequest, formErrorMessage(err))
 		return
 	}
 	if reorder.RangeLength == 0 {
 		reorder.RangeLength = 1
 	}
 	if err := s.sender.Router.Reorder(reorder.RangeStart, reorder.RangeLength, reorder.InsertBefore); err != nil {
-		render(w, http.StatusBadRequest, formErrorMessage(err))
+		_ = render(w, http.StatusBadRequest, formErrorMessage(err))
 		return
 	}
 
-	render(w, http.StatusOK, routeResults{Data: s.sender.Router.GetAll(), Providers: s.getProviders()})
+	_ = render(w, http.StatusOK, routeResults{Data: s.sender.Router.GetAll(), Providers: s.getProviders()})
 }
 
 func (s *Server) RoutePut(w http.ResponseWriter, r *http.Request) {
 	var put route
 	validate := utils.NewValidate()
-	validate.RegisterValidation("regexp", utils.IsRegexp)
+	_ = validate.RegisterValidation("regexp", utils.IsRegexp)
 	err := utils.GetInput(r.Body, &put, validate)
 	if err != nil {
-		render(w, http.StatusBadRequest, formErrorMessage(err))
+		_ = render(w, http.StatusBadRequest, formErrorMessage(err))
 		return
 	}
 	if err := s.sender.Router.SetWith(put.Name, put.Pattern, put.Provider, put.From, put.IsActive); err != nil {
-		render(w, http.StatusBadRequest, formErrorMessage(err))
+		_ = render(w, http.StatusBadRequest, formErrorMessage(err))
 		return
 	}
 
-	render(w, http.StatusOK, put)
+	_ = render(w, http.StatusOK, put)
 }
 
 func (s *Server) RouteDelete(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	routeName, _ := vars["route"]
-	s.sender.Router.Remove(routeName)
+	routeName := vars["route"]
+	_ = s.sender.Router.Remove(routeName)
 
-	render(w, http.StatusNoContent, nil)
+	_ = render(w, http.StatusNoContent, nil)
 }
 
 type routeTestResult struct {
@@ -109,20 +109,20 @@ type routeTestResult struct {
 
 func (s *Server) RouteTest(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	phone, _ := vars["phone"]
+	phone := vars["phone"]
 	validate := utils.NewValidate()
-	validate.RegisterValidation("phone", utils.IsPhoneNumber)
+	_ = validate.RegisterValidation("phone", utils.IsPhoneNumber)
 	err := validate.Struct(struct {
 		Phone string `json:"phone" validate:"required,phone"`
 	}{Phone: phone})
 	if err != nil {
-		render(w, http.StatusBadRequest, formErrorMessage(err))
+		_ = render(w, http.StatusBadRequest, formErrorMessage(err))
 		return
 	}
 
 	route, _ := s.sender.Router.Match(phone)
 
-	render(w, http.StatusOK, routeTestResult{Phone: phone, Route: route})
+	_ = render(w, http.StatusOK, routeTestResult{Phone: phone, Route: route})
 }
 
 type messagesRequest struct {
@@ -146,7 +146,7 @@ type messagesResults struct {
 func (s *Server) Messages(w http.ResponseWriter, r *http.Request) {
 	var req messagesRequest
 	if err := form.NewDecoder().Decode(&req, r.URL.Query()); err != nil {
-		render(w, http.StatusBadRequest, errorMessage{Error: "bad_request", ErrorDescription: err.Error()})
+		_ = render(w, http.StatusBadRequest, errorMessage{Error: "bad_request", ErrorDescription: err.Error()})
 		return
 	}
 	if req.Limit == 0 || req.Limit > 100 {
@@ -154,10 +154,10 @@ func (s *Server) Messages(w http.ResponseWriter, r *http.Request) {
 	}
 
 	validate := utils.NewValidate()
-	validate.RegisterValidation("phone", utils.IsPhoneNumber)
-	validate.RegisterValidation("unixmicro", utils.IsTimeUnixMicro)
+	_ = validate.RegisterValidation("phone", utils.IsPhoneNumber)
+	_ = validate.RegisterValidation("unixmicro", utils.IsTimeUnixMicro)
 	if err := validate.Struct(req); err != nil {
-		render(w, http.StatusBadRequest, formErrorMessage(err))
+		_ = render(w, http.StatusBadRequest, formErrorMessage(err))
 		return
 	}
 
@@ -178,7 +178,7 @@ func (s *Server) Messages(w http.ResponseWriter, r *http.Request) {
 
 	messages, err := s.sender.SearchMessages(params)
 	if err != nil {
-		render(w, http.StatusBadRequest, errorMessage{Error: "not_found", ErrorDescription: err.Error()})
+		_ = render(w, http.StatusBadRequest, errorMessage{Error: "not_found", ErrorDescription: err.Error()})
 		return
 	}
 
@@ -225,7 +225,7 @@ func (s *Server) Messages(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	render(w, http.StatusOK, results)
+	_ = render(w, http.StatusOK, results)
 }
 
 type messagess struct {
@@ -233,18 +233,18 @@ type messagess struct {
 }
 
 func (s *Server) MessagesGetByIds(w http.ResponseWriter, r *http.Request) {
-	r.ParseForm()
-	ids, _ := r.Form["ids"]
+	_ = r.ParseForm()
+	ids := r.Form["ids"]
 	if err := utils.NewValidate().Struct(struct {
 		Ids []string `json:"ids" validate:"required,gt=0,dive,required"`
 	}{Ids: ids}); err != nil {
-		render(w, http.StatusBadRequest, formErrorMessage(err))
+		_ = render(w, http.StatusBadRequest, formErrorMessage(err))
 		return
 	}
 
 	messages, err := s.sender.GetMessagesByIds(ids)
 	if err != nil {
-		render(w, http.StatusNotFound, errorMessage{Error: "not_found", ErrorDescription: err.Error()})
+		_ = render(w, http.StatusNotFound, errorMessage{Error: "not_found", ErrorDescription: err.Error()})
 		return
 	}
 	results := messagess{Data: []*model.Message{}}
@@ -252,7 +252,7 @@ func (s *Server) MessagesGetByIds(w http.ResponseWriter, r *http.Request) {
 		results.Data = messages
 	}
 
-	render(w, http.StatusOK, results)
+	_ = render(w, http.StatusOK, results)
 }
 
 type messagesPost struct {
@@ -265,10 +265,10 @@ type messagesPost struct {
 func (s *Server) MessagesPost(w http.ResponseWriter, r *http.Request) {
 	var post messagesPost
 	var validate = utils.NewValidate()
-	validate.RegisterValidation("phone", utils.IsPhoneNumber)
+	_ = validate.RegisterValidation("phone", utils.IsPhoneNumber)
 	err := utils.GetInput(r.Body, &post, validate)
 	if err != nil {
-		render(w, http.StatusBadRequest, formErrorMessage(err))
+		_ = render(w, http.StatusBadRequest, formErrorMessage(err))
 		return
 	}
 
@@ -302,7 +302,7 @@ func (s *Server) MessagesPost(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	render(w, http.StatusOK, messagess{Data: results})
+	_ = render(w, http.StatusOK, messagess{Data: results})
 }
 
 func (s *Server) getProviders() []*provider {
@@ -314,13 +314,13 @@ func (s *Server) getProviders() []*provider {
 }
 
 func (s *Server) Stats(w http.ResponseWriter, r *http.Request) {
-	render(w, http.StatusOK, model.NewStats())
+	_ = render(w, http.StatusOK, model.NewStats())
 }
 
 // ShutdownMiddleware will return http.StatusServiceUnavailable if server is already in shutdown progress.
 func (s *Server) ShutdownMiddleware(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
 	if s.sender.IsShutdown() {
-		render(w,
+		_ = render(w,
 			http.StatusServiceUnavailable,
 			errorMessage{
 				Error:            "service_unavailable",

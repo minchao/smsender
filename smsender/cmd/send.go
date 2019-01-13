@@ -38,7 +38,7 @@ func sendCmdF(cmd *cobra.Command, args []string) error {
 		return errors.New("The to is required")
 	}
 	validate := validator.New()
-	validate.RegisterValidation("phone", utils.IsPhoneNumber)
+	_ = validate.RegisterValidation("phone", utils.IsPhoneNumber)
 	if err := validate.Var(to, "phone"); err != nil {
 		return errors.New("Invalid phone number")
 	}

@@ -14,7 +14,7 @@ func TestNewMessageRecord(t *testing.T) {
 	ct, _ := time.Parse(time.RFC3339, "2017-01-01T00:00:03.1415926+08:00")
 
 	j := new(bytes.Buffer)
-	json.Compact(j, []byte(`
+	_ = json.Compact(j, []byte(`
 	{
       "id":"b288anp82b37873aj510",
       "to":"+886987654321",

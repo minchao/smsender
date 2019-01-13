@@ -8,7 +8,7 @@ import (
 // UnixMicroStringToTime returns the time.Time corresponding to the given Unix micro time string.
 func UnixMicroStringToTime(s string) (time.Time, error) {
 	validate := NewValidate()
-	validate.RegisterValidation("unixmicro", IsTimeUnixMicro)
+	_ = validate.RegisterValidation("unixmicro", IsTimeUnixMicro)
 	if err := validate.Var(s, "unixmicro"); err != nil {
 		return time.Time{}, err
 	}

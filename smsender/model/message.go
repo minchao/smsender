@@ -52,7 +52,7 @@ func NewMessage(to, from, body string, async bool) *Message {
 
 func (m *Message) GetSteps() []MessageStep {
 	var steps []MessageStep
-	m.Steps.Unmarshal(&steps)
+	_ = m.Steps.Unmarshal(&steps)
 	return steps
 }
 
