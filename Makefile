@@ -1,7 +1,7 @@
 .PHONY: deps-install check-style test build build-with-docker docker-build
 
 BUILD_EXECUTABLE := smsender
-PACKAGES := $(shell go list ./smsender/...)
+PACKAGES := $(shell go list ./... | grep -v /vendor/)
 
 all: build
 
@@ -31,7 +31,7 @@ test:
 
 build: deps-install
 	@echo Building app
-	go build -o ./bin/$(BUILD_EXECUTABLE)
+	go build -o ./bin/$(BUILD_EXECUTABLE) ./cmd/smsender/main.go
 
 clean:
 	@echo Cleaning up previous build data
