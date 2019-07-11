@@ -5,7 +5,11 @@
   },
   "parser": "babel-eslint",
   "rules": {
-    "jsx-quotes": [2, "prefer-double"]
+    "jsx-quotes": [2, "prefer-double"],
+    "lines-between-class-members": [1],
+    "object-curly-spacing": [1],
+    "quote-props": [1],
+    "no-prototype-builtins": [1]
   },
   "globals": {
     "__DEVELOPMENT__": true,

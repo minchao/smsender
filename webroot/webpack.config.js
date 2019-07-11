@@ -42,7 +42,7 @@ module.exports = () => {
           use:
             [
               (mode === 'development') ? 'style-loader' : MiniCssExtractPlugin.loader,
-              'css-loader?modules=true&minimize&-autoprefixer',
+              'css-loader?modules=true',
             ]
         }
       ]
