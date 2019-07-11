@@ -1,14 +1,11 @@
-.PHONY: deps-install check-style test build build-with-docker docker-build
+.PHONY: check-style test build build-with-docker docker-build
 
 BUILD_EXECUTABLE := smsender
 PACKAGES := $(shell go list ./... | grep -v /vendor/)
 
-all: build
+export GO111MODULE=on
 
-deps-install:
-	@echo Getting dependencies using Dep
-	go get -v -u github.com/golang/dep/cmd/dep
-	dep ensure
+all: build
 
 vet:
 	@echo Running go vet
@@ -29,7 +26,7 @@ test:
 	@echo Testing
 	@go test -race -v $(PACKAGES)
 
-build: deps-install
+build:
 	@echo Building app
 	go build -o ./bin/$(BUILD_EXECUTABLE) ./cmd/smsender/main.go
 
@@ -40,7 +37,7 @@ clean:
 
 build-with-docker: clean
 	@echo Building app with Docker
-	docker run --rm -v $(PWD):/go/src/github.com/minchao/smsender -w /go/src/github.com/minchao/smsender golang sh -c "make build"
+	docker run --rm -v $(PWD):/go/src/github.com/minchao/smsender -w /go/src/github.com/minchao/smsender -e GO111MODULE=on golang sh -c "make build"
 
 	cd webroot && make build-with-docker
 

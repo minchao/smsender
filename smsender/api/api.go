@@ -1,11 +1,11 @@
 package api
 
 import (
-	log "github.com/Sirupsen/logrus"
 	"github.com/gorilla/mux"
 	"github.com/minchao/smsender/smsender"
 	"github.com/minchao/smsender/smsender/model"
 	"github.com/rs/cors"
+	log "github.com/sirupsen/logrus"
 	config "github.com/spf13/viper"
 	"github.com/urfave/negroni"
 )

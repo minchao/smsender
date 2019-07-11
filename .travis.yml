@@ -2,9 +2,8 @@ language: go
 dist: xenial
 
 go:
-  - "1.9.x"
-  - "1.10.x"
   - "1.11.x"
+  - "1.12.x"
   - master
 
 services:
@@ -12,8 +11,12 @@ services:
 
 cache:
   directories:
-    - $GOPATH/pkg/dep
+    - $GOPATH/pkg/mod
     - webroot/node_modules
+
+env:
+  global:
+    - GO111MODULE=on
 
 before_install:
   - nvm install 10.15.0
@@ -21,7 +24,6 @@ before_install:
   - npm install -g yarn
 
 install:
-  - make deps-install
   - cd webroot && make yarn-install && cd ..
 
 script:
@@ -39,4 +41,4 @@ deploy:
   skip_cleanup: true
   on:
     branch: master
-    go: "1.11.x"
+    go: "1.12.x"

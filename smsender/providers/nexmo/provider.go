@@ -3,10 +3,10 @@ package nexmo
 import (
 	"net/http"
 
-	log "github.com/Sirupsen/logrus"
 	"github.com/minchao/smsender/smsender/model"
 	"github.com/minchao/smsender/smsender/plugin"
 	"github.com/minchao/smsender/smsender/utils"
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"gopkg.in/njern/gonexmo.v1"
 )

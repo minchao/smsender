@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"strings"
 
-	log "github.com/Sirupsen/logrus"
 	"github.com/minchao/smsender/smsender"
+	log "github.com/sirupsen/logrus"
 	config "github.com/spf13/viper"
 	"github.com/urfave/negroni"
 )

@@ -3,8 +3,8 @@ package cmd
 import (
 	"encoding/json"
 
-	log "github.com/Sirupsen/logrus"
 	"github.com/minchao/smsender/smsender"
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 

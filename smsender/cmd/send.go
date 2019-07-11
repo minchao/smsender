@@ -4,10 +4,10 @@ import (
 	"encoding/json"
 	"errors"
 
-	log "github.com/Sirupsen/logrus"
 	"github.com/minchao/smsender/smsender"
 	"github.com/minchao/smsender/smsender/model"
 	"github.com/minchao/smsender/smsender/utils"
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	config "github.com/spf13/viper"
 	"gopkg.in/go-playground/validator.v9"

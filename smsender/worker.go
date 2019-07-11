@@ -1,8 +1,8 @@
 package smsender
 
 import (
-	log "github.com/Sirupsen/logrus"
 	"github.com/minchao/smsender/smsender/model"
+	log "github.com/sirupsen/logrus"
 )
 
 type worker struct {

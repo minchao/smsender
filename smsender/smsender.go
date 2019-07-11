@@ -6,7 +6,6 @@ import (
 	"net/url"
 	"sync"
 
-	log "github.com/Sirupsen/logrus"
 	"github.com/gorilla/mux"
 	"github.com/minchao/smsender/smsender/model"
 	"github.com/minchao/smsender/smsender/plugin"
@@ -14,6 +13,7 @@ import (
 	"github.com/minchao/smsender/smsender/router"
 	"github.com/minchao/smsender/smsender/store"
 	"github.com/minchao/smsender/smsender/utils"
+	log "github.com/sirupsen/logrus"
 	config "github.com/spf13/viper"
 	"github.com/urfave/negroni"
 )

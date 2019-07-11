@@ -16,7 +16,7 @@ A SMS server written in Go (Golang).
 
 ## Requirements
 
-* [Go](https://golang.org/) >= 1.8
+* [Go](https://golang.org/) >= 1.11
 * MySQL >= 5.7
 
 ## Installing

@@ -4,10 +4,10 @@ import (
 	"errors"
 	"net/http"
 
-	log "github.com/Sirupsen/logrus"
 	twilio "github.com/carlosdp/twiliogo"
 	"github.com/minchao/smsender/smsender/model"
 	"github.com/minchao/smsender/smsender/plugin"
+	log "github.com/sirupsen/logrus"
 	config "github.com/spf13/viper"
 )
 
